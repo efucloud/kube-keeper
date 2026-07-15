@@ -1,0 +1,219 @@
+{
+  "kind": "a2ui_catalog_compact",
+  "version": "v0.9",
+  "catalogId": "https://a2ui.org/specification/v0_9/basic_catalog.json",
+  "wrapper": {
+    "kind": "a2ui",
+    "version": "v0.9",
+    "message": "createSurface | updateComponents | updateDataModel | deleteSurface"
+  },
+  "actions": {
+    "createSurface": {
+      "required": ["surfaceId", "catalogId"],
+      "optional": ["sendDataModel"],
+      "example": {
+        "createSurface": {
+          "surfaceId": "copilot-req-001",
+          "catalogId": "https://a2ui.org/specification/v0_9/basic_catalog.json",
+          "sendDataModel": true
+        }
+      }
+    },
+    "updateComponents": {
+      "required": ["surfaceId", "components"]
+    },
+    "updateDataModel": {
+      "required": ["surfaceId", "path", "value"]
+    },
+    "deleteSurface": {
+      "required": ["surfaceId"]
+    }
+  },
+  "componentRules": [
+    "exactly one root component must exist and its id must be root",
+    "only the root component should use id root; child components must use their own unique ids",
+    "every component must have a unique id",
+    "parent-child relationships must use child or children",
+    "all referenced child ids must exist",
+    "Text text must be stored in Text.text",
+    "Button click actions must be stored in Button.action.event",
+    "for one UI flow, reuse the same surfaceId"
+  ],
+  "components": {
+    "Card": {
+      "required": {
+        "id": "string",
+        "component": "Card",
+        "child": "componentId"
+      }
+    },
+    "Column": {
+      "required": {
+        "id": "string",
+        "component": "Column",
+        "children": ["componentId"]
+      },
+      "optional": {
+        "justify": ["start", "center", "end", "spaceBetween", "spaceAround", "spaceEvenly", "stretch"],
+        "align": ["start", "center", "end", "stretch"]
+      }
+    },
+    "Row": {
+      "required": {
+        "id": "string",
+        "component": "Row",
+        "children": ["componentId"]
+      },
+      "optional": {
+        "justify": ["start", "center", "end", "spaceBetween", "spaceAround", "spaceEvenly", "stretch"],
+        "align": ["start", "center", "end", "stretch"]
+      }
+    },
+    "Text": {
+      "required": {
+        "id": "string",
+        "component": "Text",
+        "text": "string | { \"path\": \"/data/path\" }"
+      },
+      "optional": {
+        "variant": ["h1", "h2", "h3", "h4", "h5", "caption", "body"]
+      }
+    },
+    "Button": {
+      "required": {
+        "id": "string",
+        "component": "Button",
+        "child": "componentId",
+        "action": {
+          "event": {
+            "name": "string",
+            "context": "object"
+          }
+        }
+      },
+      "optional": {
+        "variant": ["default", "primary", "borderless"]
+      }
+    },
+    "TextField": {
+      "required": {
+        "id": "string",
+        "component": "TextField",
+        "label": "string"
+      },
+      "optional": {
+        "value": "string | { \"path\": \"/data/path\" }",
+        "variant": ["shortText", "longText", "number", "obscured"],
+        "validationRegexp": "string"
+      }
+    },
+    "ChoicePicker": {
+      "required": {
+        "id": "string",
+        "component": "ChoicePicker",
+        "options": [
+          {
+            "label": "string",
+            "value": "string"
+          }
+        ],
+        "value": "string[] | { \"path\": \"/data/path\" }"
+      },
+      "optional": {
+        "label": "string",
+        "variant": ["mutuallyExclusive", "multipleSelection"],
+        "displayStyle": ["checkbox", "chips"],
+        "filterable": "boolean"
+      }
+    }
+  },
+  "examples": {
+    "confirmationLayout": {
+      "updateComponents": {
+        "surfaceId": "copilot-req-001",
+        "components": [
+          {
+            "id": "root",
+            "component": "Card",
+            "child": "confirm-column"
+          },
+          {
+            "id": "confirm-column",
+            "component": "Column",
+            "children": ["confirm-title", "confirm-body", "confirm-actions"]
+          },
+          {
+            "id": "confirm-title",
+            "component": "Text",
+            "variant": "h4",
+            "text": "Delete Pod confirmation"
+          },
+          {
+            "id": "confirm-body",
+            "component": "Text",
+            "text": {
+              "path": "/confirmation/body"
+            }
+          },
+          {
+            "id": "confirm-actions",
+            "component": "Row",
+            "children": ["confirm-approve", "confirm-reject"]
+          },
+          {
+            "id": "confirm-approve-label",
+            "component": "Text",
+            "text": "Approve"
+          },
+          {
+            "id": "confirm-reject-label",
+            "component": "Text",
+            "text": "Cancel"
+          },
+          {
+            "id": "confirm-approve",
+            "component": "Button",
+            "variant": "primary",
+            "child": "confirm-approve-label",
+            "action": {
+              "event": {
+                "name": "approval.submit",
+                "context": {
+                  "approved": true,
+                  "decision": "approve",
+                  "callId": "tool-call-001"
+                }
+              }
+            }
+          },
+          {
+            "id": "confirm-reject",
+            "component": "Button",
+            "child": "confirm-reject-label",
+            "action": {
+              "event": {
+                "name": "approval.submit",
+                "context": {
+                  "approved": false,
+                  "decision": "reject",
+                  "callId": "tool-call-001"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "dataModel": {
+      "updateDataModel": {
+        "surfaceId": "copilot-req-001",
+        "path": "/",
+        "value": {
+          "confirmation": {
+            "body": "Target: efucloud / Pod / website-55bc975cd7-cv4zd; operation: delete; risk: medium."
+          }
+        }
+      }
+    }
+  }
+}

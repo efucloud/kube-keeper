@@ -1,0 +1,22 @@
+# VCS / CI metadata
+.git
+.gitignore
+.github
+
+# Local editor / OS files
+.DS_Store
+.idea
+*.swp
+*.swo
+
+# Web build dependencies and caches
+web/node_modules
+web/dist
+web/.umi
+web/.umi-production
+web/.cache
+web/.turbo
+
+# Local-only artifacts
+tmp
+docs

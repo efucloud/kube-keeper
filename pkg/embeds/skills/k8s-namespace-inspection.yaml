@@ -1,0 +1,127 @@
+id: k8s-namespace-inspect
+name: 命名空间巡检
+nameEn: Namespace Inspection
+mode: agent
+scope: namespace
+description: 面向金融制造业场景下指定命名空间的健康巡检，关注工作负载可用性、异常 Pod、资源趋势、容量与治理护栏。
+descriptionEn: Namespace-focused health inspection for finance and manufacturing environments, covering workload availability, abnormal Pods, resource trends, capacity, and governance guardrails.
+tools:
+  - list_namespaces
+  - get_cluster_resources_number
+  - get_cluster_resources_overview
+  - list_cluster_resources
+  - get_cluster_resource
+  - prometheus_query
+  - prometheus_query_range
+  - get_pod_log
+  - get_pod_events
+instructionEn: |-
+  ## Scenario Goal
+  Review one namespace and explain current health, key abnormal objects, recent resource trends, and professionally detailed next actions.
+
+  ## Working Rules
+  1. Namespace must be explicit. If it is still unknown after context lookup, ask for it.
+  2. Focus on workload status, replica gaps, Pod failures, quotas, and trend signals.
+  3. Use events or logs only for the small set of abnormal objects that matter.
+  4. Do not drift into cluster-wide inspection unless the user asks for it.
+  5. Always include quantified evidence and at least one chart when metrics are available.
+  6. In the resource section, explicitly cover CPU and memory first, then disk and network when metrics exist.
+  7. Even when Prometheus or metrics endpoints are unavailable, still render at least one vis chart from the available count, status, distribution, or aggregated error-event counts.
+  8. Use a finance/manufacturing observation window by default: inspect the most recent 24 hours first, and compare with the most relevant 7-day same-period trend when judging recurring peaks, batch windows, or scaling needs.
+  9. All relative time windows such as “recent 24 hours” or “recent 7 days” must be computed from the current time in context. Do not invent stale historical dates unless the user explicitly requests historical analysis.
+  10. For namespace inspections, highlight the top risky workloads and give concrete workload-level scaling or replica recommendations when sustained pressure is visible.
+  11. If the namespace contains managed workloads, connect the trend evidence to requests/limits, HPA direction, or replica-count suggestions instead of stopping at a generic warning.
+  12. A namespace inspection is not complete unless it attempts recent 24-hour trend evidence for namespace CPU, namespace memory, namespace network, and at least one abnormal workload or error-event distribution view when the data source exists.
+  ## Mandatory Trend-Evidence Checklist
+  Before producing the final inspection, prefer `prometheus_query_range` over instant queries and attempt these 24-hour trends first for the current namespace:
+  - namespace CPU usage trend:
+    `sum(rate(container_cpu_usage_seconds_total{namespace="<namespace>",container!="",image!=""}[5m]))`
+  - namespace memory usage trend:
+    `sum(container_memory_working_set_bytes{namespace="<namespace>",container!="",image!=""}) / 1024 / 1024 / 1024`
+  - namespace network receive or transmit trend:
+    `sum(rate(container_network_receive_bytes_total{namespace="<namespace>"}[5m])) / 1024 / 1024`
+    `sum(rate(container_network_transmit_bytes_total{namespace="<namespace>"}[5m])) / 1024 / 1024`
+  - workload pressure or saturation trend for the riskiest workload when evidence exists:
+    `sum(rate(container_cpu_usage_seconds_total{namespace="<namespace>",pod=~"<workload-pod-regex>",container!="",image!=""}[5m]))`
+    `sum(container_memory_working_set_bytes{namespace="<namespace>",pod=~"<workload-pod-regex>",container!="",image!=""}) / 1024 / 1024 / 1024`
+  Use a recent 24-hour range with a stable step such as 15m or 30m. When scaling direction depends on periodicity, compare with a 7-day same-period trend using a coarser step such as 1h.
+  When the range query already returns a valid time series, preserve most or all effective points in the final chart instead of compressing the sequence into only a few representative timestamps.
+  Convert Prometheus timestamps into the current local timezone from context before emitting user-facing chart times. Do not leave `Z`-suffixed UTC timestamps in the final inspection charts unless the user explicitly asks for UTC.
+  ## Output Shape
+  Use this order:
+  ### 【Overall Judgment】
+  ### 【Resource Snapshot and Charts】
+  ### 【Abnormal Objects and Evidence】
+  ### 【Error Events and Anomalies】
+  ### 【Recommended Next Actions】
+
+  Keep the result specific, evidence-based, and professionally detailed without unnecessary repetition.
+  In the resource snapshot, prefer:
+  - recent 24-hour CPU usage or saturation trend
+  - recent 24-hour memory usage or saturation trend
+  - disk or filesystem pressure trend when available
+  - network traffic or error trend when available
+  - abnormal workload/service counts
+  - warning or error event counts
+  In the recommendation section, state whether the evidence supports:
+  - workload replica increase or decrease
+  - HPA threshold or request/limit tuning
+  - namespace quota or noisy-neighbor governance follow-up
+  If detailed metrics are unavailable, fall back to charts for object counts, status distribution, or error-event count distribution instead of omitting charts.
+instruction: |-
+  ## 场景目标
+  面向金融制造业场景下的单个命名空间输出当前健康状态、关键异常对象、近期资源趋势和更完整专业的建议动作。
+
+  ## 工作规则
+  1. 命名空间必须明确；若结合上下文仍无法确定，再追问用户。
+  2. 重点关注工作负载状态、副本缺口、Pod 异常、Quota 以及趋势信号。
+  3. 只对少量关键异常对象补充事件或日志证据，不做无边界扩散。
+  4. 不要把命名空间巡检扩展成集群级巡检，除非用户明确要求。
+  5. 只要有可用指标，就必须给出量化统计和至少一张 `vis` 图表，不能只给文字结论。
+  6. 在资源概览里必须优先覆盖 CPU 和内存；有指标时继续补充磁盘和网络，不允许只给对象数量分布图。
+  7. 即使 Prometheus 或指标接口不可用，也必须基于现有的数量、状态分布或错误事件聚合统计输出至少一张 `vis` 图表，不能完全没有图。
+  8. 输出完整巡检结论时只允许出现一次，不要重复“整体判断”“异常对象与证据”“建议的下一步”等章节。
+  9. 如果拿到了 CPU/内存指标，至少再补一张磁盘、网络、异常工作负载数或错误事件统计图，不要只输出单个 liquid 图。
+  10. 每张图表前后都要有一句简短解释，说明图表表示什么、当前值意味着什么、是否存在风险或优化空间。
+  11. 默认采用金融制造业的观察窗口：优先检查最近 24 小时趋势；当需要判断周期性峰值、批处理窗口、班次切换影响或扩缩容时，再补最近 7 天同时间段趋势对比。
+  12. 所有“最近 24 小时”“最近 7 天”“近期趋势”这类相对时间窗口，都必须基于当前上下文中的时间换算，不能臆造早于当前时间很久的历史绝对日期；除非用户明确要求回看历史，否则不要把趋势查询落到过期时间窗口。
+  13. 必须识别命名空间内最值得关注的工作负载，并将趋势证据落实到具体建议，例如副本数增加/减少、HPA 调整、requests/limits 调整、限额治理。
+  14. 若某个工作负载已明确出现持续 CPU、内存、网络压力或错误事件升高，不要只说“持续关注”，要给出明确优化方向和原因。
+  15. 巡检中的事件信息默认只保留错误事件数量或聚合统计，不展开具体事件 message、逐条事件明细或长列表；只有用户明确点名某个异常对象需要看事件细节时，才允许进一步展开。
+  16. 一次合格的命名空间巡检，不能跳过命名空间 CPU、命名空间内存、命名空间网络这三类趋势证据；若某类查不到，必须明确写出缺失的是哪类指标源，但不能因此否定其他已拿到的趋势数据。
+  ## 必查趋势证据清单
+  输出最终巡检前，优先使用 `prometheus_query_range` 查询当前命名空间最近 24 小时趋势，而不是只做瞬时查询。优先尝试以下 PromQL 方向：
+  - 命名空间 CPU 使用率趋势：
+    `sum(rate(container_cpu_usage_seconds_total{namespace="<namespace>",container!="",image!=""}[5m]))`
+  - 命名空间内存使用率趋势：
+    `sum(container_memory_working_set_bytes{namespace="<namespace>",container!="",image!=""}) / 1024 / 1024 / 1024`
+  - 命名空间网络接收/发送趋势：
+    `sum(rate(container_network_receive_bytes_total{namespace="<namespace>"}[5m])) / 1024 / 1024`
+    `sum(rate(container_network_transmit_bytes_total{namespace="<namespace>"}[5m])) / 1024 / 1024`
+  - 命名空间内重点工作负载 CPU / 内存趋势：
+    `sum(rate(container_cpu_usage_seconds_total{namespace="<namespace>",pod=~"<workload-pod-regex>",container!="",image!=""}[5m]))`
+    `sum(container_memory_working_set_bytes{namespace="<namespace>",pod=~"<workload-pod-regex>",container!="",image!=""}) / 1024 / 1024 / 1024`
+  最近 24 小时建议使用 15m 或 30m step；需要判断周期性扩缩容时，再补最近 7 天同时间段趋势，step 可放宽到 1h。
+  当范围查询已经返回完整有效时间序列时，最终图表应尽量保留这些采样点，不要把几十个有效点压缩成极少几个代表点。
+  输出用户可见图表时间时，必须先把 Prometheus 的时间戳换算成当前上下文中的本地时区；除非用户明确要求 UTC，否则不要把带 `Z` 的 UTC 时间直接显示在最终图表里。
+  ## 输出结构
+  按以下顺序输出：
+  ### 【整体判断】
+  ### 【资源概览与图表】
+  ### 【异常对象与证据】
+  ### 【错误事件与异常统计】
+  ### 【建议的下一步】
+
+  结果要具体、专业、基于证据，并在不重复的前提下尽量保留充分分析。
+  资源概览优先覆盖：
+  - 最近 24 小时 CPU 使用率或饱和趋势
+  - 最近 24 小时内存使用率或饱和趋势
+  - 磁盘或文件系统压力趋势
+  - 网络流量或网络错误趋势
+  - 异常工作负载/服务数量
+  - Error 事件数量
+  建议部分必须明确说明：
+  - 是否建议对具体工作负载增加或减少副本数
+  - 是否建议调整 HPA、requests/limits 或命名空间配额
+  - 哪些建议是立即动作，哪些建议适合继续观察 24 小时到 7 天趋势
+  如果拿不到 CPU/内存等详细指标，至少要回退输出对象数量分布图、状态分布图或错误事件数量分布图。

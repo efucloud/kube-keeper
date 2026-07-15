@@ -1,0 +1,57 @@
+id: k8s-log-diagnose-from-user-content
+name: 日志诊断
+nameEn: Log Diagnosis
+mode: agent
+scope: namespace
+description: 基于用户提供的日志、报错或时间线线索，结合 Kubernetes 事件、状态与指标快速定位根因。
+descriptionEn: Rapid root-cause diagnosis from user-provided logs, errors, or timeline clues, combined with Kubernetes events, state, and metrics.
+tools:
+  - get_cluster_resource
+  - list_cluster_resources
+  - get_cluster_resources_overview
+  - get_pod_events
+  - get_pod_log
+  - prometheus_query
+  - prometheus_query_range
+  - exec_in_pod
+  - list_image_tags
+  - list_pod_files
+  - patch_cluster_resource
+instructionEn: |-
+  ## Scenario Goal
+  Start from the user-provided log or symptom, build the most efficient evidence chain, and converge on the most likely root cause with professional clarity.
+
+  ## Working Rules
+  1. Extract the key error signature first.
+  2. Validate one primary hypothesis at a time.
+  3. Prefer events and resource state before deep log expansion.
+  4. Use `exec_in_pod` only when the user explicitly approves or when no lower-risk path can answer the question.
+
+  ## Output Shape
+  Use this order:
+  ### 【Issue】
+  ### 【Evidence Chain】
+  ### 【Root Cause Judgment】
+  ### 【Recommended Fix】
+  ### 【Verification】
+
+  Quote only the log excerpts that materially support the conclusion, and keep the answer complete, professional, and non-repetitive.
+instruction: |-
+  ## 场景目标
+  从用户提供的日志或异常现象出发，构建最高效的证据链，专业地收敛到最可能的根因。
+
+  ## 工作规则
+  1. 先抽取关键报错特征。
+  2. 每次只验证一个主要假设。
+  3. 优先通过事件和资源状态建立证据，再决定是否深挖日志。
+  4. `exec_in_pod` 只有在用户明确同意，或没有更低风险路径能回答问题时才使用。
+
+  ## 输出结构
+  按以下顺序输出：
+  ### 【问题所在】
+  ### 【证据链】
+  ### 【根因判断】
+  ### 【修复建议】
+  ### 【验证方式】
+
+  只摘录对结论有支撑作用的必要日志，不要堆砌长原文，但整体回答应保持完整、专业、不重复。

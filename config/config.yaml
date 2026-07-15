@@ -1,0 +1,38 @@
+mysql:
+  host: localhost:3306
+  user: root
+  password: EfuCloud
+  dbname: kube_keeper
+  charset: utf8mb4
+  loc: ""
+  defaultStringSize: 0
+  disableDatetimePrecision: false
+  dontSupportRenameIndex: false
+  dontSupportRenameColumn: false
+  skipInitializeWithVersion: false
+redis: null
+logConfig:
+  level: debug
+  filename: ""
+  maxsize: 0
+  maxage: 0
+  maxbackups: 0
+  localtime: false
+  compress: false
+  production: true
+oidcConfig:
+  clientId: umtsnwb4nvehzfmwaimi5knql
+  clientSecret: boowj4iujtvqinyw5grtmqzvpblcc6v7jhpxke5zhiktxn6zw3u
+  issuer: https://eauth.efucloud.com
+chatConfig:
+  useTool: true
+  useSkillToolFilter: false
+  provider: ""
+  address: https://dashscope.aliyuncs.com/compatible-mode/v1
+  apiKey: sk-23486e1c9ed44d4c84f5cbb4babeaa41
+  model: qwen3-coder-480b-a35b-instruct
+  header: ""
+adminEmails:
+  - admin@efucloud.cn
+  - admin@efucloud.com
+terminalContainer: registry.cn-shenzhen.aliyuncs.com/efucloud-public/k8s-tools:v1.0.0.03132013
