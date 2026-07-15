@@ -39,7 +39,7 @@ func (r PersonalResource) AddWebService(ws *restful.WebService) {
 		Filter(filters2.ClientInfo).Filter(filters2.Log).Filter(filters2.Auth).Filter(filters2.I18n).
 		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
 		Metadata(config.FrontApiTag, "canAccessClusters"))
-	 
+
 	ws.Route(ws.GET(config.ClusterAPIPrefix+apiExtend+"/namespace/list").
 		Doc("获取用户可以访问集群的命名空间列表").
 		Notes("获取用户可以访问集群的命名空间列表").

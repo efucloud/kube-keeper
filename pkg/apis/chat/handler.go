@@ -137,9 +137,9 @@ func buildDomainRequest(req *restful.Request, payload *dtos.ChatHTTPPayload) Cha
 	}
 
 	ctxInfo := ChatContext{
-		Cluster:      req.PathParameter("cluster"),
-		Namespace:    req.PathParameter("namespace"),
-		ApiServer:    buildApiServer(req),
+		Cluster:   req.PathParameter("cluster"),
+		Namespace: req.PathParameter("namespace"),
+		ApiServer: buildApiServer(req),
 	}
 
 	var resource *ResourceContext

@@ -122,4 +122,3 @@ func pruneVisibleSessions(now time.Time) {
 		}
 	}
 }
-
