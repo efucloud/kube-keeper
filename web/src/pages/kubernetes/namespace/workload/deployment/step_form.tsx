@@ -1,6 +1,6 @@
 import { nanoid, PageContainer, ProForm, ProFormDigit, ProFormSelect, ProFormSwitch, ProFormText, ProFormTextArea } from '@ant-design/pro-components';
 import { FormattedMessage, useIntl, useParams } from '@umijs/max';
-import { Alert, Button, Card, Col, Divider, Empty, type FormInstance, message, Modal, Result, Row, Space, Steps, Tabs } from 'antd';
+import { Alert, Button, Card, Col, Divider, Empty, type FormInstance, message, Modal, Result, Row, Space, Steps, Tabs, theme } from 'antd';
 import { type FC, Fragment, useEffect, useRef, useState } from 'react';
 import * as yaml from 'js-yaml';
 import { saveAs } from 'file-saver';
@@ -17,7 +17,7 @@ import { listNamespaceImagePullSecret } from '@/services/namespace.api';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import { canAccessClusterNamespaces } from '@/services/personal.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getColorPrimary, getCurrentViewInfo, getHeight } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, getHeight } from '@/utils/global';
 import { IDeployment } from 'kubernetes-models/apps/v1';
 import { Editor } from '@monaco-editor/react';
 import { FormIContainer } from '@/pages/kubernetes/components/form_kubernetes_resource';
@@ -30,7 +30,8 @@ import AICopilot from '@/pages/kubernetes/components/ai';
 const AdvancedStepForm: FC<Record<string, any>> = () => {
   const { cluster, namespace } = getCurrentViewInfo();
   const [selectedNamespace, setSelectedNamespace] = useState<string>(namespace || '');
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const intl = useIntl();
   const resourceGroup = getClusterApiVersions(cluster, ['apps/v1', 'apps/v1beta1', 'apps/v1beta2'], 'Deployment');
   const [info, setInfo] = useState<IDeployment>({ apiVersion: resourceGroup.groupVersion, kind: 'Deployment', metadata: { namespace: namespace }, spec: { replicas: 1 } } as IDeployment);

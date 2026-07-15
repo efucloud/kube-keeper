@@ -5,7 +5,7 @@ import {
   ProTable,
 } from '@ant-design/pro-components';
 import { FormattedMessage, useIntl } from '@umijs/max';
-import { Button, Flex, Modal, message, Space, Tag } from 'antd';
+import { Button, Flex, Modal, message, Space, Tag, theme } from 'antd';
 import dayjs from 'dayjs';
 import type {
   IIoK8sApiCoreV1ServicePort,
@@ -15,7 +15,7 @@ import type {
 import { useRef, useState } from 'react';
 import type { IntlShape } from 'react-intl';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
-import { getColorPrimary } from '@/utils/global';
+
 export type RenderServiceProps = {
   cluster: string;
   namespace: string;
@@ -24,7 +24,8 @@ export type RenderServiceProps = {
 export const RelatedServices: React.FC<RenderServiceProps> = (props) => {
   const { cluster, namespace, podLabels } = props;
   const intl = useIntl();
-  const colorPrimary = getColorPrimary();
+   const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const actionRef = useRef<ActionType>(null);
   const [selectedRowsState, setSelectedRows] = useState<Service[]>([]);
   const [expandInfo, setExpandInfo] = useState<boolean>(false);

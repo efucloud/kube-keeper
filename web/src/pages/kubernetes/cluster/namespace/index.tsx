@@ -2,7 +2,7 @@ import { CheckCircleFilled, CloseCircleOutlined, DeleteOutlined, InsertRowBelowO
 import type { ActionType, ProColumns, ProFormInstance } from '@ant-design/pro-components';
 import { ModalForm, PageContainer, ProDescriptions, ProFormDateTimeRangePicker, ProFormDependency, ProFormSelect, ProFormSwitch, ProFormText, ProFormTextArea, ProTable, StepsForm } from '@ant-design/pro-components';
 import { Access, FormattedMessage, useAccess, useIntl } from '@umijs/max';
-import { Button, Divider, Drawer, Modal, message, Popconfirm, Popover, Space, Tag, Typography, Dropdown, Row, Col, Timeline, Result, Tabs, Tooltip, Checkbox, Badge, FloatButton } from 'antd';
+import { Button, Divider, Drawer, Modal, message, Popconfirm, Popover, Space, Tag, Typography, Dropdown, Row, Col, Timeline, Result, Tabs, Tooltip, Checkbox, Badge, FloatButton, theme } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 const { Text } = Typography;
 import type { IIoK8sApimachineryPkgApisMetaV1ObjectMeta } from '@kubernetes-models/apimachinery/apis/meta/v1/ObjectMeta';
@@ -19,7 +19,7 @@ import type { ClusterRoleTemplate, ClusterRoleTemplateList, NamespaceAuthorizeBy
 import { listClusterRoleTemplate } from '@/services/cluster_role_template.api';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo } from '@/utils/global';
 import AICopilot from '@/pages/kubernetes/components/ai';
 import FormAnnotation from '@/pages/kubernetes/components/form_annotation';
 import FormLabel from '@/pages/kubernetes/components/form_label';
@@ -52,7 +52,8 @@ const ProtectedNamespaces = [
   'hostpath-provisioner',
 ];
 const IndexDashboard: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const actionRef = useRef<ActionType>(null);
   const { cluster } = getCurrentViewInfo();
   const formRef = useRef<ProFormInstance>(undefined);

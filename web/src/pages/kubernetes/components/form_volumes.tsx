@@ -1,9 +1,9 @@
 import { DeleteFilled, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { FormattedMessage, useIntl } from '@umijs/max';
-import { Button, Card, Col, List, Popconfirm, Row, Space, Typography } from 'antd';
+import { Button, Card, Col, List, Popconfirm, Row, Space, theme, Typography } from 'antd';
 import { ConfigMapList, IConfigMap, IIoK8sApiCoreV1Volume, IPersistentVolumeClaim, ISecret, PersistentVolumeClaimList, SecretList } from 'kubernetes-models/v1';
 import React, { useEffect, useRef, useState } from 'react';
-import { getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo } from '@/utils/global';
 import { createStyles } from 'antd-style';
 import { ModalForm, ProFormInstance, ProFormSelect, ProFormSwitch, ProFormText } from '@ant-design/pro-components';
 import { clusterVolumeProviderOptions } from '@/utils/options';
@@ -58,7 +58,8 @@ const FormVolumeList: React.FC<VolumesProps> = (props) => {
     namespace = props.namespace
   }
   const formRef = useRef<ProFormInstance>(undefined);
-  const colorPrimary = getColorPrimary();
+   const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const intl = useIntl();
   const { styles } = useStyles();
   const [dataSource, setDataSource] = useState<IIoK8sApiCoreV1Volume[]>(props.volumes || []);

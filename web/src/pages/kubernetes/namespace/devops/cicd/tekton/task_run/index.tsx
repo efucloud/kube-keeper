@@ -2,7 +2,7 @@ import { CheckCircleFilled, ClockCircleOutlined, CloseCircleFilled, CloseCircleO
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { FooterToolbar, PageContainer, type ProFormInstance, ProTable } from '@ant-design/pro-components';
 import { Access, FormattedMessage, useAccess, useIntl } from '@umijs/max';
-import { Button, Drawer, Modal, message, Popconfirm, Popover, Space, Spin, Tag, Tooltip, Typography, Select, Empty, Divider } from 'antd';
+import { Button, Drawer, Modal, message, Popconfirm, Popover, Space, Spin, Tag, Tooltip, Typography, Select, Empty, Divider, theme } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 const { Text } = Typography;
 import dayjs from 'dayjs';
@@ -14,7 +14,7 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getColorPrimary, getCurrentViewInfo, getCurrentUTCTimeString, getExecutionTimeDetailed } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, getCurrentUTCTimeString, getExecutionTimeDetailed } from '@/utils/global';
 import { debounce } from 'lodash';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/services/cluster_namespace';
@@ -26,7 +26,8 @@ import AICopilot from '@/pages/kubernetes/components/ai';
 import { CncfTekton } from '@/utils/cncf';
 
 const IndexDashboard: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+   const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const actionRef = useRef<ActionType>(null);
   const formRef = useRef<ProFormInstance>(undefined);
   const access = useAccess();

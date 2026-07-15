@@ -2,7 +2,7 @@ import { BugOutlined, CloseCircleOutlined, CodeOutlined, DeleteOutlined, EditOut
 import type { ActionType, ProColumns, ProFormInstance } from '@ant-design/pro-components';
 import { FooterToolbar, PageContainer, ProTable } from '@ant-design/pro-components';
 import { Access, FormattedMessage, useIntl } from '@umijs/max';
-import { Button, Divider, Drawer, Flex, Modal, message, Popconfirm, Popover, Select, Space, Tag, Typography, Empty, Dropdown, Tooltip } from 'antd';
+import { Button, Divider, Drawer, Flex, Modal, message, Popconfirm, Popover, Select, Space, Tag, Typography, Empty, Dropdown, Tooltip, theme } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 const { Text } = Typography;
 import dayjs from 'dayjs';
@@ -19,7 +19,7 @@ import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.ap
 
 import { canAccessClusterNamespaces } from '@/services/personal.api';
 import { getClusterResource, isK8sVersionSupported } from '@/utils/cluster';
-import { getClusterVersion, getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getClusterVersion, getCurrentViewInfo } from '@/utils/global';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import PatchLabels from '@/pages/kubernetes/components/patch_labels';
 import OwnerReferencesView from '@/pages/kubernetes/components/owner_references';
@@ -28,7 +28,8 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import AICopilot from '@/pages/kubernetes/components/ai';
 
 const IndexDashboard: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const actionRef = useRef<ActionType>(null);
   const formRef = useRef<ProFormInstance>(undefined);
   const { cluster, namespace } = getCurrentViewInfo();

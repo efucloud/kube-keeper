@@ -1,14 +1,14 @@
 import { CodeOutlined, DeleteOutlined, LineChartOutlined, ProfileOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import { type ActionType, FooterToolbar, type ProColumns, ProTable } from '@ant-design/pro-components';
 import { FormattedMessage, useIntl } from '@umijs/max';
-import { Button, Divider, Drawer, Flex, Modal, message, Popconfirm, Popover, Space, Tag } from 'antd';
+import { Button, Divider, Drawer, Flex, Modal, message, Popconfirm, Popover, Space, Tag, theme } from 'antd';
 import dayjs from 'dayjs';
 import type { IContainer, Pod, PodList } from 'kubernetes-models/v1';
 import { useRef, useState } from 'react';
 import type { IntlShape } from 'react-intl';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getColorPrimary } from '@/utils/global';
+
 import PodContainerLog from '@/pages/kubernetes/components/container_log';
 import PodContainerTerminal from '@/pages/kubernetes/components/container_terminal';
 import { RenderPodMetrics } from '@/pages/kubernetes/components/pod_metrics';
@@ -23,7 +23,8 @@ export type RenderPodsProps = {
 export const RenderPods: React.FC<RenderPodsProps> = (props) => {
   const intl = useIntl();
   const [expandInfo, setExpandInfo] = useState<boolean>(false);
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const actionRef = useRef<ActionType>(null);
   const [selectedRowsState, setSelectedRows] = useState<Pod[]>([]);
   const { cluster, namespace, labelSelectors } = props;

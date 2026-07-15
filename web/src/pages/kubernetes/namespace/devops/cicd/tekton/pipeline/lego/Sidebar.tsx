@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useDnD } from '@/pages/kubernetes/namespace/devops/cicd/tekton/pipeline/lego/DnDContext';
-import { Card, Input, Modal, Space, Tooltip } from 'antd';
+import { Card, Input, Modal, Space, theme, Tooltip } from 'antd';
 import { List, Typography } from 'antd';
 import { FormattedMessage, useIntl } from '@umijs/max';
-import { getColorPrimary } from '@/utils/global';
+
 import { Task } from '@/k8s-models/tekton/pipeline/tekton.dev/v1';
 import { UnorderedListOutlined } from '@ant-design/icons';
 import { TektonTaskDetail } from '@/pages/kubernetes/components/tekton_task_detail';
@@ -13,7 +13,8 @@ type SidebarProps = {
 };
 const Sidebar: React.FC<SidebarProps> = (props) => {
   const [_, setType] = useDnD();
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const [selectedTask, setSelectedTask] = useState<Task>();
   const [search, setSearch] = useState('');
   const [taskView, setTaskView] = useState<boolean>(false);

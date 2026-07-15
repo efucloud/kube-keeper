@@ -8,12 +8,12 @@ import {
   ProFormList,
   ProFormTextArea,
 } from '@ant-design/pro-components';
-import { Row, Col, Divider, Tabs } from 'antd';
+import { Row, Col, Divider, Tabs, theme } from 'antd';
 import { FormattedMessage, useIntl } from '@umijs/max';
-import { getColorPrimary } from '@/utils/global';
+
 import { IIoK8sApiCoreV1Probe } from 'kubernetes-models/v1';
 import { CopyOutlined, DeleteFilled } from '@ant-design/icons';
-const colorPrimary = getColorPrimary();
+
 const checkOptions = [
   { label: <FormattedMessage id='cluster.resource.container.health.check.method.httpGet' />, value: 'httpGet' },
   { label: <FormattedMessage id='cluster.resource.container.health.check.method.exec' />, value: 'exec' },
@@ -28,6 +28,8 @@ type HealthCheckFormProps = {
 const HealthCheckForm: React.FC<HealthCheckFormProps> = (props) => {
   const [healthCheckMethod, setHealthCheckMethod] = useState<string>('httpGet');
   const intl = useIntl();
+   const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   return (<>
     <Row gutter={64}  >
       <Col lg={12} md={12} sm={24}>

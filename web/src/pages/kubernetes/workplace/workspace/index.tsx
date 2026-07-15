@@ -1,6 +1,5 @@
-import { getColorPrimary } from "@/utils/global";
 import { useIntl } from "@umijs/max";
-import { Button, Card, List, Space } from "antd";
+import { Button, Card, List, Space, theme } from "antd";
 import { useEffect, useState } from "react";
 import useStyles from "@/pages/kubernetes/workplace/style.style";
 import { WorkspaceDetail, WorkspaceDetailList } from "@/services/workspace";
@@ -15,7 +14,8 @@ const WorkspaceView: React.FC = () => {
   const intl = useIntl();
 
   const [accessWorkspaces, setAccessWorkspaces] = useState<WorkspaceDetail[]>([]);
-  const colorPrimary = getColorPrimary();
+   const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   useEffect(() => {
     listWorkspaces();
   }, []);

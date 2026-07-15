@@ -1,12 +1,12 @@
 import { FooterToolbar, PageContainer, ProForm, type ProFormInstance, ProFormSwitch, ProFormText, ProFormTextArea } from '@ant-design/pro-components';
 import { FormattedMessage, useIntl, useNavigate, useParams } from '@umijs/max';
-import { Card, Col, message, Row } from 'antd';
+import { Card, Col, message, Row, theme } from 'antd';
 import * as YAML from 'js-yaml';
 import type { FC } from 'react';
 import { useRef, useState } from 'react';
 import { createCluster, getClusterById, updateCluster } from '@/services/cluster.api';
 import type { ClusterCreate, ClusterDetail, ClusterUpdate } from '@/services/cluster.d';
-import { getColorPrimary } from '@/utils/global';
+
 const Update = 'update';
 const Create = 'create';
 import { Typography } from 'antd';
@@ -21,7 +21,9 @@ const AdvancedForm: FC<Record<string, any>> = () => {
 
   const BaseAddress = `/admin/cluster`;
   const [updateConnect, setUpdateConnect] = useState<boolean>(false);
-  const colorPrimary = getColorPrimary();
+   const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
+
   const formRef = useRef<ProFormInstance>(undefined);
   const [info, setInfo] = useState<ClusterDetail>();
 

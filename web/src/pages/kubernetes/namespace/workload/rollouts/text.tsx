@@ -3,13 +3,13 @@ import { FormattedMessage, useIntl, Access, useAccess } from '@umijs/max';
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { UnorderedListOutlined, MoreOutlined, InsertRowBelowOutlined, CloseCircleOutlined, EditOutlined, DeleteOutlined, LineChartOutlined, EyeOutlined, EyeInvisibleOutlined, ReloadOutlined, SaveOutlined } from '@ant-design/icons';
 import React, { useState, useRef, useEffect } from 'react';
-import { Button, Modal, message, Flex, Tag, Space, Popconfirm, Popover, Divider, Dropdown, Drawer, Select, Empty, Card } from "antd";
+import { Button, Modal, message, Flex, Tag, Space, Popconfirm, Popover, Divider, Dropdown, Drawer, Select, Empty, Card, theme } from "antd";
 import { Typography } from 'antd';
 const { Text } = Typography;
 import { Rollout } from "@kubernetes-models/argo-rollouts/argoproj.io/v1alpha1/Rollout";
 import { IContainer } from 'kubernetes-models/v1';
 import { clusterGetProxy, clusterDeleteProxy, clusterPostProxy } from '@/services/cluster_proxy.api';
-import { getClusterApiVersions, getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
 import { IntlShape } from "react-intl";
 import dayjs from 'dayjs';
 import PatchLabels from '@/pages/kubernetes/components/patch_labels';
@@ -25,7 +25,8 @@ import { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/services/c
 import { syncClusterNamespace } from '@/services/cluster.api';
 
 const IndexDashboard: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const actionRef = useRef<ActionType>(null);
   const access = useAccess();
   const formRef = useRef<ProFormInstance>(undefined);

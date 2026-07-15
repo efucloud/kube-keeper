@@ -1,11 +1,11 @@
 import { PageContainer, ProDescriptions } from '@ant-design/pro-components';
 import { useParams, useIntl, useNavigate, FormattedMessage, Access, useAccess } from '@umijs/max';
-import { Card, Space, Button, Tooltip, Tag } from 'antd';
+import { Card, Space, Button, Tooltip, Tag, theme } from 'antd';
 import { EditOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import type { ClusterDetail } from '@/services/cluster.d';
 import { getClusterById } from '@/services/cluster.api';
-import { getColorPrimary } from '@/utils/global';
+
 
 const ClusterDetailIndex: React.FC = () => {
   const access = useAccess();
@@ -13,7 +13,8 @@ const ClusterDetailIndex: React.FC = () => {
   const intl = useIntl();
   const params = useParams();
   const [info, setUserInfo] = useState<ClusterDetail>();
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const getUserInfo = async () => {
     const data = await getClusterById({ id: params.id || '' });
     setUserInfo(data as ClusterDetail);

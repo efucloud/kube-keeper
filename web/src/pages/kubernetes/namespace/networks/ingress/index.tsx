@@ -2,7 +2,7 @@ import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns, ProFormInstance } from '@ant-design/pro-components';
 import { FooterToolbar, PageContainer, ProTable } from '@ant-design/pro-components';
 import { Access, FormattedMessage, useAccess, useIntl } from '@umijs/max';
-import { Button, Modal, message, Popconfirm, Select, Space, Empty, Divider } from 'antd';
+import { Button, Modal, message, Popconfirm, Select, Space, Empty, Divider, theme } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import dayjs from 'dayjs';
 import type { IIngress, IngressList } from 'kubernetes-models/networking.k8s.io/v1';
@@ -13,13 +13,14 @@ import type { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/servi
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { canAccessClusterNamespaces } from '@/services/personal.api';
-import { getClusterApiVersions, getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
 import { syncClusterNamespace } from '@/services/cluster.api';
 
 import AICopilot from '@/pages/kubernetes/components/ai';
 
 const IndexDashboard: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const actionRef = useRef<ActionType>(null);
   const access = useAccess();
   const { cluster, namespace } = getCurrentViewInfo();

@@ -2,7 +2,7 @@ import { CloseCircleOutlined, DeleteOutlined, EditOutlined, InsertRowBelowOutlin
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { FooterToolbar, PageContainer, type ProFormInstance, ProTable } from '@ant-design/pro-components';
 import { Access, FormattedMessage, useAccess, useIntl } from '@umijs/max';
-import { Button, Drawer, Modal, message, Popconfirm, Popover, Space, Tag, Typography, Select, Empty, Divider } from 'antd';
+import { Button, Drawer, Modal, message, Popconfirm, Popover, Space, Tag, Typography, Select, Empty, Divider, theme } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 const { Text } = Typography;
 import type { Certificate } from '@kubernetes-models/cert-manager/cert-manager.io/v1/Certificate';
@@ -14,7 +14,7 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
 import { formatResourceKind } from '@/pages/kubernetes/utils/resourceKind';
 import { debounce } from 'lodash';
 import { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/services/cluster_namespace';
@@ -33,7 +33,8 @@ import {
 } from '../common';
 
 const IndexDashboard: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const actionRef = useRef<ActionType>(null);
   const access = useAccess();
   const { cluster, namespace } = getCurrentViewInfo();

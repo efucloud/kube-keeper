@@ -1,9 +1,9 @@
 import { MoreOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import { Dropdown, Space, Tooltip, Typography } from 'antd';
+import { Dropdown, Space, theme, Tooltip, Typography } from 'antd';
 const { Title } = Typography;
 import React, { useEffect, useRef, useState } from 'react';
 import { clusterMetricsQuery } from '@/services/cluster.api';
-import { getColorPrimary } from '@/utils/global';
+
 import {
   type MetricsParamsProps,
 } from '@/pages/kubernetes/components/metrics_def';
@@ -11,7 +11,8 @@ import { VectorData } from '@/services/prometheus';
 import Decimal from 'decimal.js';
 
 const MetricsStatistic: React.FC<MetricsParamsProps> = (props) => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const time = Math.floor(props.end || Date.now() / 1000);
   const [data, setData] = useState<Number>();
   const metricsRequest = props.metricsRequests[0];
@@ -44,7 +45,7 @@ const MetricsStatistic: React.FC<MetricsParamsProps> = (props) => {
           <div style={{ float: 'left' }}>
             {props.title}&nbsp;
             {props.tooltip && (
-              <Tooltip color={getColorPrimary()} title={props.tooltip}>
+              <Tooltip color={colorPrimary} title={props.tooltip}>
                 <QuestionCircleOutlined />
               </Tooltip>
             )}

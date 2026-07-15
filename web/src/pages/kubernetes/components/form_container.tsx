@@ -13,7 +13,7 @@ import {
   ProFormTextArea,
 } from '@ant-design/pro-components';
 import { FormattedMessage, useIntl } from '@umijs/max';
-import { Button, Col, Row, Tabs } from 'antd';
+import { Button, Col, Row, Tabs, theme } from 'antd';
 import {
   IIoK8sApiCoreV1ExecAction,
   IIoK8sApiCoreV1GRPCAction,
@@ -29,7 +29,7 @@ import {
   type IIoK8sApiCoreV1EnvVar,
 } from 'kubernetes-models/v1';
 import React, { useEffect, useRef, useState } from 'react';
-import { getColorPrimary } from '@/utils/global';
+
 import FormContainerPort, { ContainerPortProps } from '@/pages/kubernetes/components/form_container_port';
 import ContainerEnvList, { ContaineEnvProps } from '@/pages/kubernetes/components/form_container_env';
 import { debounce } from 'lodash';
@@ -52,7 +52,8 @@ type ContainerProps = {
 };
 
 export const FormContainer: React.FC<ContainerProps> = (props) => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const intl = useIntl();
   const [activeKey, setActiveKey] = useState<string>('base');
   const [imageSelectVisible, setImageSelectVisible] = useState<boolean>(false);

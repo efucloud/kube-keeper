@@ -9,12 +9,12 @@ import { Unicode11Addon } from '@xterm/addon-unicode11';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import { WebglAddon } from '@xterm/addon-webgl';
 import { Terminal } from '@xterm/xterm';
-import { Drawer, Space, Tabs } from 'antd';
+import { Drawer, Space, Tabs, theme } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import type { TableListPagination } from '@/services/common.d';
 import type { TerminalAuditLogDetail } from '@/services/terminal_audit_log';
 import { listTerminalAuditLog } from '@/services/terminal_audit_log.api';
-import { getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo } from '@/utils/global';
 import '@xterm/xterm/css/xterm.css';
 import { SystemUser } from '@/components';
 import { FileDoneOutlined, LineChartOutlined, OrderedListOutlined } from '@ant-design/icons';
@@ -33,7 +33,8 @@ const customSettings: IImageAddonOptions = {
   iipSizeLimit: 20000000, // size limit of a single IIP sequence
 };
 const PodTerminalAuditLogTableList: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const termRef = useRef(null);
   const terminal = useRef(null);
   const fitAddon = useRef(new FitAddon()).current;

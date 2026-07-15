@@ -1,13 +1,13 @@
 import { PageContainer, ProDescriptions } from '@ant-design/pro-components';
 import { Access, FormattedMessage, useAccess, useIntl, useModel } from '@umijs/max';
-import { Avatar, Button, Card, Divider, Input, List, Skeleton, Space } from 'antd';
+import { Avatar, Button, Card, Divider, Input, List, Skeleton, Space, theme } from 'antd';
 import { MailOutlined, MobileOutlined, ReloadOutlined } from '@ant-design/icons';
 import { Welcome } from '@ant-design/x';
 import { clusterServerGroups } from '@/services/cluster.api';
 import { canAccessClusters } from '@/services/personal.api';
 import type { AuthedUserInfo } from '@/services/common';
 import type { UserAccessCluster, UserAccessClusterList } from '@/services/kubernetes';
-import { getColorPrimary, saveClusterApiVersions, saveClusterVersion } from '@/utils/global';
+import { saveClusterApiVersions, saveClusterVersion } from '@/utils/global';
 import useStyles from '@/pages/kubernetes/workplace/style.style';
 import { ClusterConnect, ClusterOverView } from '@/pages/kubernetes/workplace/cluster/overview';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -18,7 +18,8 @@ const Workplace: FC = () => {
   const access = useAccess();
   const intl = useIntl();
   const { styles } = useStyles();
-  const colorPrimary = getColorPrimary();
+   const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const { initialState } = useModel('@@initialState');
   const currentUser = (initialState?.currentUser || {}) as AuthedUserInfo;
 
@@ -83,7 +84,7 @@ const Workplace: FC = () => {
             item.code,
             `${item.version?.major || 0}.${item.version?.minor || 0}`,
           );
-          
+
           clusterServerGroups({ cluster: item.code }).then((res) => {
             const groups = res as string;
             saveClusterApiVersions(item.code, groups);

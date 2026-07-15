@@ -8,12 +8,12 @@ import dayjs from 'dayjs';
 import type { Event, EventList, IEvent } from 'kubernetes-models/v1';
 import { useEffect, useRef, useState } from 'react';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
-import { getColorPrimary } from '@/utils/global';
-import { Drawer } from 'antd';
+
+import { Drawer, theme } from 'antd';
 import { getClusterResource } from '@/utils/cluster';
 import ResourceEditor from './resource_editor';
 export type RelatedEventsProps = {
-  
+
   cluster: string;
   namespace: string;
   fieldSelectors: Record<string, string>;
@@ -26,7 +26,8 @@ export const RelatedEvents: React.FC<RelatedEventsProps> = (props) => {
   const intl = useIntl();
   const [expandInfo, setExpandInfo] = useState<boolean>(false);
   const [selectedEvent, setSelectedEvent] = useState<Event>({} as Event)
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const actionRef = useRef<ActionType>(null);
   const address = `api/v1/namespaces/${namespace}/events`;
   const listEvents = async () => {

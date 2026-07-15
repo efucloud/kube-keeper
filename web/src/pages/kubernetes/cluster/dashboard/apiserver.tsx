@@ -1,11 +1,11 @@
 import { ReloadOutlined } from '@ant-design/icons';
 import { PageContainer } from '@ant-design/pro-components';
 import { useIntl } from '@umijs/max';
-import { Card, Col, Flex, Row, Select, Slider, Space, Tag } from 'antd';
+import { Card, Col, Flex, Row, Select, Slider, Space, Tag, theme } from 'antd';
 import dayjs from 'dayjs';
 import debounce from 'lodash/debounce';
 import { useState } from 'react';
-import { getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo } from '@/utils/global';
 import MetricsArea from '@/pages/kubernetes/components/metrics_area';
 import MetricsLine from '@/pages/kubernetes/components/metrics_line';
 import MetricsLiquid from '@/pages/kubernetes/components/metrics_liquid';
@@ -17,7 +17,8 @@ const ApiServer: React.FC = () => {
   const [startValue, setStartValue] = useState<number>(1440);
   const [endValue, setEndValue] = useState<number>(0);
   const intl = useIntl();
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const customMarks = {
     1440: '-24h',
     2880: '-2day',
@@ -75,7 +76,7 @@ const ApiServer: React.FC = () => {
 
           <Tag key='time'>{new Date(time.unix() * 1000).toLocaleString()} </Tag>
           <ReloadOutlined
-            style={{ color: getColorPrimary(), fontSize: '1.2em' }}
+            style={{ color: colorPrimary, fontSize: '1.2em' }}
             onClick={() => setTime(dayjs())}
           />
         </Space>

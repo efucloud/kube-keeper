@@ -1,9 +1,9 @@
 import { clusterServerGroups } from "@/services/cluster.api";
 import { ClusterServerGroup, UserAccessCluster, UserAccessClusterList } from "@/services/kubernetes";
 import { canAccessClusters } from "@/services/personal.api";
-import { getColorPrimary, saveClusterApiVersions, saveClusterVersion } from "@/utils/global";
+import { saveClusterApiVersions, saveClusterVersion } from "@/utils/global";
 import { FormattedMessage, useIntl } from "@umijs/max";
-import { Card, Divider, Input, List, Skeleton, Space, Tag } from "antd";
+import { Card, Divider, Input, List, Skeleton, Space, Tag, theme } from "antd";
 import { useEffect, useState } from "react";
 import InfiniteScroll from 'react-infinite-scroll-component';
 import useStyles from "@/pages/kubernetes/workplace/style.style";
@@ -15,7 +15,8 @@ import { CreditCardOutlined, ReloadOutlined, TableOutlined } from "@ant-design/i
 const ClusterView: React.FC = () => {
   const { styles } = useStyles();
   const intl = useIntl();
-  const colorPrimary = getColorPrimary();
+ const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
 
   const [searchCluster, setSearchCluster] = useState<string>("");
   const [accessClusters, setAccessClusters] = useState<UserAccessCluster[]>([]);
@@ -58,7 +59,7 @@ const ClusterView: React.FC = () => {
         }
         data.data.map((item: UserAccessCluster) => {
           saveClusterVersion(item.code, `${item.version?.major || 0}.${item.version?.minor || 0}`)
-         
+
           //获取集群资源
           clusterServerGroups({ cluster: item.code }).then(
             (res) => {
@@ -105,7 +106,7 @@ const ClusterView: React.FC = () => {
         }
       },
     },
-     
+
     {
       title: intl.formatMessage({ id: "pages.operation" }),
       dataIndex: "option",

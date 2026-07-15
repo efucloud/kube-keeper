@@ -2,7 +2,7 @@ import { CloseCircleOutlined, DeleteOutlined, EditOutlined, InsertRowBelowOutlin
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { FooterToolbar, PageContainer, type ProFormInstance, ProTable } from '@ant-design/pro-components';
 import { Access, FormattedMessage, useAccess, useIntl } from '@umijs/max';
-import { Button, Divider, Drawer, Modal, message, Popconfirm, Popover, Space, Tag, Typography } from 'antd';
+import { Button, Divider, Drawer, Modal, message, Popconfirm, Popover, Space, Tag, Typography, theme } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 const { Text } = Typography;
 import dayjs from 'dayjs';
@@ -14,12 +14,13 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
 import AICopilot from '@/pages/kubernetes/components/ai';
 import { CncfVolcano } from '@/utils/cncf';
 
 const IndexDashboard: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+   const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const actionRef = useRef<ActionType>(null);
   const access = useAccess();
   const { cluster } = getCurrentViewInfo();

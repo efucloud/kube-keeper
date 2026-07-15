@@ -1,9 +1,9 @@
 import React from 'react';
 import { Panel, useReactFlow, getNodesBounds, getViewportForBounds } from '@xyflow/react';
 import { FormattedMessage, useIntl, useNavigate } from '@umijs/max';
-import { Button, Dropdown, message, Space } from 'antd';
+import { Button, Dropdown, message, Space, theme } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
-import { getColorPrimary } from '@/utils/global';
+
 import { toPng } from 'html-to-image';
 import { Task } from '@/k8s-models/tekton/pipeline/tekton.dev/v1';
 
@@ -19,7 +19,8 @@ export interface DnDFlowProps {
 const TopRightButton: React.FC<DnDFlowProps> = (props) => {
   const navigate = useNavigate();
   const intl = useIntl();
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const { getNodes } = useReactFlow();
   function downloadImage(dataUrl: string) {
     const a = document.createElement('a');

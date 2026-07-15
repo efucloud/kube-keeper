@@ -1,11 +1,11 @@
 import { Task } from '@/k8s-models/tekton/pipeline/tekton.dev/v1';
 import { ParamSpec, PipelineWorkspaceDeclaration, TaskResult } from '@/services/tekton_pipeline_def';
-import { getColorPrimary } from '@/utils/global';
+
 import { DeleteOutlined, EditOutlined, QuestionCircleOutlined, ReloadOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import { ModalForm, ProColumns, ProDescriptions, ProFormDependency, ProFormDigit, ProFormSelect, ProFormText, ProFormTextArea, ProTable } from '@ant-design/pro-components';
 import { FormattedMessage, useIntl } from '@umijs/max';
 import { Handle, Position } from '@xyflow/react';
-import { Col, Descriptions, Divider, Drawer, Row, Space, Tabs, message, Tooltip, Typography, Button, Popconfirm } from 'antd';
+import { Col, Descriptions, Divider, Drawer, Row, Space, Tabs, message, Tooltip, Typography, Button, Popconfirm, theme } from 'antd';
 import { memo, useEffect, useState } from 'react';
 import { ThoughtChain, ThoughtChainProps } from '@ant-design/x';
 import { getParamInfo, getResultInfo, PipelineTaskDef, PipelineTaskParam, WhenExpression, WorkspaceDeclaration, WorkspacePipelineTaskBinding } from '@/utils/pipeline';
@@ -70,7 +70,8 @@ function TaskNode({ data }: { data: TaskProps }) {
   const taskRef = data?.taskRef;
   const displayName = data?.displayName || taskRef || data?.task?.metadata?.name || '';
   const [taskParams, setTaskParams] = useState<TaskCanUseParams>();
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const [paramVisible, setParamVisible] = useState<boolean>(false);
   const [paramSelected, setParamSelected] = useState<PipelineTaskParam>();
   const [workspaceVisible, setWorkspaceVisible] = useState<boolean>(false);
@@ -603,7 +604,7 @@ function TaskNode({ data }: { data: TaskProps }) {
         </Space>
       </div>
       <Drawer
-        title={<>{intl.formatMessage({ id: 'tekton.pipeline.task.info' }) + ": " + task.metadata?.name}&nbsp;&nbsp;<ReloadOutlined style={{ color: getColorPrimary() }} onClick={getTaskDetail} /></>}
+        title={<>{intl.formatMessage({ id: 'tekton.pipeline.task.info' }) + ": " + task.metadata?.name}&nbsp;&nbsp;<ReloadOutlined style={{ color: colorPrimary }} onClick={getTaskDetail} /></>}
         size={drawerSize}
         resizable={{
           onResize: (newSize) => setDrawerSize(newSize),

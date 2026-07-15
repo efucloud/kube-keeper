@@ -1,15 +1,16 @@
 import { MoreOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { RadialBar } from '@antv/g2plot';
-import { Dropdown, Space, Tooltip } from 'antd';
+import { Dropdown, Space, theme, Tooltip } from 'antd';
 import Decimal from 'decimal.js';
 import React, { useEffect, useRef, useState } from 'react';
 import { clusterMetricsQuery } from '@/services/cluster.api';
 import type { VectorData } from '@/services/prometheus';
-import { getColorPrimary } from '@/utils/global';
+
 import type { MetricsParamsProps } from '@/pages/kubernetes/components/metrics_def';
 const MetricsRadialBar: React.FC<MetricsParamsProps> = (props) => {
   const containerRef = useRef(null);
-  const colorPrimary = getColorPrimary();
+   const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const time = Math.floor(props.end || Date.now() / 1000);
   const [data, setData] = useState<any[]>([]);
   const fetchData = async () => {
@@ -68,7 +69,7 @@ const MetricsRadialBar: React.FC<MetricsParamsProps> = (props) => {
           <div style={{ float: 'left' }}>
             {props.title}&nbsp;
             {props.tooltip && (
-              <Tooltip color={getColorPrimary()} title={props.tooltip}>
+              <Tooltip color={colorPrimary} title={props.tooltip}>
                 <QuestionCircleOutlined />
               </Tooltip>
             )}

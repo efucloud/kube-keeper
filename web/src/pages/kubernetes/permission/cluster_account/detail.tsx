@@ -3,7 +3,7 @@ import { useParams, useIntl, useNavigate, FormattedMessage, useAccess } from '@u
 import { Card, message, Popconfirm, Drawer, Tag, Tabs } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 import React, { useEffect, useRef, useState } from 'react';
-import { getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import {  getCurrentViewInfo } from '@/utils/global';
 import { ClusterRoleBinding, ClusterRoleBindingList, RoleBindingList, RoleBinding, ClusterRole, Role } from 'kubernetes-models/rbac.authorization.k8s.io/v1';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 import { getClusterAccount } from '@/services/cluster_account.api';
@@ -18,7 +18,6 @@ import { getClusterResource } from '@/utils/cluster';
 const DetailView: React.FC = () => {
   const access = useAccess();
   const navigate = useNavigate();
-  const colorPrimary = getColorPrimary();
   const roleBindingActionRef = useRef<ActionType>(null);
   const clusterRoleBindingActionRef = useRef<ActionType>(null);
   const intl = useIntl();

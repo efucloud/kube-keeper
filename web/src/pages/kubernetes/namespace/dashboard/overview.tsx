@@ -1,18 +1,19 @@
 import { PageContainer } from '@ant-design/pro-components';
-import { Card, Col, Divider, Row, Statistic } from 'antd';
+import { Card, Col, Divider, Row, Statistic, theme } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { INamespace, type Namespace } from 'kubernetes-models/v1';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
 import type { ClusterDashboard } from '@/services/dashboard';
 import { getClusterNamespaceDashboard } from '@/services/namespace.api';
 import { getClusterResource, getWorkloadStatus } from '@/utils/cluster';
-import { getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo } from '@/utils/global';
 import { RenderNamespaceWorkloadMetrics } from '@/pages/kubernetes/components/namespace_workload_metrics';
 import AICopilot from '../../components/ai';
 import { useIntl } from '@umijs/max';
 
 const DetailView: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const { cluster, namespace } = getCurrentViewInfo();
   const [dashboard, setDashboard] = useState<ClusterDashboard>({});
   const [info, setInfo] = useState<INamespace>();
@@ -251,7 +252,7 @@ const DetailView: React.FC = () => {
           cluster={cluster}
           namespace={namespace || ''}
           name={info.metadata?.name || ''}
-          questions={[{ mode:'plan',skill: 'k8s-namespace-inspect', question: intl.formatMessage({ id: 'copilot.namespace.inspection' }) }]}
+          questions={[{ mode: 'plan', skill: 'k8s-namespace-inspect', question: intl.formatMessage({ id: 'copilot.namespace.inspection' }) }]}
           kind="Namespace"
           status='success'
         />}

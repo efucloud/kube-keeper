@@ -7,7 +7,7 @@ import { clusterPatchProxy } from '@/services/cluster_proxy.api';
 import type { PatchSubsetValue } from '@/services/common';
 import { getClusterResource } from '@/utils/cluster';
 import { IContainer } from 'kubernetes-models/v1';
-import { getColorPrimary } from '@/utils/global';
+
 import { namespaceImageSearch } from '@/services/namespace.api';
 
 const { Title } = Typography;
@@ -35,7 +35,7 @@ type DataSourceType = {
 
 const PatchImages: React.FC<PatchImagesProps> = (props) => {
   const [editableKeys, setEditableRowKeys] = useState<React.Key[]>([]);
-  const colorPrimary = getColorPrimary();
+   
   const [searchImage, setSearchImage] = useState<DataSourceType | undefined>();
   const [searchVisible, setSearchVisible] = useState<boolean>(false);
   const [imagePrefix, setImagePrefix] = useState<string>('');

@@ -1,10 +1,10 @@
 import { DashboardOutlined, LogoutOutlined, SettingOutlined } from '@ant-design/icons';
 import { FormattedMessage, useModel } from '@umijs/max';
-import { Spin } from 'antd';
+import { Spin, theme } from 'antd';
 import { createStyles } from 'antd-style';
 import React, { useCallback } from 'react';
 import { flushSync } from 'react-dom';
-import { deleteAllToken, getColorPrimary } from '@/utils/global';
+import { deleteAllToken } from '@/utils/global';
 import HeaderDropdown from '../HeaderDropdown';
 import { ItemType } from 'antd/es/menu/interface';
 
@@ -41,7 +41,8 @@ export const AvatarDropdown: React.FC<GlobalHeaderRightProps> = ({
   menu,
   children,
 }) => {
-  const colorPrimary = getColorPrimary();
+  const {token} = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   /**
    * 退出登录，并且将当前的 url 保存
    */

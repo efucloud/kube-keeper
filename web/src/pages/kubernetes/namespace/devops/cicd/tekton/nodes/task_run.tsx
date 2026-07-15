@@ -1,9 +1,9 @@
 import { TaskRun } from '@/k8s-models/tekton/pipeline/tekton.dev/v1';
-import { getColorPrimary, getCurrentUTCTimeString, getExecutionTimeDetailed } from '@/utils/global';
+import { getCurrentUTCTimeString, getExecutionTimeDetailed } from '@/utils/global';
 import { ClockCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { useIntl } from '@umijs/max';
 import { Handle, Position } from '@xyflow/react';
-import { Space, Tooltip } from 'antd';
+import { Space, theme, Tooltip } from 'antd';
 import { memo, useEffect, useState, useRef } from 'react';
 
 export interface TaskRunProps {
@@ -19,7 +19,8 @@ export interface TaskRunProps {
 }
 
 function TaskRunNode({ data }: { data: TaskRunProps }) {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const direction = data?.layoutDirection || 'horizontal';
   const sourcePosition = direction === 'horizontal' ? Position.Right : Position.Bottom;
   const targetPosition = direction === 'horizontal' ? Position.Left : Position.Top;

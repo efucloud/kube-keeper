@@ -1,10 +1,10 @@
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
-import { getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo } from '@/utils/global';
 import { DeleteOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns, ProFormInstance } from '@ant-design/pro-components';
 import { ModalForm, ProFormSelect, ProFormText, ProList, ProTable } from '@ant-design/pro-components';
 import { FormattedMessage, useIntl } from '@umijs/max';
-import { Button, Empty, Popconfirm, Space } from 'antd';
+import { Button, Empty, Popconfirm, Space, theme } from 'antd';
 import { ConfigMapList, IConfigMap, IIoK8sApiCoreV1ConfigMapKeySelector, IIoK8sApiCoreV1EnvVar, IIoK8sApiCoreV1EnvVarSource, IIoK8sApiCoreV1ObjectFieldSelector, IIoK8sApiCoreV1ResourceFieldSelector, IIoK8sApiCoreV1ResourceRequirements, IIoK8sApiCoreV1SecretKeySelector, ISecret, SecretList } from 'kubernetes-models/v1';
 import React, { useEffect, useRef, useState } from 'react';
 
@@ -36,7 +36,8 @@ const ContainerEnvList: React.FC<EnvFormProps> = (props) => {
   const [secretKeyOptions, setSecretKeyOptions] = useState<string[]>([]);
   const action = useRef<ActionType>(null);
   const formRef = useRef<ProFormInstance>(undefined);
-
+ const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const intl = useIntl();
   const formItemLayout = {
     labelCol: { span: 6 },
@@ -421,7 +422,7 @@ const ContainerEnvList: React.FC<EnvFormProps> = (props) => {
             rules={[
               { required: true, message: intl.formatMessage({ id: 'pages.input.text.tips' }) + intl.formatMessage({ id: 'cluster.resource.container.env.valueType.fieldRef' }) },
             ]}
-            tooltip={{ placement: 'bottom', color: getColorPrimary(), title: <><ul>{FieldOptions.map((item: string) => <li>{item}</li>)}</ul></> }}
+            tooltip={{ placement: 'bottom', color: colorPrimary, title: <><ul>{FieldOptions.map((item: string) => <li>{item}</li>)}</ul></> }}
           />
         </>}
       </ModalForm >

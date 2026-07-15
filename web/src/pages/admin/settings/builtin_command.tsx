@@ -7,7 +7,7 @@ import {
   ProTable,
 } from '@ant-design/pro-components';
 import { Access, FormattedMessage, useAccess, useIntl } from '@umijs/max';
-import { Button, message, Popconfirm, Space } from 'antd';
+import { Button, message, Popconfirm, Space, theme } from 'antd';
 import React, { useRef, useState } from 'react';
 import type { IntlShape } from 'react-intl';
 import type { BuiltinShellCommandDetail } from '@/services/builtin_shell_command';
@@ -16,7 +16,6 @@ import {
   listBuiltinShellCommand,
 } from '@/services/builtin_shell_command.api';
 import type { TableListPagination } from '@/services/common.d';
-import { getColorPrimary, getCurrentViewInfo } from '@/utils/global';
 
 const BuiltinCommandTableList: React.FC = () => {
   const access = useAccess();
@@ -27,7 +26,8 @@ const BuiltinCommandTableList: React.FC = () => {
 
   /** 国际化配置 */
   const intl = useIntl();
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const handleRemove = async (
     intl: IntlShape,
     selectedRow: BuiltinShellCommandDetail,

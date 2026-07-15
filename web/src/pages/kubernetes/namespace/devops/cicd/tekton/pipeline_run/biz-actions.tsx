@@ -1,9 +1,9 @@
 import React from 'react';
 import { Panel, useReactFlow, getNodesBounds, getViewportForBounds } from '@xyflow/react';
 import { FormattedMessage, useIntl, useNavigate } from '@umijs/max';
-import { Button, Dropdown, message, Space } from 'antd';
+import { Button, Dropdown, message, Space, theme } from 'antd';
 import { MoreOutlined } from '@ant-design/icons';
-import { getColorPrimary } from '@/utils/global';
+
 import { toPng } from 'html-to-image';
 
 const targetWidth = 1024 * 4;
@@ -17,7 +17,8 @@ export interface DnDFlowProps {
 const TopRightButton: React.FC<DnDFlowProps> = (props) => {
   const intl = useIntl();
   const navigate = useNavigate();
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const { getNodes } = useReactFlow();
 
   function downloadImage(dataUrl: string) {

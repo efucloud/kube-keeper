@@ -2,13 +2,13 @@ import { clusterConnectCheck } from "@/services/cluster.api";
 import { KubernetesVersion } from "@/services/kubernetes";
 import { DisconnectOutlined, ExportOutlined } from "@ant-design/icons";
 import { useIntl } from "@umijs/max";
-import { Col, Row, Tooltip } from "antd";
+import { Col, Row, theme, Tooltip } from "antd";
 import { useEffect, useState } from "react";
 import MetricsLiquid from "@/pages/kubernetes/components/metrics_liquid";
 import dayjs from "dayjs";
 import MetricsStatistic from "@/pages/kubernetes/components/metrics_statistic";
 import MetricsPie from "@/pages/kubernetes/components/metrics_pie";
-import { getColorPrimary } from "@/utils/global";
+ 
 
 export interface clusterInfo {
   clusterCode: string;
@@ -219,7 +219,8 @@ export interface clusterConnectInfo extends clusterInfo {
 
 export const ClusterConnect: React.FC<clusterConnectInfo> = ({ clusterCode, redirectPath }) => {
   const [connectedAble, setConnectedAble] = useState<boolean>(false);
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const intl = useIntl();
   const targetPath =
     redirectPath || `/kubernetes/cluster/${clusterCode}/dashboard/overview`;

@@ -1,8 +1,8 @@
 import { PageContainer } from '@ant-design/pro-components';
 import { history, useIntl } from '@umijs/max';
-import { Button, Result } from 'antd';
+import { Button, Result, theme } from 'antd';
 import React from 'react';
-import { getColorPrimary } from '@/utils/global';
+
 
 interface Props {
   title: string;
@@ -10,7 +10,8 @@ interface Props {
 }
 const ClusterResourceNotFound: React.FC<any> = (props) => {
   const intl = useIntl();
-  const colorPrimary = getColorPrimary();
+  const {token} = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   return (
     <PageContainer
       header={{ breadcrumb: {}, onBack: () => window.history.back() }}

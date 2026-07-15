@@ -1,8 +1,8 @@
-import { getClusterApiVersions, getColorPrimary, getCurrentViewInfo, getHeight } from "@/utils/global";
+import { getClusterApiVersions, getCurrentViewInfo, getHeight } from "@/utils/global";
 import { PageContainer, ProColumns, ProDescriptions, ProTable } from "@ant-design/pro-components";
 import { useParams, useIntl, FormattedMessage } from "@umijs/max";
 import { ReactNode, useEffect, useState } from "react";
-import { Button, Card, Popconfirm, message, Dropdown, Drawer, Collapse, CollapseProps, Flex, Tag, Space, Row, Col, Tooltip } from "antd";
+import { Button, Card, Popconfirm, message, Dropdown, Drawer, Collapse, CollapseProps, Flex, Tag, Space, Row, Col, Tooltip, theme } from "antd";
 import { clusterGetProxy, clusterDeleteProxy } from '@/services/cluster_proxy.api';
 import type { IIoK8sApiNetworkingV1HTTPIngressPath, IIoK8sApiNetworkingV1IngressRule, IIoK8sApiNetworkingV1IngressTLS, Ingress } from 'kubernetes-models/networking.k8s.io/v1';
 import { EyeOutlined, MoreOutlined, ReloadOutlined } from "@ant-design/icons";
@@ -16,7 +16,8 @@ import { IService } from "kubernetes-models/v1";
 
 
 const DetailView: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const { cluster, namespace } = getCurrentViewInfo();
   const { name } = useParams();
   const [info, setInfo] = useState<Ingress>();

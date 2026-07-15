@@ -3,7 +3,7 @@ import { SiKubernetes } from "react-icons/si";
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { FooterToolbar, ModalForm, PageContainer, ProFormSelect, ProTable } from '@ant-design/pro-components';
 import { Access, FormattedMessage, useAccess, useIntl, useNavigate } from '@umijs/max';
-import { Alert, Button, Col, Drawer, Dropdown, Flex, Modal, message, Popconfirm, Row, Space, Tag, Tooltip } from 'antd';
+import { Alert, Button, Col, Drawer, Dropdown, Flex, Modal, message, Popconfirm, Row, Space, Tag, Tooltip, theme } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import type { IntlShape } from 'react-intl';
 import { SystemUser } from '@/components';
@@ -14,7 +14,7 @@ import type { AccountDetail, AccountDetailList } from '@/services/account';
 import { listAccount } from '@/services/account.api';
 import { changeClusterStatus, createClusterSupperUser, deleteCluster, deleteClusterUser, listCluster } from '@/services/cluster.api';
 import type { ClusterDetail } from '@/services/cluster.d';
-import { getColorPrimary } from '@/utils/global';
+
 
 const TableList: React.FC = () => {
   /** 新建窗口的弹窗 */
@@ -23,7 +23,8 @@ const TableList: React.FC = () => {
   const access = useAccess();
   const [selectedRowsState, setSelectedRows] = useState<ClusterDetail[]>([]);
   const [clusterInfo, setClusterInfo] = useState<ClusterDetail>();
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const [createVisible, setCreateVisible] = useState(false);
   const [showClusterAdminDrawer, setShowClusterAdminDrawer] = useState<boolean>(false);
   const [drawerSize, setDrawerSize] = useState<number>(600);

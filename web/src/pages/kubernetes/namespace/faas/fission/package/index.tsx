@@ -2,7 +2,7 @@ import { CloseCircleOutlined, DeleteOutlined, InsertRowBelowOutlined, MoreOutlin
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { FooterToolbar, PageContainer, ProTable } from '@ant-design/pro-components';
 import { Access, FormattedMessage, useAccess, useIntl } from '@umijs/max';
-import { Button, Drawer, Dropdown, Modal, message, Popconfirm, Popover, Space, Tag, Typography, Select, Empty, Divider } from 'antd';
+import { Button, Drawer, Dropdown, Modal, message, Popconfirm, Popover, Space, Tag, Typography, Select, Empty, Divider, theme } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 const { Text } = Typography;
 import type { Package } from '@kubernetes-models/fission/fission.io/v1';
@@ -15,7 +15,7 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
 import { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/services/cluster_namespace';
 import { canAccessClusterNamespaces } from '@/services/personal.api';
 import { syncClusterNamespace } from '@/services/cluster.api';
@@ -25,7 +25,8 @@ import AICopilot from '@/pages/kubernetes/components/ai';
 import { CncfFission } from '@/utils/cncf';
 
 const PackageIndex: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+   const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const actionRef = useRef<ActionType>(null);
   const access = useAccess();
   const { cluster, namespace } = getCurrentViewInfo();

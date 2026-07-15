@@ -1,10 +1,10 @@
 import { ReloadOutlined } from '@ant-design/icons';
 import { useIntl } from '@umijs/max';
-import { Col, Flex, Row, Slider, Space, Tag } from 'antd';
+import { Col, Flex, Row, Slider, Space, Tag, theme } from 'antd';
 import dayjs from 'dayjs';
 import debounce from 'lodash/debounce';
 import { useState } from 'react';
-import { getColorPrimary } from '@/utils/global';
+
 import MetricsLine from '@/pages/kubernetes/components/metrics_line';
 export type RenderWorkloadMetricsProps = {
   cluster: string;
@@ -20,7 +20,8 @@ export const RenderWorkloadMetrics: React.FC<RenderWorkloadMetricsProps> = (
   const [startValue, setStartValue] = useState<number>(1440);
   const [endValue, setEndValue] = useState<number>(0);
   const intl = useIntl();
-  const colorPrimary = getColorPrimary();
+   const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const customMarks = {
     1440: '-24h',
     2880: '-2day',
@@ -75,7 +76,7 @@ export const RenderWorkloadMetrics: React.FC<RenderWorkloadMetricsProps> = (
 
           <Tag>{new Date(time.unix() * 1000).toLocaleString()} </Tag>
           <ReloadOutlined
-            style={{ color: getColorPrimary(), fontSize: '1.2em' }}
+            style={{ color: colorPrimary, fontSize: '1.2em' }}
             onClick={() => setTime(dayjs())}
           />
         </Space>

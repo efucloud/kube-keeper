@@ -2,7 +2,7 @@ import { DeleteOutlined, PartitionOutlined, QuestionCircleOutlined } from '@ant-
 import type { ActionType, ProColumns, ProFormInstance } from '@ant-design/pro-components';
 import { FooterToolbar, ModalForm, PageContainer, ProFormDateTimeRangePicker, ProFormSelect, ProFormSwitch, ProTable } from '@ant-design/pro-components';
 import { Access, FormattedMessage, useAccess, useIntl } from '@umijs/max';
-import { Button, Col, Modal, message, Popconfirm, Row, Select, Tag, Tooltip, Transfer, type TransferProps, Space } from 'antd';
+import { Button, Col, Modal, message, Popconfirm, Row, Select, Tag, Tooltip, Transfer, type TransferProps, Space, theme } from 'antd';
 import dayjs from 'dayjs';
 import debounce from 'lodash/debounce';
 import React, { useEffect, useRef, useState } from 'react';
@@ -14,7 +14,7 @@ import type { ClusterAuthorizeByTemplate, ClusterRoleTemplateDetail, ClusterRole
 import type { TableListPagination } from '@/services/common.d';
 import type { AccountDetailList, SimpleAccountDetail } from '@/services/account';
 import { listAccount } from '@/services/account.api';
-import { getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo } from '@/utils/global';
 import { listClusterRoleTemplate } from '@/services/cluster_role_template.api';
 
 interface OrgAccountRecordType {
@@ -33,7 +33,8 @@ const OrgAccountTableList: React.FC = () => {
   const [wsTransferAccountList, setWsTransferAccountList] = useState<OrgAccountRecordType[]>([]);
   const [searchOrgAccount, setSearchOrgAccount] = useState<string>('');
   const [members, setMembers] = useState<string[]>([]);
-  const colorPrimary = getColorPrimary();
+ const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const [isTemp, setIsTemp] = useState<boolean>(false);
   const [selectedClusterAccountId, setSelectedClusterAccountId] = useState<string>('');
   const formRef = useRef<ProFormInstance>(undefined);

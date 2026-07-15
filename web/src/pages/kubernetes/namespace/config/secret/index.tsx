@@ -2,7 +2,7 @@ import { AlertFilled, CloseCircleOutlined, DeleteOutlined, EditOutlined, InsertR
 import type { ActionType, ProColumns, ProFormInstance } from '@ant-design/pro-components';
 import { FooterToolbar, PageContainer, ProTable } from '@ant-design/pro-components';
 import { Access, FormattedMessage, useAccess, useIntl } from '@umijs/max';
-import { Button, Divider, Dropdown, Modal, message, Popconfirm, Popover, Select, Space, Tag, Typography, Empty, Drawer } from 'antd';
+import { Button, Divider, Dropdown, Modal, message, Popconfirm, Popover, Select, Space, Tag, Typography, Empty, Drawer, theme } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 const { Text } = Typography;
 import dayjs from 'dayjs';
@@ -16,7 +16,7 @@ import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.ap
 
 import { canAccessClusterNamespaces } from '@/services/personal.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo } from '@/utils/global';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { decodeBase64, getDaysUntilExpiry, parseCertificateExpiry } from '@/utils/crypto';
@@ -24,7 +24,8 @@ import { decodeBase64, getDaysUntilExpiry, parseCertificateExpiry } from '@/util
 import AICopilot from '@/pages/kubernetes/components/ai';
 
 const IndexDashboard: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const actionRef = useRef<ActionType>(null);
   const access = useAccess();
   const { cluster, namespace } = getCurrentViewInfo();

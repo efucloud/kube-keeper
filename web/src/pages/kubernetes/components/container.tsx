@@ -1,11 +1,11 @@
-import { Tabs, TabsProps, Typography, Tag, Space, Drawer, message } from "antd";
+import { Tabs, TabsProps, Typography, Tag, Space, Drawer, message, theme } from "antd";
 import { IContainer, IIoK8sApiCoreV1ContainerPort, IIoK8sApiCoreV1EnvVar, IIoK8sApiCoreV1VolumeMount, IIoK8sApiCoreV1Probe } from "kubernetes-models/v1";
 import { useState } from "react";
 import { Access, FormattedMessage, useAccess, useIntl } from "@umijs/max";
 import { ProColumns, ProDescriptions, ProTable } from "@ant-design/pro-components";
 import { RenderContainerResources, RenderSecurityContext } from "@/pages/kubernetes/components/render";
 import { DownloadOutlined, EyeOutlined } from "@ant-design/icons";
-import { getColorPrimary, getHeight } from "@/utils/global";
+import { getHeight } from "@/utils/global";
 import * as yaml from 'js-yaml';
 import { namespaceImageConfigFile } from "@/services/namespace.api";
 import { Editor } from "@monaco-editor/react";
@@ -149,7 +149,8 @@ export const RenderContainer: React.FC<ContainerProps> = (props) => {
   const { container } = props;
   const access = useAccess();
   const [activeKey, setActiveKey] = useState<string>('base');
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const [configFileVisible, setConfigFileVisible] = useState<boolean>(false);
   const [configFile, setConfigFile] = useState<string>('');
   const getImageConfigFile = async (imageWithTag: string) => {

@@ -1,8 +1,8 @@
-import { getColorPrimary, getCurrentViewInfo } from "@/utils/global";
+import { getCurrentViewInfo } from "@/utils/global";
 import { PageContainer, ProDescriptions } from "@ant-design/pro-components";
 import { useParams, useIntl, FormattedMessage } from "@umijs/max";
 import { useEffect, useState } from "react";
-import { Button, Card, Popconfirm, message, Dropdown, Space, Drawer, Row, Col, Tag, Flex, Divider, Tabs, TabsProps, Badge } from "antd";
+import { Button, Card, Popconfirm, message, Dropdown, Space, Drawer, Row, Col, Tag, Flex, Divider, Tabs, TabsProps, Badge, theme } from "antd";
 import { clusterGetProxy, clusterDeleteProxy } from '@/services/cluster_proxy.api';
 import { APIService } from 'kubernetes-models/apiregistration.k8s.io/v1';
 import { IntlShape } from "react-intl";
@@ -11,7 +11,8 @@ import dayjs from "dayjs";
 
 
 const DetailView: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const { cluster, namespace } = getCurrentViewInfo();
   const { name } = useParams();
   const [info, setInfo] = useState<APIService>();

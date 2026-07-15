@@ -1,8 +1,8 @@
-import { getClusterApiVersions, getColorPrimary, getCurrentViewInfo } from "@/utils/global";
+import { getClusterApiVersions, getCurrentViewInfo } from "@/utils/global";
 import { ModalForm, PageContainer, ProColumns, ProDescriptions, ProTable } from "@ant-design/pro-components";
 import { useParams, useIntl, FormattedMessage } from "@umijs/max";
 import { useEffect, useState } from "react";
-import { Button, Card, Popconfirm, message, Dropdown, Drawer, Row, Col, Tag, Flex, Divider, Tabs, TabsProps, Space } from "antd";
+import { Button, Card, Popconfirm, message, Dropdown, Drawer, Row, Col, Tag, Flex, Divider, Tabs, TabsProps, Space, theme } from "antd";
 import { clusterGetProxy, clusterDeleteProxy, clusterPatchProxy } from '@/services/cluster_proxy.api';
 import { Deployment, IIoK8sApiAppsV1DeploymentCondition, IReplicaSet, ReplicaSetList } from "kubernetes-models/apps/v1";
 import { EditOutlined, MoreOutlined, ReloadOutlined } from "@ant-design/icons";
@@ -28,7 +28,8 @@ import AICopilot from "@/pages/kubernetes/components/ai";
 
 
 const DetailView: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const { cluster, namespace } = getCurrentViewInfo();
   const { name } = useParams();
   const [info, setInfo] = useState<Deployment>();

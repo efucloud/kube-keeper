@@ -1,8 +1,8 @@
-import { getColorPrimary, getCurrentViewInfo, getHeight } from "@/utils/global";
+import { getCurrentViewInfo, getHeight } from "@/utils/global";
 import { PageContainer, ProDescriptions } from "@ant-design/pro-components";
 import { useParams, useIntl, FormattedMessage } from "@umijs/max";
 import { useEffect, useState } from "react";
-import { Button, Card, Popconfirm, message, Dropdown, Drawer, Collapse, CollapseProps } from "antd";
+import { Button, Card, Popconfirm, message, Dropdown, Drawer, Collapse, CollapseProps, theme } from "antd";
 import { clusterGetProxy, clusterDeleteProxy } from '@/services/cluster_proxy.api';
 import { ConfigMap } from "kubernetes-models/v1";
 import { MoreOutlined, ReloadOutlined } from "@ant-design/icons";
@@ -15,7 +15,8 @@ import Editor from '@monaco-editor/react';
 
 
 const DetailView: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const { cluster, namespace } = getCurrentViewInfo();
   const { name } = useParams();
   const [info, setInfo] = useState<ConfigMap>();

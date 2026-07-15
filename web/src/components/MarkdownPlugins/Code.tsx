@@ -1,13 +1,13 @@
-import { getColorPrimary } from '@/utils/global';
 import { CopyOutlined } from '@ant-design/icons';
 import  HighlightCode from '@ant-design/x-markdown';
 import { useIntl } from '@umijs/max';
-import { message } from 'antd';
+import { message, theme } from 'antd';
 
 const Code = (props) => {
   const { class: className, children } = props;
   const lang = className?.match(/language-(\w+)/)?.[1] || '';
   const intl = useIntl();
+  const {token} = theme.useToken();
   const handleCopy = (codeText: string) => {
     navigator.clipboard.writeText(codeText).then(
       () => {
@@ -35,7 +35,7 @@ const Code = (props) => {
       }}
       onClick={() => handleCopy(children)}
     >
-      <CopyOutlined style={{ fontSize: '16px', color: getColorPrimary() }} />
+      <CopyOutlined style={{ fontSize: '16px', color: token.colorPrimary }} />
     </button>}
   </div>;
 };

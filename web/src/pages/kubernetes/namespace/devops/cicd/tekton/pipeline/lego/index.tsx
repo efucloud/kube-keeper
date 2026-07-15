@@ -1,6 +1,6 @@
-import { getClusterApiVersions, getColorPrimary, getCurrentViewInfo } from "@/utils/global";
+import { getClusterApiVersions, getCurrentViewInfo } from "@/utils/global";
 import { ModalForm, PageContainer, ProColumns, ProDescriptions, ProFormDependency, ProFormSelect, ProFormText, ProFormTextArea, ProTable } from "@ant-design/pro-components"
-import { Button, Form, message, Popconfirm, Splitter, Tabs, Tooltip } from "antd";
+import { Button, Form, message, Popconfirm, Splitter, Tabs, theme, Tooltip } from "antd";
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import Sidebar from "@/pages/kubernetes/namespace/devops/cicd/tekton/pipeline/lego/Sidebar";
 import '@xyflow/react/dist/style.css';
@@ -43,7 +43,8 @@ const DnDFlow = () => {
   const dagreGraph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
   const nodeWidth = 200;
   const nodeHeight = 100;
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const [showBaseDrawer, setShowBaseDrawer] = useState<boolean>(false);
   const { cluster, namespace } = getCurrentViewInfo();
   const initialLineType = sessionStorage.getItem('line-type') || ConnectionLineType.Bezier;

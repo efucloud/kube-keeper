@@ -5,7 +5,7 @@ import type { IIoK8sApimachineryPkgApisMetaV1ObjectMeta } from '@kubernetes-mode
 import Editor from '@monaco-editor/react';
 import { FormattedMessage, useAccess, useIntl } from '@umijs/max';
 import type { RadioChangeEvent, UploadProps } from 'antd';
-import { Badge, Button, Divider, Empty, Modal, message, Radio, Select, Tag, Tooltip, Upload } from 'antd';
+import { Badge, Button, Divider, Empty, Modal, message, Radio, Select, Tag, Tooltip, Upload, theme } from 'antd';
 import * as yaml from 'js-yaml';
 import debounce from 'lodash/debounce';
 import { useEffect, useRef, useState } from 'react';
@@ -15,7 +15,7 @@ import { clusterPostProxy } from '@/services/cluster_proxy.api';
 import type { ClusterServerGroupCheck, ClusterServerGroupChecks } from '@/services/kubernetes';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import { canAccessClusterNamespaces } from '@/services/personal.api';
-import { getColorPrimary, getCurrentViewInfo, getHeight, splitYamlFiles } from '@/utils/global';
+import { getCurrentViewInfo, getHeight, splitYamlFiles } from '@/utils/global';
 
 const { Dragger } = Upload;
 type ImportDataType = {
@@ -132,7 +132,8 @@ export const ClusterImport: React.FC = () => {
   const [importKey, setImportKey] = useState<string>('');
   const access = useAccess();
   const intl = useIntl();
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const { cluster, namespace } = getCurrentViewInfo();
   const [userNamespaces, setUserNamespaces] = useState<ClusterNamespaceDetail[]>([]);
   const [selectedNamespace, setSelectedNamespace] = useState<string>(namespace || '');

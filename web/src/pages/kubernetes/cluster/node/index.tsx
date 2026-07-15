@@ -2,7 +2,7 @@ import { CloseCircleOutlined, InsertRowBelowOutlined, LineChartOutlined, MoreOut
 import type { ActionType, ProColumns, ProFormInstance } from '@ant-design/pro-components';
 import { EditableProTable, FooterToolbar, ModalForm, PageContainer, ProTable } from '@ant-design/pro-components';
 import { FormattedMessage, useAccess, useIntl } from '@umijs/max';
-import { Alert, Button, Divider, Drawer, Dropdown, Flex, Modal, message, Popconfirm, Popover, Space, Tag, Tooltip, Typography } from 'antd';
+import { Alert, Button, Divider, Drawer, Dropdown, Flex, Modal, message, Popconfirm, Popover, Space, Tag, Tooltip, Typography, theme } from 'antd';
 import React, { type ReactNode, useEffect, useRef, useState } from 'react';
 const { Text } = Typography;
 import type { INode, ITaint, NodeAddress, NodeCondition, NodeList, NodeSystemInfo, Taint } from 'kubernetes-models/v1';
@@ -16,7 +16,7 @@ import { clusterGetProxy, clusterPatchProxy } from '@/services/cluster_proxy.api
 
 import type { PatchSubsetValue } from '@/services/common';
 import { getClusterResource } from '@/utils/cluster';
-import { getColorPrimary, getCurrentViewInfo, removeSuffix } from '@/utils/global';
+import { getCurrentViewInfo, removeSuffix } from '@/utils/global';
 import MetricsValue from '@/pages/kubernetes/components/metrics_value';
 import { RenderNodeMetrics } from '@/pages/kubernetes/components/node_metrics';
 import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
@@ -31,7 +31,8 @@ type NodeTaintType = {
 };
 
 const IndexDashboard: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const actionRef = useRef<ActionType>(null);
   const access = useAccess();
   const { cluster } = getCurrentViewInfo();

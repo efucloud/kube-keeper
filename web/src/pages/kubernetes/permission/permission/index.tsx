@@ -1,7 +1,7 @@
 import { DeleteOutlined } from '@ant-design/icons';
 import { type ActionType, PageContainer, type ProColumns, type ProFormInstance, ProTable } from '@ant-design/pro-components';
 import { FormattedMessage, useAccess, useIntl } from '@umijs/max';
-import { Button, Empty, message, Popconfirm, Select, Space, Tabs, Tag, Tooltip, Typography } from 'antd';
+import { Button, Empty, message, Popconfirm, Select, Space, Tabs, Tag, theme, Tooltip, Typography } from 'antd';
 import dayjs from 'dayjs';
 import debounce from 'lodash/debounce';
 import { useEffect, useRef, useState } from 'react';
@@ -13,10 +13,10 @@ import type { ClusterAccountRoleDetail, ClusterAccountRoleDetailList } from '@/s
 import { deleteClusterAccountRole, listClusterAccountRole } from '@/services/cluster_account_role.api';
 import type { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/services/cluster_namespace';
 import { type ClusterNamespaceAccountRoleDetail, ClusterNamespaceAccountRoleDetailList } from '@/services/cluster_namespace_account_role';
-import type { ClusterRoleTemplateDetail, ClusterRoleTemplateDetailList } from '@/services/cluster_role_template';
+import type { ClusterRoleTemplate , ClusterRoleTemplateList } from '@/services/cluster_role_template';
 import { listClusterRoleTemplate } from '@/services/cluster_role_template.api';
 import { canAccessClusterNamespaces } from '@/services/personal.api';
-import { getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo } from '@/utils/global';
 import { listClusterNamespaceAccountRole } from '@/services/cluster_namespace_account_role.api';
 import { TabsProps } from 'antd/lib';
 import { syncClusterNamespace } from '@/services/cluster.api';
@@ -28,7 +28,8 @@ const Index: React.FC = () => {
   const intl = useIntl();
   const access = useAccess();
   const { cluster } = getCurrentViewInfo();
-  const colorPrimary = getColorPrimary();
+   const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const actionRef = useRef<ActionType>(null);
   const [activeKey, setActiveKey] = useState<string>('cluster');
   const debouncedClusterAccountChange = debounce((value) => { setSearchClusterAccount(value); }, 1000);
@@ -39,7 +40,7 @@ const Index: React.FC = () => {
   const [namespaceAccountRoles, setNamespaceAccountRoles] = useState<ClusterNamespaceAccountRoleDetail[]>([]);
   const [searchClusterAccount, setSearchClusterAccount] = useState<string>('');
   const [clusterAccounts, setClusterAccounts] = useState<ClusterAccountDetail[]>([]);
-  const [clusterRoleTempltes, setClusterRoleTemplates] = useState<ClusterRoleTemplateDetail[]>([]);
+  const [clusterRoleTempltes, setClusterRoleTemplates] = useState<ClusterRoleTemplate []>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [selectedClusterAccountId, setSelectedClusterAccountId] = useState<string>('');
   const clusterFormRef = useRef<ProFormInstance>(undefined);
@@ -72,7 +73,7 @@ const Index: React.FC = () => {
     } as Record<string, any>;
     const data = (await listClusterRoleTemplate(
       params,
-    )) as ClusterRoleTemplateDetailList;
+    )) as ClusterRoleTemplatelList;
     setClusterRoleTemplates(data.data || []);
   };
   useEffect(() => {
@@ -227,9 +228,9 @@ const Index: React.FC = () => {
               setSelectedTemplate(value);
             }}
           >
-            {clusterRoleTempltes?.map((item: ClusterRoleTemplateDetail) => {
+            {clusterRoleTempltes?.map((item: ClusterRoleTemplate ) => {
               return (
-                <Select.Option key={item.id} value={item.name}>
+                <Select.Option key={item.name} value={item.name}>
                   {item.name}
                 </Select.Option>
               );
@@ -478,9 +479,9 @@ const Index: React.FC = () => {
               setSelectedTemplate(value);
             }}
           >
-            {clusterRoleTempltes?.map((item: ClusterRoleTemplateDetail) => {
+            {clusterRoleTempltes?.map((item: ClusterRoleTemplate) => {
               return (
-                <Select.Option key={item.id} value={item.name}>
+                <Select.Option key={item.name} value={item.name}>
                   {item.name}
                 </Select.Option>
               );

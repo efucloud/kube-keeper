@@ -1,10 +1,10 @@
 import { ReloadOutlined } from '@ant-design/icons';
 import { useIntl } from '@umijs/max';
-import { Col, Flex, Row, Slider, Space, Tag } from 'antd';
+import { Col, Flex, Row, Slider, Space, Tag, theme } from 'antd';
 import dayjs from 'dayjs';
 import debounce from 'lodash/debounce';
 import { useState } from 'react';
-import { getColorPrimary } from '@/utils/global';
+
 import MetricsLine from '@/pages/kubernetes/components/metrics_line';
 import MetricsTable from '@/pages/kubernetes/components/metrics_table';
 export type RenderPodMetricsProps = {
@@ -20,15 +20,16 @@ export const RenderPodMetrics: React.FC<RenderPodMetricsProps> = (props) => {
   const [startValue, setStartValue] = useState<number>(props.startTime || 1440 * 60);
   const [endValue, setEndValue] = useState<number>(props.endTime || 0);
   const intl = useIntl();
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const customMarks = {
-    [1440*60]: '-24h',
-    [2880*60]: '-2day',
-    [4320*60]: '-3day',
-    [5760*60]: '-4day',
-    [7200*60]: '-5day',
-    [8640*60]: '-6day',
-    [10080*60]: '-7day',
+    [1440 * 60]: '-24h',
+    [2880 * 60]: '-2day',
+    [4320 * 60]: '-3day',
+    [5760 * 60]: '-4day',
+    [7200 * 60]: '-5day',
+    [8640 * 60]: '-6day',
+    [10080 * 60]: '-7day',
   };
   const debouncedValueChange = debounce((values: number[]) => {
     if (values.length == 2) {
@@ -53,7 +54,7 @@ export const RenderPodMetrics: React.FC<RenderPodMetricsProps> = (props) => {
           min={0}
           max={totalSeconds}
           marks={customMarks}
-          defaultValue={[0, 1440*60]}
+          defaultValue={[0, 1440 * 60]}
           onChange={(values: number[]) => {
             debouncedValueChange(values);
           }}
@@ -75,7 +76,7 @@ export const RenderPodMetrics: React.FC<RenderPodMetricsProps> = (props) => {
 
           <Tag key='date'>{new Date(time.unix() * 1000).toLocaleString()} </Tag>
           <ReloadOutlined
-            style={{ color: getColorPrimary(), fontSize: '1.2em' }}
+            style={{ color: colorPrimary, fontSize: '1.2em' }}
             onClick={() => setTime(dayjs())}
           />
         </Space>

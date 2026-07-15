@@ -2,7 +2,7 @@ import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns, ProFormInstance } from '@ant-design/pro-components';
 import { FooterToolbar, PageContainer, ProTable } from '@ant-design/pro-components';
 import { Access, FormattedMessage, useAccess, useIntl } from '@umijs/max';
-import { Button, Flex, Modal, message, Popconfirm, Select, Space, Tag, Empty, Divider, Tooltip, Drawer } from 'antd';
+import { Button, Flex, Modal, message, Popconfirm, Select, Space, Tag, Empty, Divider, Tooltip, Drawer, theme } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import dayjs from 'dayjs';
 import { IService, type IIoK8sApiCoreV1ServicePort, type ServiceList } from 'kubernetes-models/v1';
@@ -13,14 +13,15 @@ import type { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/servi
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { canAccessClusterNamespaces } from '@/services/personal.api';
-import { getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo } from '@/utils/global';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import { RenderPods } from '@/pages/kubernetes/components/pod';
 
 import AICopilot from '@/pages/kubernetes/components/ai';
 
 const IndexDashboard: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const actionRef = useRef<ActionType>(null);
   const access = useAccess();
   const { cluster, namespace } = getCurrentViewInfo();

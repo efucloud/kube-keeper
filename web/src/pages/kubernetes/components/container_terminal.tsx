@@ -9,8 +9,8 @@ import { Terminal } from '@xterm/xterm';
 import React, { useEffect, useRef, useState } from 'react';
 import '@xterm/xterm/css/xterm.css'; // 必须引入样式
 import { FormattedMessage, useIntl } from '@umijs/max';
-import { Button, Drawer, Input, Row, Select, Space } from 'antd';
-import { getColorPrimary, getToken } from '@/utils/global';
+import { Button, Drawer, Input, Row, Select, Space, theme } from 'antd';
+import { getToken } from '@/utils/global';
 import { BugOutlined } from '@ant-design/icons';
 import debounce from 'lodash/debounce';
 import { ActionType, ProList } from '@ant-design/pro-components';
@@ -42,7 +42,8 @@ const customSettings: IImageAddonOptions = {
   iipSizeLimit: 20000000, // size limit of a single IIP sequence
 };
 export const PodContainerTerminal: React.FC<TerminalProps> = (props) => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const [container, setContainer] = React.useState(props.containers[0]);
   const [command, setCommand] = React.useState('sh');
   const intl = useIntl();

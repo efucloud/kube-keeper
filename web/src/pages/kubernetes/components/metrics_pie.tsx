@@ -1,16 +1,17 @@
 import { MoreOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { Pie, PieOptions } from '@antv/g2plot';
-import { Dropdown, Space, Tooltip } from 'antd';
+import { Dropdown, Space, theme, Tooltip } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 import { clusterMetricsQuery } from '@/services/cluster.api';
-import { getColorPrimary } from '@/utils/global';
+
 import { type MetricData, type MetricsParamsProps } from '@/pages/kubernetes/components/metrics_def';
 import { VectorData } from '@/services/prometheus';
 import Decimal from 'decimal.js';
 
 const MetricsPie: React.FC<MetricsParamsProps> = (props) => {
   const containerRef = useRef(null);
-  const colorPrimary = getColorPrimary();
+   const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const time = Math.floor(props.end || Date.now() / 1000);
   const [metricsData, setMetricsData] = useState<MetricData[]>([]);
   const [render, setRender] = useState(0);
@@ -91,7 +92,7 @@ const MetricsPie: React.FC<MetricsParamsProps> = (props) => {
           <div style={{ float: 'left' }}>
             {props.title}{props.unit ? `(${props.unit})` : ''}&nbsp;
             {props.tooltip && (
-              <Tooltip color={getColorPrimary()} title={props.tooltip}>
+              <Tooltip color={colorPrimary} title={props.tooltip}>
                 <QuestionCircleOutlined />
               </Tooltip>
             )}

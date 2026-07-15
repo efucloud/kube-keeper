@@ -1,9 +1,11 @@
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
-import { getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+
+import { theme } from 'antd';
 
 export const WorkplaceIndex: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const {token} = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   if (window.location.href.indexOf(`/workplace`) < 0
   ) {
     return (

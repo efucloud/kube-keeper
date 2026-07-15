@@ -3,11 +3,11 @@ import { ClusterNamespaceDetail, ClusterNamespaceDetailList } from "@/services/c
 import { clusterGetProxy, clusterPostProxy, clusterPutProxy } from "@/services/cluster_proxy.api";
 import { canAccessClusterNamespaces } from "@/services/personal.api";
 import { getClusterResource } from "@/utils/cluster";
-import { getClusterApiVersions, getColorPrimary, getCurrentViewInfo, getHeight } from "@/utils/global";
+import { getClusterApiVersions, getCurrentViewInfo, getHeight } from "@/utils/global";
 import { ActionType, ModalForm, ProForm, ProFormInstance, ProFormSelect, ProFormSwitch, ProFormText, ProFormTextArea, ProTable } from "@ant-design/pro-components";
 import { FooterToolbar, PageContainer } from "@ant-design/pro-layout";
 import { FormattedMessage, useIntl, useParams } from "@umijs/max";
-import { Button, Card, Col, Drawer, message, Modal, Popconfirm, Row, Space, Tag, Tooltip } from "antd";
+import { Button, Card, Col, Drawer, message, Modal, Popconfirm, Row, Space, Tag, theme, Tooltip } from "antd";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { IIoK8sApiNetworkingV1IngressTLS, Ingress, IIoK8sApiNetworkingV1HTTPIngressPath, IIngress } from 'kubernetes-models/networking.k8s.io/v1';
 import { DeleteOutlined, EditOutlined, EyeOutlined, QuestionCircleOutlined } from "@ant-design/icons";
@@ -24,7 +24,8 @@ const IngressForm: React.FC = () => {
   const formRef = useRef<ProFormInstance>(undefined);
   const ruleFormRef = useRef<ProFormInstance>(undefined);
   const actionRef = useRef<ActionType>(undefined);
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const params = useParams();
   const action = params.action;
   const name = params.name;

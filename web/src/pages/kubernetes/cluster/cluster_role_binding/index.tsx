@@ -2,7 +2,7 @@ import { CloseCircleOutlined, DeleteOutlined, EditOutlined, InsertRowBelowOutlin
 import type { ActionType, ProColumns, ProFormInstance } from '@ant-design/pro-components';
 import { PageContainer, ProTable } from '@ant-design/pro-components';
 import { Access, FormattedMessage, useAccess, useIntl } from '@umijs/max';
-import { Button, Drawer, Dropdown, message, Popconfirm, Popover, Space, Tag, Typography, Divider } from 'antd';
+import { Button, Drawer, Dropdown, message, Popconfirm, Popover, Space, Tag, Typography, Divider, theme } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 const { Text } = Typography;
 import dayjs from 'dayjs';
@@ -13,14 +13,15 @@ import FilterSelector from '@/pages/kubernetes/components/filter_selector';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo } from '@/utils/global';
 import { RenderRoleBinding } from '@/pages/kubernetes/components/policy';
 import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 
 import AICopilot from '../../components/ai';
 
 const IndexDashboard: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const actionRef = useRef<ActionType>(null);
   const access = useAccess();
   const { cluster } = getCurrentViewInfo();

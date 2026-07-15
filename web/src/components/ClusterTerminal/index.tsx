@@ -1,35 +1,23 @@
 import {
-  CloudUploadOutlined,
   CodeOutlined,
-  InboxOutlined,
-  QuestionCircleOutlined,
 } from '@ant-design/icons';
-import type { ActionType, ProColumns } from '@ant-design/pro-components';
-import { ProCard, ProTable, StepsForm } from '@ant-design/pro-components';
-import type { IIoK8sApimachineryPkgApisMetaV1ObjectMeta } from '@kubernetes-models/apimachinery/apis/meta/v1/ObjectMeta';
-import Editor from '@monaco-editor/react';
-import { FormattedMessage, useAccess, useIntl } from '@umijs/max';
-import { Tooltip } from 'antd';
-import {
-  getColorPrimary,
-  getCurrentViewInfo,
-} from '@/utils/global';
+
+import { FormattedMessage } from '@umijs/max';
+import { theme, Tooltip } from 'antd';
+import { getCurrentViewInfo, } from '@/utils/global';
 
 export const ClusterTerminal: React.FC = () => {
-  const access = useAccess();
-  const intl = useIntl();
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
   const { cluster } = getCurrentViewInfo();
-
   if (cluster !== '') {
     return (
       <Tooltip
-        color={colorPrimary}
+        color={token.colorPrimary}
         title={<FormattedMessage id="cluster.terminal" />}
       >
         <CodeOutlined
           style={{
-            color: colorPrimary,
+            color: token.colorPrimary,
             fontSize: 20,
             verticalAlign: 'middle',
           }}

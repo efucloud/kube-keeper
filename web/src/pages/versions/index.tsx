@@ -1,13 +1,14 @@
 import { PageContainer } from '@ant-design/pro-components';
 import { useIntl } from '@umijs/max';
 import { type FC } from 'react';
-import { Card, Tag } from 'antd';
+import { Card, Tag, theme } from 'antd';
 import { CheckCircleOutlined } from '@ant-design/icons';
-import { getColorPrimary } from '@/utils/global';
+
 
 const VersionIndex: FC = () => {
   const intl = useIntl();
-  const colorPrimary = getColorPrimary();
+   const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const versions = [
     {
       titleKey: 'pages.versions.card.community.title',

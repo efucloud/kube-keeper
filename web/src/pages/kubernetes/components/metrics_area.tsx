@@ -1,11 +1,11 @@
 import { MoreOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { Area } from '@antv/g2plot';
-import { Dropdown, Space, Tooltip } from 'antd';
+import { Dropdown, Space, theme, Tooltip } from 'antd';
 import { format } from 'date-fns';
 import { Decimal } from 'decimal.js';
 import React, { useEffect, useRef, useState } from 'react';
 import { clusterMetricsQueryRange } from '@/services/cluster.api';
-import { getColorPrimary } from '@/utils/global';
+
 import {
   type MatrixData,
   type MetricData,
@@ -15,7 +15,8 @@ import {
 
 const MetricsArea: React.FC<MetricsParamsProps> = (props) => {
   const containerRef = useRef(null);
-  const colorPrimary = getColorPrimary();
+   const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const [metricsData, setMetricsData] = useState<MetricData[]>([]);
   const [render, setRender] = useState(0);
   const fetchData = async () => {
@@ -128,7 +129,7 @@ const MetricsArea: React.FC<MetricsParamsProps> = (props) => {
           <div style={{ float: 'left' }}>
             {props.title}&nbsp;
             {props.tooltip && (
-              <Tooltip color={getColorPrimary()} title={props.tooltip}>
+              <Tooltip color={colorPrimary} title={props.tooltip}>
                 <QuestionCircleOutlined />
               </Tooltip>
             )}

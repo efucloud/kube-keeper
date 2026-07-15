@@ -1,8 +1,8 @@
 // StartNode.tsx
-import { getColorPrimary } from '@/utils/global';
+
 import { FormattedMessage } from '@umijs/max';
 import { Handle, Position } from '@xyflow/react';
-import { Tooltip } from 'antd';
+import { theme, Tooltip } from 'antd';
 import Avatar from 'antd/es/avatar/Avatar';
 import { memo } from 'react';
 
@@ -10,7 +10,8 @@ function StopNode({ data }) {
   // 默认 vertical
   const direction = data?.layoutDirection || 'vertical';
   const targetPosition = direction === 'horizontal' ? Position.Left : Position.Top;
-  const colorPrimary = getColorPrimary();
+   const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   return (
     <Tooltip
       color={colorPrimary}

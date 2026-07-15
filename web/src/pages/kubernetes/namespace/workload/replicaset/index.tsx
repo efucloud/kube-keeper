@@ -2,7 +2,7 @@ import { CloseCircleOutlined, DeleteOutlined, EditOutlined, InsertRowBelowOutlin
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { FooterToolbar, PageContainer, type ProFormInstance, ProTable } from '@ant-design/pro-components';
 import { Access, FormattedMessage, useAccess, useIntl } from '@umijs/max';
-import { Button, Divider, Drawer, Dropdown, Flex, Modal, message, Popconfirm, Popover, Select, Space, Tag, Typography, Empty } from 'antd';
+import { Button, Divider, Drawer, Dropdown, Flex, Modal, message, Popconfirm, Popover, Select, Space, Tag, Typography, Empty, theme } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 const { Text } = Typography;
 import dayjs from 'dayjs';
@@ -20,14 +20,15 @@ import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.ap
 
 import { canAccessClusterNamespaces } from '@/services/personal.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo } from '@/utils/global';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import OwnerReferencesView from '@/pages/kubernetes/components/owner_references';
 
 import AICopilot from '@/pages/kubernetes/components/ai';
 
 const IndexDashboard: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const actionRef = useRef<ActionType>(null);
   const formRef = useRef<ProFormInstance>(undefined);
   const access = useAccess();

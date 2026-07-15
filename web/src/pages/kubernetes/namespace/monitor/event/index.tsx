@@ -2,7 +2,7 @@ import { CloseCircleOutlined, InsertRowBelowOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns, ProFormInstance } from '@ant-design/pro-components';
 import { PageContainer, ProTable } from '@ant-design/pro-components';
 import { FormattedMessage, useAccess, useIntl } from '@umijs/max';
-import { Button, message, Popover, Select, Space, Tag, Typography, Empty, Divider, Drawer } from 'antd';
+import { Button, message, Popover, Select, Space, Tag, Typography, Empty, Divider, Drawer, theme } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 const { Text } = Typography;
 import dayjs from 'dayjs';
@@ -14,7 +14,7 @@ import type { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/servi
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { canAccessClusterNamespaces } from '@/services/personal.api';
-import { getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo } from '@/utils/global';
 import { syncClusterNamespace } from '@/services/cluster.api';
 
 import { getClusterResource } from '@/utils/cluster';
@@ -23,7 +23,8 @@ import AICopilot from '@/pages/kubernetes/components/ai';
 import { CncfPrometheus } from '@/utils/cncf';
 
 const IndexDashboard: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const actionRef = useRef<ActionType>(null);
   const access = useAccess();
   const { cluster, namespace } = getCurrentViewInfo();

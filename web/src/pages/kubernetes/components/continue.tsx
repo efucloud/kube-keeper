@@ -1,7 +1,7 @@
 import { FormattedMessage } from '@umijs/max';
-import { Badge, Typography } from 'antd';
+import { Badge, theme, Typography } from 'antd';
 import React from 'react';
-import { getColorPrimary } from '@/utils/global';
+
 
 const { Paragraph, Text } = Typography;
 export type ContinueProps = {
@@ -10,7 +10,8 @@ export type ContinueProps = {
 };
 
 const Continue: React.FC<ContinueProps> = (props) => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   let total = props.current;
   if (props?.remainingItemCount) {
     total = props?.remainingItemCount + props.current;

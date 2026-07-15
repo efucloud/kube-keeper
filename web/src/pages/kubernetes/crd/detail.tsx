@@ -1,4 +1,4 @@
-import { getClusterApiVersions, getColorPrimary, getCurrentViewInfo } from "@/utils/global";
+import { getClusterApiVersions, getCurrentViewInfo } from "@/utils/global";
 import { PageContainer, ProDescriptions } from "@ant-design/pro-components";
 import { useParams, useIntl, FormattedMessage } from "@umijs/max";
 import { useEffect, useState } from "react";
@@ -10,7 +10,7 @@ import dayjs from "dayjs";
 
 
 const DetailView: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  
   const { cluster } = getCurrentViewInfo();
   const { name } = useParams();
   const [info, setInfo] = useState<CustomResourceDefinition>();

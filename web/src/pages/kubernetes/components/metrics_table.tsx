@@ -1,17 +1,18 @@
 import { MoreOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import type { ProColumns } from '@ant-design/pro-components';
-import { Dropdown, Space, Table, Tooltip } from 'antd';
+import { Dropdown, Space, Table, theme, Tooltip } from 'antd';
 import { Decimal } from 'decimal.js';
 import React, { useEffect, useState } from 'react';
 import { clusterMetricsQuery } from '@/services/cluster.api';
 import type { VectorData } from '@/services/prometheus';
-import { getColorPrimary } from '@/utils/global';
+
 import type { MetricsParamsProps } from '@/pages/kubernetes/components/metrics_def';
 import { useIntl } from '@umijs/max';
 
 type ItemData = Record<string, any>;
 const MetricsTable: React.FC<MetricsParamsProps> = (props) => {
-  const colorPrimary = getColorPrimary();
+   const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const [width, setWidth] = useState(100);
   const intl = useIntl();
   const time = props.end;
@@ -150,7 +151,7 @@ const MetricsTable: React.FC<MetricsParamsProps> = (props) => {
           <div style={{ float: 'left' }}>
             {props.title}&nbsp;
             {props.tooltip && (
-              <Tooltip color={getColorPrimary()} title={props.tooltip}>
+              <Tooltip color={colorPrimary} title={props.tooltip}>
                 <QuestionCircleOutlined />
               </Tooltip>
             )}

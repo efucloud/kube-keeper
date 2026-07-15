@@ -2,7 +2,7 @@ import { CloseCircleOutlined, DeleteOutlined, EditOutlined, InboxOutlined, Inser
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { FooterToolbar, ModalForm, PageContainer, type ProFormInstance, ProFormSelect, ProFormText, ProFormTextArea, ProTable } from '@ant-design/pro-components';
 import { Access, FormattedMessage, useAccess, useIntl } from '@umijs/max';
-import { Button, Drawer, Dropdown, Modal, message, Popconfirm, Popover, Space, Tag, Tooltip, Typography, Select, Empty, Divider, Row, Col, Tabs } from 'antd';
+import { Button, Drawer, Dropdown, Modal, message, Popconfirm, Popover, Space, Tag, Tooltip, Typography, Select, Empty, Divider, Row, Col, Tabs, theme } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 const { Text } = Typography;
 import dayjs from 'dayjs';
@@ -14,7 +14,7 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { clusterDeleteProxy, clusterGetProxy, clusterPostProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
 import { debounce } from 'lodash';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/services/cluster_namespace';
@@ -29,7 +29,8 @@ import AICopilot from '@/pages/kubernetes/components/ai';
 import { CncfTekton } from '@/utils/cncf';
 
 const IndexDashboard: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const actionRef = useRef<ActionType>(null);
   const access = useAccess();
   const { cluster, namespace } = getCurrentViewInfo();

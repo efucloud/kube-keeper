@@ -1,8 +1,8 @@
-import { getClusterApiVersions, getColorPrimary, getCurrentViewInfo } from "@/utils/global";
+import { getClusterApiVersions, getCurrentViewInfo } from "@/utils/global";
 import { PageContainer, ProColumns, ProDescriptions, ProTable } from "@ant-design/pro-components";
 import { useParams, useIntl, FormattedMessage } from "@umijs/max";
 import { useEffect, useState } from "react";
-import { Button, Card, Popconfirm, message, Dropdown, Drawer, Row, Col, Tag, Flex, Tabs, TabsProps } from "antd";
+import { Button, Card, Popconfirm, message, Dropdown, Drawer, Row, Col, Tag, Flex, Tabs, TabsProps, theme } from "antd";
 import { clusterGetProxy, clusterDeleteProxy } from '@/services/cluster_proxy.api';
 import { IIoK8sApiBatchV1JobCondition, Job } from 'kubernetes-models/batch/v1';
 import { MoreOutlined, ReloadOutlined } from "@ant-design/icons";
@@ -21,7 +21,8 @@ import * as yaml from 'js-yaml';
 import { cleanK8sResourceForAI } from "@/utils/copilot";
 
 const DetailView: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const { cluster, namespace } = getCurrentViewInfo();
   const { name } = useParams();
   const [info, setInfo] = useState<Job>();

@@ -2,7 +2,7 @@ import { CloseCircleOutlined, DeleteOutlined, InsertRowBelowOutlined, MoreOutlin
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { FooterToolbar, PageContainer, ProTable } from '@ant-design/pro-components';
 import { Access, FormattedMessage, useAccess, useIntl, useParams } from '@umijs/max';
-import { Button, Drawer, Dropdown, Modal, message, Popconfirm, Popover, Space, Tag, Typography } from 'antd';
+import { Button, Drawer, Dropdown, Modal, message, Popconfirm, Popover, Space, Tag, Typography, theme } from 'antd';
 import React, { useRef, useState } from 'react';
 const { Text } = Typography;
 import dayjs from 'dayjs';
@@ -12,12 +12,13 @@ import Continue from '@/pages/kubernetes/components/continue';
 import FilterSelector from '@/pages/kubernetes/components/filter_selector';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo } from '@/utils/global';
 import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import AICopilot from '@/pages/kubernetes/components/ai';
 
 const InstanceDashboard: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const actionRef = useRef<ActionType>(null);
   const access = useAccess();
   const params = useParams();

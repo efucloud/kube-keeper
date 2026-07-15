@@ -2,7 +2,7 @@ import { CloseCircleOutlined, DeleteOutlined, EditOutlined, InsertRowBelowOutlin
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { FooterToolbar, PageContainer, ProTable } from '@ant-design/pro-components';
 import { Access, FormattedMessage, useAccess, useIntl } from '@umijs/max';
-import { Button, Drawer, Modal, message, Popconfirm, Popover, Space, Tag, Typography, Empty, Select } from 'antd';
+import { Button, Drawer, Modal, message, Popconfirm, Popover, Space, Tag, Typography, Empty, Select, theme } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 const { Text } = Typography;
 import type { IAppProject } from '@kubernetes-models/argo-cd/argoproj.io/v1alpha1/AppProject';
@@ -14,7 +14,7 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
 import { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/services/cluster_namespace';
 import { debounce } from 'lodash';
 import { syncClusterNamespace } from '@/services/cluster.api';
@@ -24,7 +24,8 @@ import AICopilot from '@/pages/kubernetes/components/ai';
 import { CncfArgoCD, CncfVolcano } from '@/utils/cncf';
 
 const IndexDashboard: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const actionRef = useRef<ActionType>(null);
   const access = useAccess();
   const { cluster, namespace } = getCurrentViewInfo();

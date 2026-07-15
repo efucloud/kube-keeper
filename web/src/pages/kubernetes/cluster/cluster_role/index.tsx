@@ -2,7 +2,7 @@ import { CloseCircleOutlined, DeleteOutlined, EditOutlined, InsertRowBelowOutlin
 import type { ActionType, ProColumns, ProFormInstance } from '@ant-design/pro-components';
 import { FooterToolbar, PageContainer, ProTable } from '@ant-design/pro-components';
 import { FormattedMessage, useAccess, useIntl } from '@umijs/max';
-import { Button, Drawer, Dropdown, Modal, message, Popconfirm, Popover, Space, Tag, Typography, Divider } from 'antd';
+import { Button, Drawer, Dropdown, Modal, message, Popconfirm, Popover, Space, Tag, Typography, Divider, theme } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 const { Text } = Typography;
 import dayjs from 'dayjs';
@@ -14,7 +14,7 @@ import { RenderRules } from '@/pages/kubernetes/components/policy';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo } from '@/utils/global';
 import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 
 import AICopilot from '../../components/ai';
@@ -25,7 +25,8 @@ import AICopilot from '../../components/ai';
  */
 const IndexDashboard: React.FC = () => {
   // 获取主题主色
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   // 创建操作引用，用于表格操作
   const actionRef = useRef<ActionType>(null);
   // 获取访问权限信息

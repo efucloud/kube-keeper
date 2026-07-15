@@ -2,7 +2,7 @@ import { CloseCircleOutlined, DeleteOutlined, EditOutlined, InsertRowBelowOutlin
 import type { ActionType, ProColumns, ProFormInstance } from '@ant-design/pro-components';
 import { FooterToolbar, PageContainer, ProTable } from '@ant-design/pro-components';
 import { Access, FormattedMessage, useAccess, useIntl } from '@umijs/max';
-import { Button, Modal, message, Popconfirm, Popover, Space, Tag, Typography, Divider, Drawer } from 'antd';
+import { Button, Modal, message, Popconfirm, Popover, Space, Tag, Typography, Divider, Drawer, theme } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 const { Text } = Typography;
 import dayjs from 'dayjs';
@@ -11,7 +11,7 @@ import Continue from '@/pages/kubernetes/components/continue';
 import FilterSelector from '@/pages/kubernetes/components/filter_selector';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
-import { getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo } from '@/utils/global';
 import type { IValidatingWebhookConfiguration, ValidatingWebhookConfigurationList } from 'kubernetes-models/admissionregistration.k8s.io/v1';
 import { getClusterResource } from '@/utils/cluster';
 import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
@@ -19,7 +19,8 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import AICopilot from '@/pages/kubernetes/components/ai';
 
 const IndexDashboard: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const actionRef = useRef<ActionType>(null);
   const [dataSource, setDataSource] = useState<IValidatingWebhookConfiguration[]>([]);
   const [loading, setLoading] = useState<boolean>(true);

@@ -1,8 +1,8 @@
-import { getColorPrimary, getCurrentViewInfo } from "@/utils/global";
+import { getCurrentViewInfo } from "@/utils/global";
 import { PageContainer, ProColumns, ProDescriptions, ProTable } from "@ant-design/pro-components";
 import { useParams, useIntl, FormattedMessage } from "@umijs/max";
 import { useEffect, useState } from "react";
-import { Button, Card, Popconfirm, message, Dropdown, Drawer, Tag, Space, Row, Col } from "antd";
+import { Button, Card, Popconfirm, message, Dropdown, Drawer, Tag, Space, Row, Col, theme } from "antd";
 import { clusterGetProxy, clusterDeleteProxy } from '@/services/cluster_proxy.api';
 import { IIoK8sApiCoreV1ServicePort, Service } from "kubernetes-models/v1";
 import { MoreOutlined, ReloadOutlined } from "@ant-design/icons";
@@ -13,7 +13,8 @@ import { RenderPods } from "@/pages/kubernetes/components/pod";
 
 
 const DetailView: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const { cluster, namespace } = getCurrentViewInfo();
   const { name } = useParams();
   const [info, setInfo] = useState<Service>();

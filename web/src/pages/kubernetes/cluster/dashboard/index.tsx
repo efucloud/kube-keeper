@@ -9,6 +9,7 @@ import {
   Row,
   Statistic,
   Tag,
+  theme,
   Tooltip,
 } from 'antd';
 import React, { useEffect, useState } from 'react';
@@ -23,15 +24,16 @@ import type { ClusterDetail } from '@/services/cluster';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import { getClusterResource } from '@/utils/cluster';
 import {
-  getColorPrimary,
+
   getCurrentViewInfo,
   saveClusterApiVersions,
- 
+
 } from '@/utils/global';
 import AICopilot from '../../components/ai';
 
 const IndexDashboard: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const { cluster } = getCurrentViewInfo();
   const [dashboard, setDashboard] = useState<ClusterDashboard>({});
   const [info, setInfo] = useState<ClusterDetail>({} as ClusterDetail);
@@ -50,7 +52,7 @@ const IndexDashboard: React.FC = () => {
         cluster,
       })) as ClusterDetail;
       setInfo(data);
-      
+
       //获取集群资源
       clusterServerGroups({ cluster: cluster }).then((res) => {
         const groups = res as string;

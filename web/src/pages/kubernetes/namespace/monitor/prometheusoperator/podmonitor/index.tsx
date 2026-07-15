@@ -2,7 +2,7 @@ import { CloseCircleOutlined, DeleteOutlined, EditOutlined, InsertRowBelowOutlin
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { FooterToolbar, PageContainer, type ProFormInstance, ProTable } from '@ant-design/pro-components';
 import { Access, FormattedMessage, useAccess, useIntl } from '@umijs/max';
-import { Button, Divider, Drawer, Modal, message, Popconfirm, Popover, Select, Space, Tag, Typography, Empty } from 'antd';
+import { Button, Divider, Drawer, Modal, message, Popconfirm, Popover, Select, Space, Tag, Typography, Empty, theme } from 'antd';
 import React, { useEffect, useRef, useState } from 'react';
 const { Text } = Typography;
 import type { PodMonitor } from '@kubernetes-models/prometheus-operator/monitoring.coreos.com/v1';
@@ -17,7 +17,7 @@ import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.ap
 
 import { canAccessClusterNamespaces } from '@/services/personal.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getColorPrimary, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
 import { formatResourceKind } from '@/pages/kubernetes/utils/resourceKind';
 import { syncClusterNamespace } from '@/services/cluster.api';
 
@@ -25,7 +25,8 @@ import AICopilot from '@/pages/kubernetes/components/ai';
 import { CncfPrometheus } from '@/utils/cncf';
 
 const IndexDashboard: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const { token } = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   const actionRef = useRef<ActionType>(null);
   const access = useAccess();
   const { cluster, namespace } = getCurrentViewInfo();

@@ -1,16 +1,17 @@
 import type { ActionType, ProColumns } from '@ant-design/pro-components';
 import { FooterToolbar, ModalForm, PageContainer, ProFormSelect, ProTable } from '@ant-design/pro-components';
 import { Access, FormattedMessage, useAccess, useIntl, useNavigate } from '@umijs/max';
-import { Alert, Button, Modal, message, Popconfirm, Space } from 'antd';
+import { Alert, Button, Modal, message, Popconfirm, Space, theme } from 'antd';
 import React, { useRef, useState } from 'react';
 import type { IntlShape } from 'react-intl';
 import type { TableListPagination } from '@/services/common.d';
 import { changeAccountStatus, deleteAccount, listAccount, setAccountRole } from '@/services/account.api';
 import type { AccountDetail, AccountRole } from '@/services/account.d';
-import { getColorPrimary } from '@/utils/global';
+
 
 const OrgAccountTableList: React.FC = () => {
-  const colorPrimary = getColorPrimary();
+  const {token} = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   /** 新建窗口的弹窗 */
   const actionRef = useRef<ActionType>(null);
   const access = useAccess();

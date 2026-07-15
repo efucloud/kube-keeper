@@ -1,8 +1,8 @@
 import { StopOutlined } from '@ant-design/icons';
 import { useIntl } from '@umijs/max';
-import { Avatar, Tooltip } from 'antd';
+import { Avatar, theme, Tooltip } from 'antd';
 import React from 'react';
-import { getColorPrimary } from '@/utils/global';
+
 
 interface UserProps {
   username: string;
@@ -14,7 +14,8 @@ interface UserProps {
 
 export const SystemUser: React.FC<UserProps> = (props) => {
   const intl = useIntl();
-  const colorPrimary = getColorPrimary();
+  const {token} = theme.useToken();
+  const colorPrimary = token.colorPrimary;
   return (
     <span style={{ color: colorPrimary }}>
       {props.avatar && (
