@@ -54,11 +54,11 @@ jobs:
             exit 1
           fi
 
-      - name: Run smoke tests
-        run: go test ./cmd/... ./pkg/config/...
-
       - name: Build and embed web assets
         run: ./scripts/build-web-embed.sh
+
+      - name: Run smoke tests
+        run: go test ./cmd/... ./pkg/config/...
 
       - name: Build server entrypoint
         run: go build -o /tmp/kube-keeper ./cmd/start.go
