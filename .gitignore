@@ -17,6 +17,8 @@ dist/
 /generate
 /generates
 *.ts
+!/web/src/pages/kubernetes/utils/resourceKind.ts
+!/web/src/pages/kubernetes/utils/kubevirtPath.ts
 /docs/harbor/harbor.v2.13.0.tar.gz
 /docs/harbor/prepare
 /docs/harbor/data
