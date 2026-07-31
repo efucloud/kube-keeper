@@ -15,7 +15,7 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { debounce } from 'lodash';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/services/cluster_namespace';
@@ -46,9 +46,9 @@ const ServiceIndex: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const resourceGroup = getClusterApiVersions(cluster, ['serving.knative.dev/v1'], 'Service');
   const address = namespace ? `apis/${resourceGroup.groupVersion}/namespaces/${namespace}/services` : `apis/${resourceGroup.groupVersion}/services`;
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/faas/knative/services`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/faas/knative/services`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/faas/knative/services`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/faas/knative/services`);
   }
   const intl = useIntl();
   const [currnetNumber, setCurrnetNumber] = useState<number>(0);
@@ -270,7 +270,7 @@ const ServiceIndex: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/faas/knative/services`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/faas/knative/services`),
                 );
               }}
             >

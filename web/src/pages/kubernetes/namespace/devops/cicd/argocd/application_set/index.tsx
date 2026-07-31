@@ -14,7 +14,7 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { debounce } from 'lodash';
 import { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/services/cluster_namespace';
 import { syncClusterNamespace } from '@/services/cluster.api';
@@ -40,9 +40,9 @@ const IndexDashboard: React.FC = () => {
   const [searchFields, setSearchFields] = useState<{ [key: string]: string }>({});
   const resourceGroup = getClusterApiVersions(cluster, ['argoproj.io/v1alpha1'], 'ApplicationSet');
   const address = namespace ? `apis/${resourceGroup?.groupVersion}/namespaces/${namespace}/applicationsets` : `apis/${resourceGroup?.groupVersion}/applicationsets`;
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/argocd/applicationsets`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/argocd/applicationsets`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/devops/cicd/argocd/applicationsets`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/devops/cicd/argocd/applicationsets`);
   }
   const intl = useIntl();
   const [currnetNumber, setCurrnetNumber] = useState<number>(0);
@@ -195,7 +195,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/devops/cicd/argocd/applicationsets`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/devops/cicd/argocd/applicationsets`),
                 );
               }}
             >

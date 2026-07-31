@@ -11,7 +11,7 @@ import Continue from '@/pages/kubernetes/components/continue';
 import FilterSelector from '@/pages/kubernetes/components/filter_selector';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
 
-import { getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { debounce } from 'lodash';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/services/cluster_namespace';
@@ -155,7 +155,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/monitor/terminal`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/monitor/terminal`),
                 );
               }}
             >

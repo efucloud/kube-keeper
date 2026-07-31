@@ -6,7 +6,7 @@ import ResourceJsonOrYamlForm from '@/pages/kubernetes/components/resource_form'
 const Update = 'update';
 const Create = 'create';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { getClusterResource } from '@/utils/cluster';
 import { PipelineRun } from '@/k8s-models/tekton/pipeline/tekton.dev/v1';
 
@@ -15,9 +15,9 @@ const YamOrJsonForm: FC<Record<string, any>> = () => {
   const { cluster, namespace } = getCurrentViewInfo();
   const [info, setInfo] = useState<PipelineRun>();
   const resourceGroup = getClusterApiVersions(cluster, ['tekton.dev/v1'], "PipelineRun");
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/tekton/pipelineruns`
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/tekton/pipelineruns`)
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/devops/cicd/tekton/pipelineruns`
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/devops/cicd/tekton/pipelineruns`)
   }
   const params = useParams();
   const mode = params.action === Update ? Update : Create; // update or create

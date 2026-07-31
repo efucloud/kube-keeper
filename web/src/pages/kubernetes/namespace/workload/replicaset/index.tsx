@@ -20,7 +20,7 @@ import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.ap
 
 import { canAccessClusterNamespaces } from '@/services/personal.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import OwnerReferencesView from '@/pages/kubernetes/components/owner_references';
 
@@ -57,9 +57,9 @@ const IndexDashboard: React.FC = () => {
 
   const [dataSource, setDataSource] = useState<IReplicaSet[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/replicasets`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/replicasets`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/workload/replicasets`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/workload/replicasets`);
   }
   const debouncedNamespaceChange = debounce((value) => { setSearchNamespace(value); }, 1000);
   const [selectedNamespace, setSelectedNamespace] = useState<string>(namespace);
@@ -290,7 +290,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/replicasets`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/replicasets`),
                 );
               }}
             >
@@ -316,10 +316,10 @@ const IndexDashboard: React.FC = () => {
               <a
                 onClick={() => {
                   if (namespace) {
-                    window.location.pathname = `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/replicasets/${entity?.metadata?.name}`;
+                    window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/replicasets/${entity?.metadata?.name}`);
                   } else {
                     window.open(
-                      `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/replicasets/${entity?.metadata?.name}`,
+                      toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/replicasets/${entity?.metadata?.name}`),
                       '_blank',
                     );
                   }
@@ -341,10 +341,10 @@ const IndexDashboard: React.FC = () => {
               <a
                 onClick={() => {
                   if (namespace) {
-                    window.location.pathname = `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/replicasets/${entity?.metadata?.name}`;
+                    window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/replicasets/${entity?.metadata?.name}`);
                   } else {
                     window.open(
-                      `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/replicasets/${entity?.metadata?.name}`,
+                      toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/replicasets/${entity?.metadata?.name}`),
                       '_blank',
                       'noreferrer',
                     );
@@ -736,7 +736,7 @@ const IndexDashboard: React.FC = () => {
           nodes.unshift(
             <a
               onClick={() => {
-                window.location.href = `/kubernetes/cluster/${cluster}/namespace/${record?.metadata?.namespace}/workload/replicasets/${record?.metadata?.name}/update`;
+                window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${record?.metadata?.namespace}/workload/replicasets/${record?.metadata?.name}/update`);
               }}
             >
               <EditOutlined style={{ color: colorPrimary }} />

@@ -8,6 +8,7 @@ import { ClusterDashboard } from "@/services/dashboard";
 import MetricsColumn from "@/pages/kubernetes/components/metrics_column";
 import { ProDescriptions } from "@ant-design/pro-components";
 import { getClusterResource } from "@/utils/cluster";
+import { toKubernetesQueryRoute } from '@/utils/global';
 const { Text } = Typography;
 export interface NamespaceDashboardProps extends ClusterNamespaceDetail {
 }
@@ -36,7 +37,7 @@ export const NamespaceDashboard: React.FC<NamespaceDashboardProps> = (props) => 
       width: '100%'
     }}>
       <a onClick={() => {
-        window.location.href = `/kubernetes/cluster/${props.cluster?.code}/namespace/${props.namespace}/dashboard/overview`;
+        window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${props.cluster?.code}/namespace/${props.namespace}/dashboard/overview`);
       }}> {props.namespace}</a>
     </div>
     {/* 描述区域：可点击跳转 */}

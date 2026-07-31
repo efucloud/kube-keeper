@@ -7,7 +7,7 @@ const Update = 'update';
 const Create = 'create';
 import { DaemonSet } from "kubernetes-models/apps/v1";
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { getClusterResource } from '@/utils/cluster';
 import { Card } from 'antd';
 
@@ -15,7 +15,7 @@ import { Card } from 'antd';
 const YamOrJsonForm: FC<Record<string, any>> = () => {
   const { cluster, namespace } = getCurrentViewInfo();
   const [info, setInfo] = useState<DaemonSet>();
-  const BaseAddress = namespace ? `/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/daemonsets` : `/kubernetes/cluster/${cluster}/workload/daemonsets`
+  const BaseAddress = namespace ? toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/daemonsets`) : toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/workload/daemonsets`)
   const params = useParams();
   const mode = params.action === Update ? Update : Create; // update or create
   const name = mode === Create ? '' : params.name || '' // resource name

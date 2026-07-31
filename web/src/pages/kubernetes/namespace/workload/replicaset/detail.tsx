@@ -1,4 +1,4 @@
-import {  getCurrentViewInfo } from "@/utils/global";
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { PageContainer, ProColumns, ProDescriptions, ProTable } from "@ant-design/pro-components";
 import { useParams, useIntl, FormattedMessage } from "@umijs/max";
 import { useEffect, useState } from "react";
@@ -37,7 +37,7 @@ const DetailView: React.FC = () => {
   const [editorResource, setEditorResource] = useState<boolean>(false);
   const [activeKey, setActiveKey] = useState<string>('containers');
   const BaseApi = `apis/apps/v1/namespaces/${namespace}/replicasets`;
-  const BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/replicasets`
+  const BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/replicasets`)
   const getInfo = async () => {
     let params = { cluster, address: `${BaseApi}/${name}` } as Record<string, any>;
     const res = await clusterGetProxy(params) as ReplicaSet;

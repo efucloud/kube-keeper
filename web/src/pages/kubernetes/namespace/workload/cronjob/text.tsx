@@ -7,7 +7,7 @@ const Update = 'update';
 const Create = 'create';
 import { ReplicaSet } from "kubernetes-models/apps/v1";
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { getClusterResource } from '@/utils/cluster';
 
 
@@ -15,7 +15,7 @@ const YamOrJsonForm: FC<Record<string, any>> = () => {
 
   const { cluster, namespace } = getCurrentViewInfo();
   const [info, setInfo] = useState<ReplicaSet>();
-  const BaseAddress = namespace ? `/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/cronjobs` : `/kubernetes/cluster/${cluster}/workload/cronjobs`
+  const BaseAddress = namespace ? toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/cronjobs`) : toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/workload/cronjobs`)
   const params = useParams();
   const mode = params.action === Update ? Update : Create; // update or create
   const name = mode === Create ? '' : params.name || '' // resource name

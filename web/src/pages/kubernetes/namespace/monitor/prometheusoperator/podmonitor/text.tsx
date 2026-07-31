@@ -5,7 +5,7 @@ import { Card, Empty } from 'antd';
 import type { PodMonitor } from '@kubernetes-models/prometheus-operator/monitoring.coreos.com/v1';
 import ResourceJsonOrYamlForm from '@/pages/kubernetes/components/resource_form';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { formatResourceKind } from '@/pages/kubernetes/utils/resourceKind';
 
 const TextPage: React.FC = () => {
@@ -18,9 +18,9 @@ const TextPage: React.FC = () => {
   const { cluster, namespace = '' } = getCurrentViewInfo();
   const resourceGroup = getClusterApiVersions(cluster, ['monitoring.coreos.com/v1'], 'PodMonitor');
   const baseApi = namespace ? `apis/${resourceGroup.groupVersion}/namespaces/${namespace}/podmonitors` : `apis/${resourceGroup.groupVersion}/podmonitors`;
-  let baseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/monitor/prometheus-operator/podmonitor`;
+  let baseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/monitor/prometheus-operator/podmonitor`);
   if (namespace === '' || namespace === '-') {
-    baseAddress = `/kubernetes/cluster/${cluster}/monitor/prometheus-operator/podmonitor`;
+    baseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/monitor/prometheus-operator/podmonitor`);
   }
   const [info, setInfo] = useState<PodMonitor>();
 

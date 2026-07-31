@@ -5,7 +5,7 @@ import ResourceJsonOrYamlForm from '@/pages/kubernetes/components/resource_form'
 import type { IEndpoints } from 'kubernetes-models/v1';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 
 const Update = 'update';
 const Create = 'create';
@@ -14,7 +14,7 @@ const YamOrJsonForm: FC<Record<string, any>> = () => {
   const { cluster, namespace } = getCurrentViewInfo();
   const [info, setInfo] = useState<IEndpoints>();
   const baseApi = `api/v1/namespaces/${namespace || '-'}/endpoints`;
-  const baseAddress = namespace ? `/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/endpoints` : `/kubernetes/cluster/${cluster}/networks/endpoints`;
+  const baseAddress = namespace ? toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/endpoints`) : toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/networks/endpoints`);
   const params = useParams();
   const mode = params.action === Update ? Update : Create;
   const name = mode === Create ? '' : params.name || '';

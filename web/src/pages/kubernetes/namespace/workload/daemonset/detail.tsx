@@ -1,4 +1,4 @@
-import { getClusterApiVersions, getCurrentViewInfo } from "@/utils/global";
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { PageContainer, ProColumns, ProDescriptions, ProTable } from "@ant-design/pro-components";
 import { useParams, useIntl, FormattedMessage } from "@umijs/max";
 import { useEffect, useState } from "react";
@@ -37,7 +37,7 @@ const DetailView: React.FC = () => {
   const [activeKey, setActiveKey] = useState<string>('containers');
   const resourceGroup = getClusterApiVersions(cluster, ['apps/v1', 'apps/v1beta1', 'apps/v1beta2'], 'DaemonSet');
   const BaseApi = `apis/${resourceGroup.groupVersion}/namespaces/${namespace}/daemonsets`;
-  const BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/daemonsets`;
+  const BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/daemonsets`);
   const [imageVisible, setImageVisible] = useState<boolean>(false);
   const getInfo = async () => {
     let params = { cluster, address: `${BaseApi}/${name}` } as Record<string, any>;

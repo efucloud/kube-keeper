@@ -20,7 +20,7 @@ import { clusterDeleteProxy, clusterGetProxy, clusterPostProxy } from '@/service
 
 import { canAccessClusterNamespaces } from '@/services/personal.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions,  getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { syncClusterNamespace } from '@/services/cluster.api';
 
 import AICopilot from '@/pages/kubernetes/components/ai';
@@ -51,9 +51,9 @@ const IndexDashboard: React.FC = () => {
   const [searchFields, setSearchFields] = useState<{ [key: string]: string }>({});
   const resourceGroup = getClusterApiVersions(cluster, ['argoproj.io/v1alpha1'], 'Rollout');
   const address = namespace ? `apis/${resourceGroup?.groupVersion}/namespaces/${namespace}/rollouts` : `apis/${resourceGroup?.groupVersion}/rollouts`;
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/argo-rollouts`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/argo-rollouts`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/workload/argo-rollouts`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/workload/argo-rollouts`);
   }
 
   const intl = useIntl();
@@ -300,7 +300,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/rollouts`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/rollouts`),
                 );
               }}
             >
@@ -339,10 +339,10 @@ const IndexDashboard: React.FC = () => {
                 <a
                   onClick={() => {
                     if (namespace) {
-                      window.location.pathname = `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/argo-rollouts/${entity?.metadata?.name}`;
+                      window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/argo-rollouts/${entity?.metadata?.name}`);
                     } else {
                       window.open(
-                        `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/argo-rollouts/${entity?.metadata?.name}`,
+                        toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/argo-rollouts/${entity?.metadata?.name}`),
                         '_blank',
                       );
                     }
@@ -371,10 +371,10 @@ const IndexDashboard: React.FC = () => {
               <a
                 onClick={() => {
                   if (namespace) {
-                    window.location.pathname = `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/argo-rollouts/${entity?.metadata?.name}`;
+                    window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/argo-rollouts/${entity?.metadata?.name}`);
                   } else {
                     window.open(
-                      `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/argo-rollouts/${entity?.metadata?.name}`,
+                      toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/argo-rollouts/${entity?.metadata?.name}`),
                       '_blank',
                       'noreferrer',
                     );
@@ -700,7 +700,7 @@ const IndexDashboard: React.FC = () => {
             <a
               key="edit"
               onClick={() => {
-                window.location.href = `/kubernetes/cluster/${cluster}/namespace/${record?.metadata?.namespace}/workload/argo-rollouts/${record?.metadata?.name}/update`;
+                window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${record?.metadata?.namespace}/workload/argo-rollouts/${record?.metadata?.name}/update`);
               }}
             >
               <EditOutlined style={{ color: colorPrimary }} />

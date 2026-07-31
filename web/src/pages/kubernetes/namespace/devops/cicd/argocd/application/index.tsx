@@ -14,7 +14,7 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { debounce } from 'lodash';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/services/cluster_namespace';
@@ -42,9 +42,9 @@ const IndexDashboard: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const resourceGroup = getClusterApiVersions(cluster, ['argoproj.io/v1alpha1'], 'Application');
   const address = namespace ? `apis/${resourceGroup?.groupVersion}/namespaces/${namespace}/applications` : `apis/${resourceGroup?.groupVersion}/applications`;
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/argocd/applications`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/argocd/applications`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/devops/cicd/argocd/applications`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/devops/cicd/argocd/applications`);
   }
   const intl = useIntl();
   const [currnetNumber, setCurrnetNumber] = useState<number>(0);
@@ -190,7 +190,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/devops/cicd/argocd/applications`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/devops/cicd/argocd/applications`),
                 );
               }}
             >

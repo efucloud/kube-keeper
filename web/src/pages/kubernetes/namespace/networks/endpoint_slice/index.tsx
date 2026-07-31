@@ -15,7 +15,7 @@ import type { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/servi
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { canAccessClusterNamespaces } from '@/services/personal.api';
-import { getClusterApiVersions,  getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { getClusterResource } from '@/utils/cluster';
@@ -188,7 +188,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/networks/endpoint_slices`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/networks/endpoint_slices`),
                 );
               }}
             >

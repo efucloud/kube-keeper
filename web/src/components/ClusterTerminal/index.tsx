@@ -4,7 +4,7 @@ import {
 
 import { FormattedMessage } from '@umijs/max';
 import { theme, Tooltip } from 'antd';
-import { getCurrentViewInfo, } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 
 export const ClusterTerminal: React.FC = () => {
   const { token } = theme.useToken();
@@ -22,7 +22,7 @@ export const ClusterTerminal: React.FC = () => {
             verticalAlign: 'middle',
           }}
           onClick={() => {
-            window.open(`/kubernetes/cluster/${cluster}/terminal`)
+            window.open(toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/terminal`))
           }}
         />
       </Tooltip>

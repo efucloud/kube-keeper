@@ -7,7 +7,7 @@ const Create = 'create';
 import type { Ingress } from 'kubernetes-models/networking.k8s.io/v1';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 
 const YamOrJsonForm: FC<Record<string, any>> = () => {
   const { cluster, namespace } = getCurrentViewInfo();
@@ -15,8 +15,8 @@ const YamOrJsonForm: FC<Record<string, any>> = () => {
   const resourceGroup = getClusterApiVersions(cluster, ['networking.k8s.io/v1', 'extensions/v1', 'extensions/v1beta1'], 'Ingress');
   const BaseApi = `apis/${resourceGroup.groupVersion}/namespaces/${namespace}/ingresses`;
   const BaseAddress = namespace
-    ? `/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/ingresses`
-    : `/kubernetes/cluster/${cluster}/networks/ingresses`;
+    ? toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/ingresses`)
+    : toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/networks/ingresses`);
   const params = useParams();
   const mode = params.action === Update ? Update : Create; // update or create
   const name = mode === Create ? '' : params.name || ''; // resource name

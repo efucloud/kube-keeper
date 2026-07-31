@@ -5,7 +5,7 @@ import { Card, Empty } from 'antd';
 import ResourceJsonOrYamlForm from '@/pages/kubernetes/components/resource_form';
 import type { IKubeVirt } from '@/k8s-models/kubevirt/kubevirt.io/v1';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { formatResourceKind } from '@/pages/kubernetes/utils/resourceKind';
 
 const TextPage: React.FC = () => {
@@ -19,7 +19,7 @@ const TextPage: React.FC = () => {
     [cluster],
   );
   const baseApi = `apis/${resourceGroup.groupVersion}/namespaces/${namespace}/kubevirts`;
-  const baseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/kubevirt/kubevirts`;
+  const baseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/kubevirt/kubevirts`);
   const [info, setInfo] = useState<IKubeVirt>();
 
   useEffect(() => {

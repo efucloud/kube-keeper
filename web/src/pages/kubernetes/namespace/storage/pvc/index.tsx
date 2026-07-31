@@ -18,7 +18,7 @@ import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.ap
 
 import { canAccessClusterNamespaces } from '@/services/personal.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { syncClusterNamespace } from '@/services/cluster.api';
 
 import AICopilot from '@/pages/kubernetes/components/ai';
@@ -238,7 +238,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/storage/persistentvolumeclaim`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/storage/persistentvolumeclaim`),
                 );
               }}
             >
@@ -668,8 +668,8 @@ const IndexDashboard: React.FC = () => {
                 key="create"
                 onClick={() => {
                   window.location.href = namespace
-                    ? `/kubernetes/cluster/${cluster}/namespace/${namespace}/storage/pvc/create/text`
-                    : `/kubernetes/cluster/${cluster}/storage/persistentvolumeclaim/create/text`;
+                    ? toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/storage/pvc/create/text`)
+                    : toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/storage/persistentvolumeclaim/create/text`);
                 }}
               >
                 <FormattedMessage id="pages.operation.create" />

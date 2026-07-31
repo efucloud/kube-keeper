@@ -16,7 +16,7 @@ import { type ClusterNamespaceAccountRoleDetail, ClusterNamespaceAccountRoleDeta
 import type { ClusterRoleTemplate , ClusterRoleTemplateList } from '@/services/cluster_role_template';
 import { listClusterRoleTemplate } from '@/services/cluster_role_template.api';
 import { canAccessClusterNamespaces } from '@/services/personal.api';
-import { getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { listClusterNamespaceAccountRole } from '@/services/cluster_namespace_account_role.api';
 import { TabsProps } from 'antd/lib';
 import { syncClusterNamespace } from '@/services/cluster.api';
@@ -195,7 +195,7 @@ const Index: React.FC = () => {
           <>
             <a
               onClick={() => {
-                window.location.href = `/kubernetes/cluster/${cluster}/permission/cluster-account/detail/${entity.id}`;
+                window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/permission/cluster-account/detail/${entity.id}`);
               }}
             >
               <SystemUser
@@ -401,7 +401,7 @@ const Index: React.FC = () => {
           <>
             <a
               onClick={() => {
-                window.location.href = `/kubernetes/cluster/${cluster}/permission/cluster-account/detail/${entity.id}`;
+                window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/permission/cluster-account/detail/${entity.id}`);
               }}
             >
               <SystemUser

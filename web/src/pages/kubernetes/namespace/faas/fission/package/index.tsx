@@ -15,7 +15,7 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/services/cluster_namespace';
 import { canAccessClusterNamespaces } from '@/services/personal.api';
 import { syncClusterNamespace } from '@/services/cluster.api';
@@ -46,9 +46,9 @@ const PackageIndex: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const resourceGroup = getClusterApiVersions(cluster, ['fission.io/v1'], 'Package');
   const address = namespace ? `apis/${resourceGroup.groupVersion}/namespaces/${namespace}/packages` : `apis/${resourceGroup.groupVersion}/packages`;
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/faas/packages`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/faas/packages`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/faas/packages`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/faas/packages`);
   }
   const intl = useIntl();
   const [currnetNumber, setCurrnetNumber] = useState<number>(0);
@@ -270,7 +270,7 @@ const PackageIndex: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/faas/packages`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/faas/packages`),
                 );
               }}
             >

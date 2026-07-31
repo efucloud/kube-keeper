@@ -5,7 +5,7 @@ import debounce from 'lodash/debounce';
 import React, { useEffect, useState } from 'react';
 import type { ClusterServerGroup, UserAccessCluster, UserAccessClusterList } from '@/services/kubernetes';
 import { canAccessClusterNamespaces, canAccessClusters } from '@/services/personal.api';
-import { getCurrentViewInfo, saveClusterApiVersions, saveClusterVersion } from '@/utils/global';
+import { getCurrentViewInfo, saveClusterApiVersions, saveClusterVersion, toKubernetesQueryRoute } from '@/utils/global';
 import { ClusterNamespaceDetail, ClusterNamespaceDetailList } from "@/services/cluster_namespace";
 import { syncClusterNamespace } from "@/services/cluster.api";
 import { clusterServerGroups, getClusterInfo } from "@/services/cluster.api";
@@ -90,7 +90,7 @@ export const SwapView: React.FC = () => {
   }, [searchCluster]);
 
   const onClusterSelected = (value: string) => {
-    window.location.href = `/kubernetes/cluster/${value}/dashboard/overview`;
+    window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${value}/dashboard/overview`);
   };
   if (isCluster && cluster && cluster !== '') {
     return (
@@ -117,7 +117,7 @@ export const SwapView: React.FC = () => {
 
   } else if (namespace !== undefined && namespace !== null && namespace) {
     return <Space separator={<Divider orientation="vertical" />}>
-      <div><FormattedMessage id="cluster" />:&nbsp;<a onClick={() => window.open(`/kubernetes/cluster/${cluster}/dashboard/overview`)}>{cluster}</a></div>
+      <div><FormattedMessage id="cluster" />:&nbsp;<a onClick={() => window.open(toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/dashboard/overview`))}>{cluster}</a></div>
       <div
         style={{ display: 'flex', alignItems: 'center' }}>
         {/* <Access accessible={access.clusterAccess === true} > */}
@@ -135,7 +135,7 @@ export const SwapView: React.FC = () => {
               sp[6] = value
               window.location.href = sp.join('/')
             } else {
-              window.location.href = `/kubernetes/cluster/${cluster}/namespace/${value}/dashboard/overview`;
+              window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${value}/dashboard/overview`);
             }
           }}
           popupRender={(menu) => {

@@ -11,7 +11,7 @@ import Continue from '@/pages/kubernetes/components/continue';
 import FilterSelector from '@/pages/kubernetes/components/filter_selector';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
-import { getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import type { IValidatingWebhookConfiguration, ValidatingWebhookConfigurationList } from 'kubernetes-models/admissionregistration.k8s.io/v1';
 import { getClusterResource } from '@/utils/cluster';
 import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
@@ -300,7 +300,7 @@ const IndexDashboard: React.FC = () => {
           <a
             key="edit"
             onClick={() => {
-              window.location.href = `/kubernetes/cluster/${cluster}/config/validatingwebhookconfigurations/${record?.metadata?.name}/update`;
+              window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/config/validatingwebhookconfigurations/${record?.metadata?.name}/update`);
             }}
           >
             <EditOutlined style={{ color: colorPrimary }} />
@@ -404,7 +404,7 @@ const IndexDashboard: React.FC = () => {
                 type="primary"
                 key="create"
                 onClick={() => {
-                  window.location.href = `/kubernetes/cluster/${cluster}/config/validatingwebhookconfigurations/create/text`
+                  window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/config/validatingwebhookconfigurations/create/text`)
                 }}
               >
                 <FormattedMessage id="cluster.resource.create.text" />

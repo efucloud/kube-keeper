@@ -8,7 +8,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { IGatewayClass } from '@/k8s-models/gateway/gateway.networking.k8s.io/v1';
 import type { KubernetesResourceList } from '@/services/common';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { formatResourceKind } from '@/pages/kubernetes/utils/resourceKind';
 
 const IndexPage: React.FC = () => {
@@ -21,7 +21,7 @@ const IndexPage: React.FC = () => {
     [cluster],
   );
   const baseApi = `apis/${resourceGroup.groupVersion}/gatewayclasses`;
-  const baseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/gateway/gatewayclasses`;
+  const baseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/gateway/gatewayclasses`);
   const [dataSource, setDataSource] = useState<IGatewayClass[]>([]);
   const [loading, setLoading] = useState(false);
 

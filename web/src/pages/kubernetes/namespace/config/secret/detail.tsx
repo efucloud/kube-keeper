@@ -1,4 +1,4 @@
-import { base64Decode, getCurrentViewInfo, getHeight, getHelmData } from "@/utils/global";
+import { base64Decode, getCurrentViewInfo, getHeight, getHelmData, toKubernetesQueryRoute } from '@/utils/global';
 import { PageContainer, ProDescriptions } from "@ant-design/pro-components";
 import { useParams, useIntl, FormattedMessage } from "@umijs/max";
 import { ReactNode, useEffect, useState } from "react";
@@ -27,7 +27,7 @@ const DetailView: React.FC = () => {
   const [drawerSize, setDrawerSize] = useState<number>(800);
   const [editorResource, setEditorResource] = useState<boolean>(false);
   const BaseApi = `api/v1/namespaces/${namespace}/secrets`;
-  const BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/config/secrets`
+  const BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/config/secrets`)
   const getInfo = async () => {
     let params = { cluster, address: `${BaseApi}/${name}` } as Record<string, any>;
     const res = await clusterGetProxy(params) as Secret;
@@ -75,7 +75,7 @@ const DetailView: React.FC = () => {
       nodes.push({
         key: 'edit',
         label: <a style={{ color: colorPrimary }} onClick={() => {
-          window.location.href = `/kubernetes/cluster/${cluster}/namespace/${info?.metadata?.namespace}/config/secrets/${info?.metadata?.name}/update`
+          window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${info?.metadata?.namespace}/config/secrets/${info?.metadata?.name}/update`)
         }}><FormattedMessage id='cluster.resource.operation.edit' /></a>
       })
       if (!(info.metadata?.ownerReferences && info.metadata?.ownerReferences?.length > 0)) {

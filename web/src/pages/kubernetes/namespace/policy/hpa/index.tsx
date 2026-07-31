@@ -15,7 +15,7 @@ import type { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/servi
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { canAccessClusterNamespaces } from '@/services/personal.api';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { syncClusterNamespace } from '@/services/cluster.api';
 
 import AICopilot from '@/pages/kubernetes/components/ai';
@@ -192,7 +192,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/policy/hpa`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/policy/hpa`),
                 );
               }}
             >
@@ -207,7 +207,7 @@ const IndexDashboard: React.FC = () => {
       dataIndex: 'name',
       search: { transform: (value: string) => setSearchName(value) },
       render: (dom, entity) => {
-        return <a onClick={() => { window.location.href = `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/policy/hpa/${entity?.metadata?.name}/update`; }}>{entity?.metadata?.name}</a>;
+        return <a onClick={() => { window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/policy/hpa/${entity?.metadata?.name}/update`); }}>{entity?.metadata?.name}</a>;
       },
     },
     {
@@ -507,7 +507,7 @@ const IndexDashboard: React.FC = () => {
                 type="primary"
                 key="create"
                 onClick={() => {
-                  window.location.href = `/kubernetes/cluster/${cluster}/namespace/${namespace}/policy/hpa/create/text`;
+                  window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/policy/hpa/create/text`);
                 }}
               >
                 <FormattedMessage id="pages.operation.create" />

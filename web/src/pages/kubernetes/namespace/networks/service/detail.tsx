@@ -1,4 +1,4 @@
-import { getCurrentViewInfo } from "@/utils/global";
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { PageContainer, ProColumns, ProDescriptions, ProTable } from "@ant-design/pro-components";
 import { useParams, useIntl, FormattedMessage } from "@umijs/max";
 import { useEffect, useState } from "react";
@@ -23,7 +23,7 @@ const DetailView: React.FC = () => {
   const [drawerSize, setDrawerSize] = useState<number>(800);
   const [editorResource, setEditorResource] = useState<boolean>(false);
   const BaseApi = `api/v1/namespaces/${namespace}/services`;
-  const BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/services`
+  const BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/services`)
   const getInfo = async () => {
     let params = { cluster, address: `${BaseApi}/${name}` } as Record<string, any>;
     const res = await clusterGetProxy(params) as Service;
@@ -46,7 +46,7 @@ const DetailView: React.FC = () => {
     nodes.push({
       key: 'edit',
       label: <a style={{ color: colorPrimary }} onClick={() => {
-        window.location.href = `/kubernetes/cluster/${cluster}/namespace/${info?.metadata?.namespace}/networks/services/${info?.metadata?.name}/update`
+        window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${info?.metadata?.namespace}/networks/services/${info?.metadata?.name}/update`)
       }}><FormattedMessage id='cluster.resource.operation.edit' /></a>
     })
     nodes.push({

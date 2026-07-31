@@ -15,7 +15,7 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { debounce } from 'lodash';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/services/cluster_namespace';
@@ -44,9 +44,9 @@ const FunctionIndex: React.FC = () => {
   const [searchFields, setSearchFields] = useState<{ [key: string]: string }>({});
   const resourceGroup = getClusterApiVersions(cluster, ['fission.io/v1'], 'Function');
   const address = namespace ? `apis/${resourceGroup.groupVersion}/namespaces/${namespace}/functions` : `apis/${resourceGroup.groupVersion}/functions`;
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/faas/functions`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/faas/functions`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/faas/functions`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/faas/functions`);
   }
   const [dataSource, setDataSource] = useState<Function[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -271,7 +271,7 @@ const FunctionIndex: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/faas/functions`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/faas/functions`),
                 );
               }}
             >

@@ -17,7 +17,7 @@ import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.ap
 
 import { canAccessClusterNamespaces } from '@/services/personal.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { syncClusterNamespace } from '@/services/cluster.api';
 
 import AICopilot from '@/pages/kubernetes/components/ai';
@@ -227,7 +227,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/config/limitranges`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/config/limitranges`),
                 );
               }}
             >
@@ -246,7 +246,7 @@ const IndexDashboard: React.FC = () => {
           <>
             <a
               onClick={() => {
-                window.location.pathname = `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/config/limitranges/${entity?.metadata?.name}/update`;
+                window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/config/limitranges/${entity?.metadata?.name}/update`);
               }}
             >
               {entity?.metadata?.name}
@@ -442,7 +442,7 @@ const IndexDashboard: React.FC = () => {
           <a
             key="edit"
             onClick={() => {
-              window.location.href = `/kubernetes/cluster/${cluster}/namespace/${record?.metadata?.namespace}/config/limitranges/${record?.metadata?.name}/update`;
+              window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${record?.metadata?.namespace}/config/limitranges/${record?.metadata?.name}/update`);
             }}
           >
             <EditOutlined style={{ color: colorPrimary }} />
@@ -558,8 +558,8 @@ const IndexDashboard: React.FC = () => {
                 key="create"
                 onClick={() => {
                   window.location.href = namespace
-                    ? `/kubernetes/cluster/${cluster}/namespace/${namespace}/config/limitranges/create/text`
-                    : `/kubernetes/cluster/${cluster}/config/limitranges/create/text`;
+                    ? toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/config/limitranges/create/text`)
+                    : toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/config/limitranges/create/text`);
                 }}
               >
                 <FormattedMessage id="pages.operation.create" />

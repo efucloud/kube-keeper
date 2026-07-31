@@ -10,15 +10,15 @@ import type { Service } from 'kubernetes-models/v1';
 
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 
 const YamOrJsonForm: FC<Record<string, any>> = () => {
   const { cluster, namespace } = getCurrentViewInfo();
   const [info, setInfo] = useState<Service>();
   const BaseApi = `api/v1/namespaces/${namespace}/services`;
   const BaseAddress = namespace
-    ? `/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/services`
-    : `/kubernetes/cluster/${cluster}/networks/services`;
+    ? toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/services`)
+    : toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/networks/services`);
   const params = useParams();
   const mode = params.action === Update ? Update : Create; // update or create
   const name = mode === Create ? '' : params.name || ''; // resource name

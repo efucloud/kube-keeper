@@ -1,4 +1,4 @@
-import { getCurrentViewInfo } from "@/utils/global";
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { PageContainer, ProDescriptions } from "@ant-design/pro-components";
 import { useParams, useIntl, FormattedMessage } from "@umijs/max";
 import { useEffect, useState } from "react";
@@ -20,7 +20,7 @@ const DetailView: React.FC = () => {
   const [editorResource, setEditorResource] = useState<boolean>(false);
 
   const BaseApi = `apis/apiregistration.k8s.io/v1/apiservices`
-  const BaseAddress = `/kubernetes/cluster/${cluster}/apiservices`
+  const BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/apiservices`)
   const getInfo = async () => {
     let params = { cluster, address: `${BaseApi}/${name}` } as Record<string, any>;
     const res = await clusterGetProxy(params) as APIService;

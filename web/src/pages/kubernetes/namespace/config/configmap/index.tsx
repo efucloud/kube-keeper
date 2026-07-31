@@ -17,7 +17,7 @@ import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.ap
 
 import { canAccessClusterNamespaces } from '@/services/personal.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { syncClusterNamespace } from '@/services/cluster.api';
 
 import { getDaysUntilExpiry, parseCertificateExpiry } from '@/utils/crypto';
@@ -47,9 +47,9 @@ const IndexDashboard: React.FC = () => {
   const [resourceDrawerVisible, setResourceDrawerVisible] = useState<boolean>(false);
   const [drawerSize, setDrawerSize] = useState<number>(800)
   const [editorResource, setEditorResource] = useState<boolean>(false);
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/config/configmaps`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/config/configmaps`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/config/configmaps`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/config/configmaps`);
   }
   const debouncedNamespaceChange = debounce((value) => { setSearchNamespace(value); }, 1000);
   const [selectedNamespace, setSelectedNamespace] = useState<string>(namespace);
@@ -223,7 +223,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/config/configmaps`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/config/configmaps`),
                 );
               }}
             >
@@ -265,7 +265,7 @@ const IndexDashboard: React.FC = () => {
           <Space orientation='vertical'>
             <a
               onClick={() => {
-                window.location.pathname = `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/config/configmaps/${entity?.metadata?.name}`;
+                window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/config/configmaps/${entity?.metadata?.name}`);
               }}
             >
               {entity?.metadata?.name}
@@ -464,7 +464,7 @@ const IndexDashboard: React.FC = () => {
           nodes.push(<a
             key="edit"
             onClick={() => {
-              window.location.href = `/kubernetes/cluster/${cluster}/namespace/${record?.metadata?.namespace}/config/configmaps/${record?.metadata?.name}/update`;
+              window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${record?.metadata?.namespace}/config/configmaps/${record?.metadata?.name}/update`);
             }}
           >
             <EditOutlined style={{ color: colorPrimary }} />

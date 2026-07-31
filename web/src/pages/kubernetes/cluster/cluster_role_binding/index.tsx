@@ -13,7 +13,7 @@ import FilterSelector from '@/pages/kubernetes/components/filter_selector';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { RenderRoleBinding } from '@/pages/kubernetes/components/policy';
 import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 
@@ -363,7 +363,7 @@ const IndexDashboard: React.FC = () => {
             <a
               key="update"
               onClick={() => {
-                window.location.href = `/kubernetes/cluster/${cluster}/access/clusterrolebindings/${record?.metadata?.name}/update`;
+                window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/access/clusterrolebindings/${record?.metadata?.name}/update`);
               }}
             >
               <EditOutlined style={{ color: colorPrimary }} />

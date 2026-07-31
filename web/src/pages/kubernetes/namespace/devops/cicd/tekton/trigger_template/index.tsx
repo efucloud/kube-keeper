@@ -14,7 +14,7 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { debounce } from 'lodash';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/services/cluster_namespace';
@@ -43,9 +43,9 @@ const IndexDashboard: React.FC = () => {
   const [searchFields, setSearchFields] = useState<{ [key: string]: string }>({});
   const resourceGroup = getClusterApiVersions(cluster, ['triggers.tekton.dev/v1beta1'], 'TriggerTemplate');
   const address = namespace ? `apis/${resourceGroup?.groupVersion}/namespaces/${namespace}/triggers` : `apis/${resourceGroup?.groupVersion}/triggertemplates`;
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/tekton/triggertemplates`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/tekton/triggertemplates`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/devops/cicd/tekton/triggertemplates`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/devops/cicd/tekton/triggertemplates`);
   }
   const intl = useIntl();
   const [currnetNumber, setCurrnetNumber] = useState<number>(0);
@@ -191,7 +191,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/devops/cicd/tekton/triggertemplates`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/devops/cicd/tekton/triggertemplates`),
                 );
               }}
             >

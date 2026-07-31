@@ -10,14 +10,14 @@ import type { Command } from '@/k8s-models/volcano/bus.volcano.sh/v1alpha1';
 
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 
 const YamOrJsonForm: FC<Record<string, any>> = () => {
   const { cluster, namespace } = getCurrentViewInfo();
   const [info, setInfo] = useState<Command>();
   const resourceGroup = getClusterApiVersions(cluster, ['bus.volcano.sh/v1alpha1'], 'Command');
   const BaseApi = namespace ? `apis/${resourceGroup?.groupVersion}/namespaces/${namespace}/commands` : `apis/${resourceGroup?.groupVersion}/commands`;
-  const BaseAddress = `/kubernetes/cluster/${cluster}/ai/volcano/commands`;
+  const BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/ai/volcano/commands`);
   const params = useParams();
   const mode = params.action === Update ? Update : Create; // update or create
   const name = mode === Create ? '' : params.name || ''; // resource name

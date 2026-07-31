@@ -14,7 +14,7 @@ import { RenderRules } from '@/pages/kubernetes/components/policy';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 
 import AICopilot from '../../components/ai';
@@ -404,7 +404,7 @@ const IndexDashboard: React.FC = () => {
             <a
               key="update"
               onClick={() => {
-                window.location.href = `/kubernetes/cluster/${cluster}/access/clusterroles/${record?.metadata?.name}/update`;
+                window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/access/clusterroles/${record?.metadata?.name}/update`);
               }}
             >
               <EditOutlined style={{ color: colorPrimary }} />

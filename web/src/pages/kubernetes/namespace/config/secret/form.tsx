@@ -3,7 +3,7 @@ import { clusterGetProxy, clusterPostProxy, clusterPutProxy } from "@/services/c
 import { canAccessClusterNamespaces } from "@/services/personal.api";
 import { getClusterResource } from "@/utils/cluster";
 import { decodeBase64 } from "@/utils/crypto";
-import { getCurrentViewInfo, getHeight } from "@/utils/global";
+import { getCurrentViewInfo, getHeight, toKubernetesQueryRoute } from '@/utils/global';
 import { safeFormatJson } from "@/utils/tools";
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { ModalForm, ProForm, ProFormInstance, ProFormSelect, ProFormText, ProFormTextArea } from "@ant-design/pro-components";
@@ -40,7 +40,7 @@ const ConfigMapForm: React.FC = () => {
     if (action === 'update') {
       const params = { cluster, address: `${BaseApi}/${name}` } as Record<string, any>;
       await clusterPutProxy(params, payload) as ISecret;
-      window.location.href = `/kubernetes/cluster/${cluster}/namespace/${payload.metadata?.namespace}/config/secrets/${payload.metadata?.name}/update`
+      window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${payload.metadata?.namespace}/config/secrets/${payload.metadata?.name}/update`)
     } else {
       payload.metadata = payload.metadata || {};
       payload.type = values.type;
@@ -48,7 +48,7 @@ const ConfigMapForm: React.FC = () => {
       payload.metadata.namespace = values.metadata.namespace;
       const params = { cluster, address: `${BaseApi}` } as Record<string, any>;
       await clusterPostProxy(params, payload) as ISecret;
-      window.location.href = `/kubernetes/cluster/${cluster}/namespace/${payload.metadata?.namespace}/config/secrets/${payload.metadata?.name}/update`
+      window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${payload.metadata?.namespace}/config/secrets/${payload.metadata?.name}/update`)
     }
   };
 

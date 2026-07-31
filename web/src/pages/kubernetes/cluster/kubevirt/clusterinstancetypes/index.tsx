@@ -8,7 +8,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { IVirtualMachineClusterInstancetype } from '@/k8s-models/kubevirt/instancetype.kubevirt.io/v1beta1';
 import type { IKubeVirtResourceList } from '@/k8s-models/kubevirt';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { formatResourceKind } from '@/pages/kubernetes/utils/resourceKind';
 
 const IndexPage: React.FC = () => {
@@ -21,7 +21,7 @@ const IndexPage: React.FC = () => {
     [cluster],
   );
   const baseApi = 'apis/' + resourceGroup.groupVersion + '/virtualmachineclusterinstancetypes';
-  const baseAddress = '/kubernetes/cluster/' + cluster + '/kubevirt/clusterinstancetypes';
+  const baseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/kubevirt/clusterinstancetypes`);
   const [dataSource, setDataSource] = useState<IVirtualMachineClusterInstancetype[]>([]);
   const [loading, setLoading] = useState(false);
 

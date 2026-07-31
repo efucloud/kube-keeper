@@ -10,13 +10,13 @@ import type { IngressClass } from 'kubernetes-models/networking.k8s.io/v1';
 
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 
 const YamOrJsonForm: FC<Record<string, any>> = () => {
   const { cluster } = getCurrentViewInfo();
   const [info, setInfo] = useState<IngressClass>();
   const BaseApi = `apis/networking.k8s.io/v1/ingressclasses`;
-  const BaseAddress = `/kubernetes/cluster/${cluster}/networks/ingressclass`;
+  const BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/networks/ingressclass`);
   const params = useParams();
   const mode = params.action === Update ? Update : Create; // update or create
   const name = mode === Create ? '' : params.name || ''; // resource name

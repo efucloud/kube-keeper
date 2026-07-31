@@ -10,15 +10,15 @@ import type { Role } from 'kubernetes-models/rbac.authorization.k8s.io/v1';
 
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 
 const YamOrJsonForm: FC<Record<string, any>> = () => {
   const { cluster, namespace } = getCurrentViewInfo();
   const [info, setInfo] = useState<Role>();
   const BaseApi = `apis/rbac.authorization.k8s.io/v1/namespaces/${namespace}/roles`;
   const BaseAddress = namespace
-    ? `/kubernetes/cluster/${cluster}/namespace/${namespace}/access/roles`
-    : `/kubernetes/cluster/${cluster}/access/roles`;
+    ? toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/access/roles`)
+    : toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/access/roles`);
   const params = useParams();
   const mode = params.action === Update ? Update : Create; // update or create
   const name = mode === Create ? '' : params.name || ''; // resource name

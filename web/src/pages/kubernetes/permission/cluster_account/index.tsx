@@ -14,7 +14,7 @@ import type { ClusterAuthorizeByTemplate, ClusterRoleTemplateDetail, ClusterRole
 import type { TableListPagination } from '@/services/common.d';
 import type { AccountDetailList, SimpleAccountDetail } from '@/services/account';
 import { listAccount } from '@/services/account.api';
-import { getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { listClusterRoleTemplate } from '@/services/cluster_role_template.api';
 
 interface OrgAccountRecordType {
@@ -180,7 +180,7 @@ const OrgAccountTableList: React.FC = () => {
           <>
             <a
               onClick={() => {
-                window.location.href = `/kubernetes/cluster/${cluster}/permission/cluster-account/detail/${entity.id}`;
+                window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/permission/cluster-account/detail/${entity.id}`);
               }}
             >
               <SystemUser
@@ -253,7 +253,7 @@ const OrgAccountTableList: React.FC = () => {
             <Tooltip color={colorPrimary} title={intl.formatMessage({ id: 'cluster.rbac.view' })} >
               <PartitionOutlined style={{ color: colorPrimary }}
                 onClick={() => {
-                  window.location.pathname = `/kubernetes/cluster/${cluster}/permission/cluster-account/rbac-view/${record.accountId}`;
+                  window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/permission/cluster-account/rbac-view/${record.accountId}`);
                 }}
               /></Tooltip>
             &nbsp;</>

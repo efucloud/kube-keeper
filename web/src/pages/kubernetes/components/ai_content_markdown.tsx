@@ -8,24 +8,11 @@ import { GPTVis } from '@antv/gpt-vis';
 import { Flex, Tag, Typography } from 'antd';
 import MarkdownIt from 'markdown-it';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { AiContentA2UIInline } from '@/pages/kubernetes/components/ai_content_a2ui_inline';
-import {
-  looksLikeA2UIJsonContent,
-  parseMaybeJSON,
-} from '@/pages/kubernetes/components/ai_content_a2ui_protocol';
 import type { AiIntlLike } from '@/pages/kubernetes/components/ai_content_utils';
-import type { A2UIClientAction } from '@/services/ai_copilot.d';
 
 type MarkdownRenderOptions = {
   streaming?: boolean;
   requestId?: string;
-};
-
-type A2UIRenderOptions = {
-  processor: any;
-  submitAction: (requestId: string, action: A2UIClientAction) => Promise<void>;
-  markdownToHtml: (markdown: string) => Promise<string>;
-  intl: AiIntlLike;
 };
 
 type MarkdownSegment =
@@ -43,17 +30,6 @@ const COLLAPSIBLE_CODE_LANGUAGES = new Set([
   'plaintext',
   'text',
 ]);
-
-const isA2UIJsonCodeBlock = (segment: MarkdownSegment) => {
-  if (segment.type !== 'code') {
-    return false;
-  }
-  const normalizedLang = (segment.language || 'plaintext').trim().toLowerCase();
-  if (normalizedLang !== 'json') {
-    return false;
-  }
-  return looksLikeA2UIJsonContent(segment.content);
-};
 
 const createMarkdownParser = () => {
   const parser = new MarkdownIt({
@@ -382,8 +358,7 @@ const PlainCodeBlock: React.FC<{
   codeStr: string;
   language?: string;
   label?: string;
-  intl?: AiIntlLike;
-}> = ({ codeStr, language, label, intl }) => (
+}> = ({ codeStr, language, label }) => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
     {(label || language) && (
       <Flex justify="space-between" align="center" wrap gap={8}>
@@ -422,109 +397,6 @@ const PlainCodeBlock: React.FC<{
   </div>
 );
 
-const A2UIJsonPreview: React.FC<{ codeStr: string; intl: AiIntlLike }> = ({
-  codeStr,
-  intl,
-}) => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-    <Tag
-      color="processing"
-      style={{ width: 'fit-content', marginInlineEnd: 0 }}
-    >
-      {intl.formatMessage({
-        id: 'copilot.a2ui.preview',
-        defaultMessage: 'a2ui payload',
-      })}
-    </Tag>
-    <PlainCodeBlock codeStr={codeStr} language="json" intl={intl} />
-  </div>
-);
-
-const A2UILoadingBlock: React.FC<{ intl: AiIntlLike }> = ({ intl }) => (
-  <div
-    style={{
-      borderRadius: 12,
-      border: '1px solid #eef2f6',
-      background: '#fafbfc',
-      overflow: 'hidden',
-    }}
-  >
-    <div
-      style={{
-        width: '100%',
-        padding: '8px 10px',
-      }}
-    >
-      <Flex align="center" justify="space-between" gap={10}>
-        <Flex align="center" gap={8} style={{ minWidth: 0, flex: 1 }}>
-          <div
-            style={{
-              width: 22,
-              height: 22,
-              borderRadius: 999,
-              display: 'inline-flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: '#eef4ff',
-              color: '#4f6fa8',
-              flexShrink: 0,
-            }}
-          >
-            <LoadingOutlined />
-          </div>
-          <Flex vertical gap={2} style={{ minWidth: 0, flex: 1 }}>
-            <Typography.Text
-              style={{
-                fontSize: 12,
-                fontWeight: 600,
-                color: '#1f2937',
-                lineHeight: 1.2,
-              }}
-            >
-              {intl.formatMessage({
-                id: 'copilot.a2ui.loading.title',
-                defaultMessage: 'Action UI',
-              })}
-            </Typography.Text>
-            <Typography.Text
-              type="secondary"
-              style={{
-                fontSize: 11,
-                minWidth: 0,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                fontFamily:
-                  'ui-monospace, SFMono-Regular, SF Mono, Menlo, Monaco, Consolas, monospace',
-              }}
-            >
-              {intl.formatMessage({
-                id: 'copilot.a2ui.loading.subtitle',
-                defaultMessage: 'waiting for interactive controls',
-              })}
-            </Typography.Text>
-          </Flex>
-        </Flex>
-        <Tag
-          color="processing"
-          style={{
-            marginInlineEnd: 0,
-            borderRadius: 999,
-            paddingInline: 6,
-            fontSize: 10,
-            lineHeight: '18px',
-          }}
-        >
-          {intl.formatMessage({
-            id: 'copilot.code.streaming',
-            defaultMessage: 'streaming',
-          })}
-        </Tag>
-      </Flex>
-    </div>
-  </div>
-);
-
 const MarkdownHtmlBlock: React.FC<{ html: string }> = ({ html }) => (
   <div
     style={{
@@ -538,18 +410,13 @@ const MarkdownHtmlBlock: React.FC<{ html: string }> = ({ html }) => (
   />
 );
 
-const shouldCollapseCodeBlock = (lang: string, a2uiPayload = false) => {
-  if (a2uiPayload) {
-    return false;
-  }
-  return COLLAPSIBLE_CODE_LANGUAGES.has((lang || 'plaintext').toLowerCase());
-};
+const shouldCollapseCodeBlock = (lang: string) =>
+  COLLAPSIBLE_CODE_LANGUAGES.has((lang || 'plaintext').toLowerCase());
 
 const renderSpecialCodeBlock = (
   lang: string,
   codeStr: string,
-  a2ui?: A2UIRenderOptions,
-  requestId?: string,
+  intl?: AiIntlLike,
   streaming = false,
 ) => {
   const normalizedLang = (lang || 'plaintext').toLowerCase();
@@ -563,19 +430,13 @@ const renderSpecialCodeBlock = (
   }
 
   if (normalizedLang === 'log') {
-    const block = (
-      <PlainCodeBlock
-        codeStr={normalizedCode}
-        language="log"
-        intl={a2ui?.intl}
-      />
-    );
+    const block = <PlainCodeBlock codeStr={normalizedCode} language="log" />;
     return (
       <CollapsedCodeBlock
         language={normalizedLang}
         codeStr={normalizedCode}
         streaming={streaming}
-        intl={a2ui?.intl}
+        intl={intl}
       >
         {block}
       </CollapsedCodeBlock>
@@ -588,59 +449,19 @@ const renderSpecialCodeBlock = (
         codeStr={normalizedCode}
         language="mermaid"
         label={
-          a2ui?.intl.formatMessage({
+          intl?.formatMessage({
             id: 'copilot.code.label.mermaid',
             defaultMessage: 'mermaid source',
           }) || 'mermaid source'
         }
-        intl={a2ui?.intl}
       />
     );
-  }
-
-  if (normalizedLang === 'json') {
-    const parsed = parseMaybeJSON(normalizedCode);
-    const looksLikeA2UI = looksLikeA2UIJsonContent(normalizedCode);
-
-    if (looksLikeA2UI) {
-      if (!parsed && streaming) {
-        return (
-          <A2UILoadingBlock
-            intl={
-              a2ui?.intl || {
-                formatMessage: ({ defaultMessage }: any) => defaultMessage || '',
-              }
-            }
-          />
-        );
-      }
-      return a2ui ? (
-        <AiContentA2UIInline
-          codeBlocks={[normalizedCode]}
-          requestId={requestId || 'inline-a2ui'}
-          processor={a2ui.processor}
-          submitAction={a2ui.submitAction}
-          markdownToHtml={a2ui.markdownToHtml}
-          intl={a2ui.intl}
-          streaming={streaming}
-          fallback={<A2UIJsonPreview codeStr={normalizedCode} intl={a2ui.intl} />}
-        />
-      ) : (
-        <A2UIJsonPreview
-          codeStr={normalizedCode}
-          intl={{
-            formatMessage: ({ defaultMessage }: any) => defaultMessage || '',
-          }}
-        />
-      );
-    }
   }
 
   const block = (
     <PlainCodeBlock
       codeStr={normalizedCode}
       language={normalizedLang || 'plaintext'}
-      intl={a2ui?.intl}
     />
   );
 
@@ -650,7 +471,7 @@ const renderSpecialCodeBlock = (
         language={normalizedLang}
         codeStr={normalizedCode}
         streaming={streaming}
-        intl={a2ui?.intl}
+        intl={intl}
       >
         {block}
       </CollapsedCodeBlock>
@@ -660,7 +481,7 @@ const renderSpecialCodeBlock = (
   return block;
 };
 
-export const createAiMarkdownRenderer = (a2ui?: A2UIRenderOptions) => {
+export const createAiMarkdownRenderer = (intl?: AiIntlLike) => {
   const parser = createMarkdownParser();
 
   return (content: string, options?: MarkdownRenderOptions) => {
@@ -677,66 +498,13 @@ export const createAiMarkdownRenderer = (a2ui?: A2UIRenderOptions) => {
     const nodes: React.ReactNode[] = [];
     for (let index = 0; index < segments.length; index += 1) {
       const segment = segments[index];
-      if (isA2UIJsonCodeBlock(segment)) {
-        const groupedBlocks = [segment.content];
-        let cursor = index + 1;
-        while (cursor < segments.length && isA2UIJsonCodeBlock(segments[cursor])) {
-          groupedBlocks.push(segments[cursor].content);
-          cursor += 1;
-        }
-        nodes.push(
-          <React.Fragment key={`a2ui-${index}`}>
-            {a2ui ? (
-              <AiContentA2UIInline
-                codeBlocks={groupedBlocks}
-                requestId={options?.requestId || 'inline-a2ui'}
-                processor={a2ui.processor}
-                submitAction={a2ui.submitAction}
-                markdownToHtml={a2ui.markdownToHtml}
-                intl={a2ui.intl}
-                streaming={Boolean(options?.streaming)}
-                fallback={
-                  <div
-                    style={{ display: 'flex', flexDirection: 'column', gap: 8 }}
-                  >
-                    {groupedBlocks.map((block, blockIndex) => (
-                      <A2UIJsonPreview
-                        key={`a2ui-preview-${index}-${blockIndex}`}
-                        codeStr={block}
-                        intl={a2ui.intl}
-                      />
-                    ))}
-                  </div>
-                }
-              />
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {groupedBlocks.map((block, blockIndex) => (
-                  <A2UIJsonPreview
-                    key={`a2ui-preview-${index}-${blockIndex}`}
-                    codeStr={block}
-                    intl={{
-                      formatMessage: ({ defaultMessage }: any) =>
-                        defaultMessage || '',
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-          </React.Fragment>,
-        );
-        index = cursor - 1;
-        continue;
-      }
-
       if (segment.type === 'code') {
         nodes.push(
           <React.Fragment key={`code-${index}`}>
             {renderSpecialCodeBlock(
               segment.language,
               segment.content,
-              a2ui,
-              options?.requestId,
+              intl,
               Boolean(options?.streaming),
             )}
           </React.Fragment>,

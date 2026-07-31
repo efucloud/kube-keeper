@@ -1,4 +1,4 @@
-import {  getCurrentViewInfo } from "@/utils/global";
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { PageContainer, ProColumns, ProDescriptions, ProTable } from "@ant-design/pro-components";
 import { useParams, useIntl, FormattedMessage } from "@umijs/max";
 import { useEffect, useState } from "react";
@@ -39,7 +39,7 @@ const DetailView: React.FC = () => {
   const [baseActive, setBaseActive] = useState<string>('base');
   const [containers, setContainers] = useState<string[]>([]);
   const BaseApi = `api/v1/namespaces/${namespace}/pods`;
-  const BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/pods`
+  const BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/pods`)
   const getInfo = async () => {
     let params = { cluster, address: `${BaseApi}/${name}` } as Record<string, any>;
     const res = await clusterGetProxy(params) as Pod;

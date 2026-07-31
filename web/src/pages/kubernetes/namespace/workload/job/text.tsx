@@ -6,7 +6,7 @@ const Update = 'update';
 const Create = 'create';
 import { Job } from 'kubernetes-models/batch/v1';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { getClusterResource } from '@/utils/cluster';
 
 
@@ -14,7 +14,7 @@ const YamOrJsonForm: FC<Record<string, any>> = () => {
 
   const { cluster, namespace } = getCurrentViewInfo();
   const [info, setInfo] = useState<Job>();
-  const BaseAddress = namespace ? `/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/jobs` : `/kubernetes/cluster/${cluster}/workload/jobs`
+  const BaseAddress = namespace ? toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/jobs`) : toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/workload/jobs`)
   const params = useParams();
   const mode = params.action === Update ? Update : Create; // update or create
   const name = mode === Create ? '' : params.name || '' // resource name

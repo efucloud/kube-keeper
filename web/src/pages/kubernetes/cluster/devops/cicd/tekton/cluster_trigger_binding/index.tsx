@@ -14,7 +14,7 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 
 import AICopilot from '@/pages/kubernetes/components/ai';
 import { CncfTekton } from '@/utils/cncf';
@@ -36,7 +36,7 @@ const IndexDashboard: React.FC = () => {
   const [labelSelectorVisible, setLabelSelectorVisible] = useState<boolean>(false);
   const [fieldSelectorVisible, setFieldSelectorVisible] = useState<boolean>(false);
   const [searchFields, setSearchFields] = useState<{ [key: string]: string }>({});
-  const BaseAddress = `/kubernetes/cluster/${cluster}/devops/cicd/tekton/clustertriggerbindings`;
+  const BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/devops/cicd/tekton/clustertriggerbindings`);
   const resourceGroup = getClusterApiVersions(cluster, ['triggers.tekton.dev/v1beta1'], 'ClusterTriggerBinding');
   const address = `apis/${resourceGroup?.groupVersion}/clustertriggerbindings`;
   const intl = useIntl();

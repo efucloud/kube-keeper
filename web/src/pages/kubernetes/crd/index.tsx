@@ -13,7 +13,7 @@ import FilterSelector from '@/pages/kubernetes/components/filter_selector';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 
 import AICopilot from '@/pages/kubernetes/components/ai';
@@ -145,7 +145,7 @@ const IndexDashboard: React.FC = () => {
           <>
             <a
               onClick={() => {
-                window.location.pathname = `/kubernetes/cluster/${cluster}/customresourcedefinitions/${entity?.metadata?.name}`;
+                window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/customresourcedefinitions/${entity?.metadata?.name}`);
               }}
             >
               {entity?.metadata?.name}
@@ -233,7 +233,7 @@ const IndexDashboard: React.FC = () => {
               } else {
                 name = `${record.spec.names.kind}/${record.spec.group}/${record.spec.versions[0].name}/${record.spec.names.plural}`;
               }
-              window.location.pathname = `/kubernetes/cluster/${cluster}/customresourcedefinitions/${name}`;
+              window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/customresourcedefinitions/${name}`);
             }}
           >
             <OrderedListOutlined />

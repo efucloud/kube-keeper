@@ -1,0 +1,206 @@
+import { IObjectMeta } from "@kubernetes-models/apimachinery/apis/meta/v1/ObjectMeta";
+import { Model, ModelData, setValidateFunc, createTypeMetaGuard } from "@kubernetes-models/base";
+import { ValidateFunc } from "@kubernetes-models/validate";
+import { validate } from "../../_schemas/GatewayNetworkingK8sIoV1beta1GatewayClass";
+
+/**
+ * GatewayClass describes a class of Gateways available to the user for creating
+ * Gateway resources.
+ * 
+ * It is recommended that this resource be used as a template for Gateways. This
+ * means that a Gateway is based on the state of the GatewayClass at the time it
+ * was created and changes to the GatewayClass or associated parameters are not
+ * propagated down to existing Gateways. This recommendation is intended to
+ * limit the blast radius of changes to GatewayClass or associated parameters.
+ * If implementations choose to propagate GatewayClass changes to existing
+ * Gateways, that MUST be clearly documented by the implementation.
+ * 
+ * Whenever one or more Gateways are using a GatewayClass, implementations SHOULD
+ * add the `gateway-exists-finalizer.gateway.networking.k8s.io` finalizer on the
+ * associated GatewayClass. This ensures that a GatewayClass associated with a
+ * Gateway is not deleted while in use.
+ * 
+ * GatewayClass is a Cluster level resource.
+ */
+export interface IGatewayClass {
+  /**
+   * APIVersion defines the versioned schema of this representation of an object.
+   * Servers should convert recognized schemas to the latest internal value, and
+   * may reject unrecognized values.
+   * More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+   */
+  "apiVersion": "gateway.networking.k8s.io/v1beta1";
+  /**
+   * Kind is a string value representing the REST resource this object represents.
+   * Servers may infer this from the endpoint the client submits requests to.
+   * Cannot be updated.
+   * In CamelCase.
+   * More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+   */
+  "kind": "GatewayClass";
+  "metadata"?: IObjectMeta;
+  /**
+   * Spec defines the desired state of GatewayClass.
+   */
+  "spec": {
+    /**
+     * ControllerName is the name of the controller that is managing Gateways of
+     * this class. The value of this field MUST be a domain prefixed path.
+     * 
+     * Example: "example.net/gateway-controller".
+     * 
+     * This field is not mutable and cannot be empty.
+     * 
+     * Support: Core
+     */
+    "controllerName": string;
+    /**
+     * Description helps describe a GatewayClass with more details.
+     */
+    "description"?: string;
+    /**
+     * ParametersRef is a reference to a resource that contains the configuration
+     * parameters corresponding to the GatewayClass. This is optional if the
+     * controller does not require any additional configuration.
+     * 
+     * ParametersRef can reference a standard Kubernetes resource, i.e. ConfigMap,
+     * or an implementation-specific custom resource. The resource can be
+     * cluster-scoped or namespace-scoped.
+     * 
+     * If the referent cannot be found, refers to an unsupported kind, or when
+     * the data within that resource is malformed, the GatewayClass SHOULD be
+     * rejected with the "Accepted" status condition set to "False" and an
+     * "InvalidParameters" reason.
+     * 
+     * A Gateway for this GatewayClass may provide its own `parametersRef`. When both are specified,
+     * the merging behavior is implementation specific.
+     * It is generally recommended that GatewayClass provides defaults that can be overridden by a Gateway.
+     * 
+     * Support: Implementation-specific
+     */
+    "parametersRef"?: {
+      /**
+       * Group is the group of the referent.
+       */
+      "group": string;
+      /**
+       * Kind is kind of the referent.
+       */
+      "kind": string;
+      /**
+       * Name is the name of the referent.
+       */
+      "name": string;
+      /**
+       * Namespace is the namespace of the referent.
+       * This field is required when referring to a Namespace-scoped resource and
+       * MUST be unset when referring to a Cluster-scoped resource.
+       */
+      "namespace"?: string;
+    };
+  };
+  /**
+   * Status defines the current state of GatewayClass.
+   * 
+   * Implementations MUST populate status on all GatewayClass resources which
+   * specify their controller name.
+   */
+  "status"?: {
+    /**
+     * Conditions is the current status from the controller for
+     * this GatewayClass.
+     * 
+     * Controllers should prefer to publish conditions using values
+     * of GatewayClassConditionType for the type of each Condition.
+     */
+    "conditions"?: Array<{
+      /**
+       * lastTransitionTime is the last time the condition transitioned from one status to another.
+       * This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+       */
+      "lastTransitionTime": string;
+      /**
+       * message is a human readable message indicating details about the transition.
+       * This may be an empty string.
+       */
+      "message": string;
+      /**
+       * observedGeneration represents the .metadata.generation that the condition was set based upon.
+       * For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+       * with respect to the current state of the instance.
+       */
+      "observedGeneration"?: number;
+      /**
+       * reason contains a programmatic identifier indicating the reason for the condition's last transition.
+       * Producers of specific condition types may define expected values and meanings for this field,
+       * and whether the values are considered a guaranteed API.
+       * The value should be a CamelCase string.
+       * This field may not be empty.
+       */
+      "reason": string;
+      /**
+       * status of the condition, one of True, False, Unknown.
+       */
+      "status": "True" | "False" | "Unknown";
+      /**
+       * type of condition in CamelCase or in foo.example.com/CamelCase.
+       */
+      "type": string;
+    }>;
+    /**
+     * SupportedFeatures is the set of features the GatewayClass support.
+     * It MUST be sorted in ascending alphabetical order by the Name key.
+     */
+    "supportedFeatures"?: Array<{
+      /**
+       * FeatureName is used to describe distinct features that are covered by
+       * conformance tests.
+       */
+      "name": string;
+    }>;
+  };
+}
+
+/**
+ * GatewayClass describes a class of Gateways available to the user for creating
+ * Gateway resources.
+ * 
+ * It is recommended that this resource be used as a template for Gateways. This
+ * means that a Gateway is based on the state of the GatewayClass at the time it
+ * was created and changes to the GatewayClass or associated parameters are not
+ * propagated down to existing Gateways. This recommendation is intended to
+ * limit the blast radius of changes to GatewayClass or associated parameters.
+ * If implementations choose to propagate GatewayClass changes to existing
+ * Gateways, that MUST be clearly documented by the implementation.
+ * 
+ * Whenever one or more Gateways are using a GatewayClass, implementations SHOULD
+ * add the `gateway-exists-finalizer.gateway.networking.k8s.io` finalizer on the
+ * associated GatewayClass. This ensures that a GatewayClass associated with a
+ * Gateway is not deleted while in use.
+ * 
+ * GatewayClass is a Cluster level resource.
+ */
+export class GatewayClass extends Model<IGatewayClass> implements IGatewayClass {
+  "apiVersion": IGatewayClass["apiVersion"];
+  "kind": IGatewayClass["kind"];
+  "metadata"?: IGatewayClass["metadata"];
+  "spec": IGatewayClass["spec"];
+  "status"?: IGatewayClass["status"];
+
+static apiVersion: IGatewayClass["apiVersion"] = "gateway.networking.k8s.io/v1beta1";
+static kind: IGatewayClass["kind"] = "GatewayClass";
+static is = createTypeMetaGuard<IGatewayClass>(GatewayClass);
+
+constructor(data?: ModelData<IGatewayClass>) {
+  super();
+
+  this.setDefinedProps({
+    apiVersion: GatewayClass.apiVersion,
+    kind: GatewayClass.kind,
+    ...data
+  } as IGatewayClass);
+}
+}
+
+
+setValidateFunc(GatewayClass, validate as ValidateFunc<IGatewayClass>);

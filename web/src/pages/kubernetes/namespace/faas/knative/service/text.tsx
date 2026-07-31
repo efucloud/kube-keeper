@@ -5,7 +5,7 @@ import { Card, Empty } from 'antd';
 import type { Service } from '@kubernetes-models/knative/serving.knative.dev/v1';
 import ResourceJsonOrYamlForm from '@/pages/kubernetes/components/resource_form';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 
 const TextPage: React.FC = () => {
   const intl = useIntl();
@@ -15,9 +15,9 @@ const TextPage: React.FC = () => {
   const { cluster, namespace = '' } = getCurrentViewInfo();
   const resourceGroup = getClusterApiVersions(cluster, ['serving.knative.dev/v1'], 'Service');
   const baseApi = namespace ? `apis/${resourceGroup.groupVersion}/namespaces/${namespace}/services` : `apis/${resourceGroup.groupVersion}/services`;
-  let baseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/faas/knative/services`;
+  let baseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/faas/knative/services`);
   if (!namespace || namespace === '-' || namespace === '') {
-    baseAddress = `/kubernetes/cluster/${cluster}/faas/knative/services`;
+    baseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/faas/knative/services`);
   }
   const [info, setInfo] = useState<Service>();
 

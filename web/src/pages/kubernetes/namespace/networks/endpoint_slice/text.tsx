@@ -5,7 +5,7 @@ import ResourceJsonOrYamlForm from '@/pages/kubernetes/components/resource_form'
 import type { IEndpointSlice } from 'kubernetes-models/discovery.k8s.io/v1';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getCurrentViewInfo, getClusterApiVersions } from '@/utils/global';
+import { getCurrentViewInfo, getClusterApiVersions, toKubernetesQueryRoute } from '@/utils/global';
 
 const Update = 'update';
 const Create = 'create';
@@ -15,7 +15,7 @@ const YamOrJsonForm: FC<Record<string, any>> = () => {
   const resourceGroup = getClusterApiVersions(cluster, ['discovery.k8s.io/v1beta1', 'discovery.k8s.io/v1'], 'EndpointSlice');
 const [info, setInfo] = useState<IEndpointSlice>();
   const baseApi = `apis/${resourceGroup.groupVersion}/namespaces/${namespace || '-'}/endpointslices`;
-  const baseAddress = namespace ? `/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/endpoint_slices` : `/kubernetes/cluster/${cluster}/networks/endpoint_slices`;
+  const baseAddress = namespace ? toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/endpoint_slices`) : toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/networks/endpoint_slices`);
   const params = useParams();
   const mode = params.action === Update ? Update : Create;
   const name = mode === Create ? '' : params.name || '';

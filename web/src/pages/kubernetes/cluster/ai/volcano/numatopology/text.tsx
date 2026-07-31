@@ -9,14 +9,14 @@ const Create = 'create';
 import type { Numatopology } from '@/k8s-models/volcano/nodeinfo.volcano.sh/v1alpha1';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 
 const YamOrJsonForm: FC<Record<string, any>> = () => {
   const { cluster, namespace } = getCurrentViewInfo();
   const [info, setInfo] = useState<Numatopology>();
   const resourceGroup = getClusterApiVersions(cluster, ['batch.volcano.sh/v1alpha1'], 'Job');
   const BaseApi = namespace ? `apis/${resourceGroup?.groupVersion}/namespaces/${namespace}/numatopologies` : `apis/${resourceGroup?.groupVersion}/numatopologies`;
-  const BaseAddress = `/kubernetes/cluster/${cluster}/ai/volcano/numatopologies`;
+  const BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/ai/volcano/numatopologies`);
   const params = useParams();
   const mode = params.action === Update ? Update : Create; // update or create
   const name = mode === Create ? '' : params.name || ''; // resource name

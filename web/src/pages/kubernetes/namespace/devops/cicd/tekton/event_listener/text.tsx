@@ -9,18 +9,18 @@ const Create = 'create';
 import type { EventListener } from '@/k8s-models/tekton/triggers/triggers.tekton.dev/v1beta1';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 
 const YamOrJsonForm: FC<Record<string, any>> = () => {
   const { cluster, namespace } = getCurrentViewInfo();
   const [info, setInfo] = useState<EventListener>();
   let BaseAddress = namespace
-    ? `/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/tekton/eventlisteners`
-    : `/kubernetes/cluster/${cluster}/devops/cicd/tekton/eventlisteners`;
+    ? toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/tekton/eventlisteners`)
+    : toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/devops/cicd/tekton/eventlisteners`);
   const resourceGroup = getClusterApiVersions(cluster, ['triggers.tekton.dev/v1beta1'], 'EventListener');
   const BaseApi = `apis/${resourceGroup?.groupVersion}/namespaces/${namespace}/eventlisteners`;
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/devops/cicd/tekton/eventlisteners`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/devops/cicd/tekton/eventlisteners`);
   }
   const params = useParams();
   const mode = params.action === Update ? Update : Create; // update or create

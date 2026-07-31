@@ -5,7 +5,7 @@ import ResourceJsonOrYamlForm from '@/pages/kubernetes/components/resource_form'
 import type { ICertificateSigningRequest } from 'kubernetes-models/certificates.k8s.io/v1';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 
 const Update = 'update';
 const Create = 'create';
@@ -14,7 +14,7 @@ const YamOrJsonForm: FC<Record<string, any>> = () => {
   const { cluster } = getCurrentViewInfo();
   const [info, setInfo] = useState<ICertificateSigningRequest>();
   const baseApi = `apis/certificates.k8s.io/v1/certificatesigningrequests`;
-  const baseAddress = `/kubernetes/cluster/${cluster}/access/certificatesigningrequests`;
+  const baseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/access/certificatesigningrequests`);
   const params = useParams();
   const mode = params.action === Update ? Update : Create;
   const name = mode === Create ? '' : params.name || '';

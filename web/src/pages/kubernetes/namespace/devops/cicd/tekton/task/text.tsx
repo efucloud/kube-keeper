@@ -9,15 +9,15 @@ const Create = 'create';
 import type { Task } from '@/k8s-models/tekton/pipeline/tekton.dev/v1';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 
 const YamOrJsonForm: FC<Record<string, any>> = () => {
   const { cluster, namespace } = getCurrentViewInfo();
   const [info, setInfo] = useState<Task>();
   const resourceGroup = getClusterApiVersions(cluster, ['tekton.dev/v1'], 'Task');
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/tekton/tasks`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/tekton/tasks`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/devops/cicd/tekton/tasks`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/devops/cicd/tekton/tasks`);
   }
   const BaseApi = `apis/${resourceGroup?.groupVersion}/namespaces/${namespace}/tasks`;
   const params = useParams();

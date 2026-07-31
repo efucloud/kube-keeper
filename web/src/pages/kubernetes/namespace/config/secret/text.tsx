@@ -8,7 +8,7 @@ const Create = 'create';
 import { Secret } from "kubernetes-models/v1";
 
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
-import { base64Decode, getCurrentViewInfo } from '@/utils/global';
+import { base64Decode, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { getClusterResource } from '@/utils/cluster';
 
 
@@ -16,7 +16,7 @@ const YamOrJsonForm: FC<Record<string, any>> = () => {
   const { cluster, namespace } = getCurrentViewInfo();
   const [info, setInfo] = useState<Secret>();
   const BaseApi = `api/v1/namespaces/${namespace}/secrets`;
-  const BaseAddress = namespace ? `/kubernetes/cluster/${cluster}/namespace/${namespace}/config/secrets` : `/kubernetes/cluster/${cluster}/config/secrets`
+  const BaseAddress = namespace ? toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/config/secrets`) : toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/config/secrets`)
   const params = useParams();
   const mode = params.action === Update ? Update : Create; // update or create
   const name = mode === Create ? '' : params.name || '' // resource name

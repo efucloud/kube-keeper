@@ -15,7 +15,7 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { canAccessClusterNamespaces } from '@/services/personal.api';
 import { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/services/cluster_namespace';
 import { syncClusterNamespace } from '@/services/cluster.api';
@@ -46,9 +46,9 @@ const KubernetesWatchTriggerIndex: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const resourceGroup = getClusterApiVersions(cluster, ['fission.io/v1'], 'KubernetesWatchTrigger');
   const address = namespace ? `apis/${resourceGroup.groupVersion}/namespaces/${namespace}/kuberneteswatchtriggers` : `apis/${resourceGroup.groupVersion}/kuberneteswatchtriggers`;
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/faas/kuberneteswatchtriggers`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/faas/kuberneteswatchtriggers`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/faas/kuberneteswatchtriggers`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/faas/kuberneteswatchtriggers`);
   }
   const intl = useIntl();
   const [currnetNumber, setCurrnetNumber] = useState<number>(0);
@@ -272,7 +272,7 @@ const KubernetesWatchTriggerIndex: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/faas/kuberneteswatchtriggers`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/faas/kuberneteswatchtriggers`),
                 );
               }}
             >

@@ -17,7 +17,7 @@ import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.ap
 
 import { canAccessClusterNamespaces } from '@/services/personal.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { formatResourceKind } from '@/pages/kubernetes/utils/resourceKind';
 import { syncClusterNamespace } from '@/services/cluster.api';
 
@@ -41,9 +41,9 @@ const IndexDashboard: React.FC = () => {
   const [searchFields, setSearchFields] = useState<{ [key: string]: string }>({});
   const resourceGroup = getClusterApiVersions(cluster, ['monitoring.coreos.com/v1'], 'PodMonitor');
   const address = namespace ? `apis/${resourceGroup.groupVersion}/namespaces/${namespace}/podmonitors` : `apis/${resourceGroup.groupVersion}/podmonitors`;
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/monitor/prometheus-operator/podmonitor`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/monitor/prometheus-operator/podmonitor`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/monitor/prometheus-operator/podmonitor`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/monitor/prometheus-operator/podmonitor`);
   }
   const intl = useIntl();
   const resourceLabel = formatResourceKind(intl, 'PodMonitor');
@@ -197,7 +197,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/monitor/prometheus-operator/podmonitor`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/monitor/prometheus-operator/podmonitor`),
                 );
               }}
             >

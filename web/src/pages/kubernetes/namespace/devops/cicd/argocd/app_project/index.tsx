@@ -14,7 +14,7 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/services/cluster_namespace';
 import { debounce } from 'lodash';
 import { syncClusterNamespace } from '@/services/cluster.api';
@@ -42,9 +42,9 @@ const IndexDashboard: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const resourceGroup = getClusterApiVersions(cluster, ['argoproj.io/v1alpha1'], 'AppProject');
   const address = namespace ? `apis/${resourceGroup?.groupVersion}/namespaces/${namespace}/appprojects` : `apis/${resourceGroup?.groupVersion}/appprojects`;
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/argocd/appprojects`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/argocd/appprojects`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/devops/cicd/argocd/appprojects`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/devops/cicd/argocd/appprojects`);
   }
   const intl = useIntl();
   const [currnetNumber, setCurrnetNumber] = useState<number>(0);
@@ -194,7 +194,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/devops/cicd/argocd/appprojects`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/devops/cicd/argocd/appprojects`),
                 );
               }}
             >

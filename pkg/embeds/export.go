@@ -23,9 +23,6 @@ var WebFiles embed.FS
 //go:embed skills
 var skillFS embed.FS
 
-//go:embed a2ui/basic-catalog-compact-v0_9.json
-var a2uiPromptFS embed.FS
-
 //go:embed system-prompt.md system-prompt.zh.md system-prompt.en.md
 var systemPrompt embed.FS
 
@@ -45,14 +42,6 @@ func GetSystemPromptByLanguage(language string) string {
 	}
 	data, _ := systemPrompt.ReadFile("system-prompt.md")
 	return strings.TrimSpace(string(data))
-}
-
-func GetA2UISchemaSummary(language string) string {
-	if data, err := a2uiPromptFS.ReadFile("a2ui/basic-catalog-compact-v0_9.json"); err == nil && strings.TrimSpace(string(data)) != "" {
-		return strings.TrimSpace(string(data))
-	}
-
-	return ""
 }
 
 func isEnglishPromptLanguage(language string) bool {

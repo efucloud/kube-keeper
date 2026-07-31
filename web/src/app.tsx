@@ -9,7 +9,7 @@ import { errorConfig } from './requestErrorConfig';
 import { getUserinfo } from '@/services/oauth.api';
 import type { AuthedUserInfo } from '@/services/common.d';
 const indexPath = '/index';
-import { getCurrentViewInfo, getI18nLanguage } from '@/utils/global';
+import { getCurrentViewInfo, getI18nLanguage, toKubernetesQueryRoute, withKubernetesViewQuery } from '@/utils/global';
 import buildAccess from './access';
 import 'monaco-editor/min/vs/editor/editor.main.css';
 import * as monaco from 'monaco-editor';
@@ -148,8 +148,59 @@ const filterMenuDataByAccess = (
   }, []);
 };
 
+const applyViewQueryToMenu = (
+  item: MenuDataItem,
+  cluster: string,
+  namespace: string
+): MenuDataItem => {
+  const nextItem = { ...item };
+  const normalizedNamespace = namespace || "";
+
+  if (nextItem.path) {
+    nextItem.path = withKubernetesViewQuery(
+      nextItem.path,
+      cluster,
+      normalizedNamespace
+    );
+  }
+
+  if (nextItem.key) {
+    nextItem.key = withKubernetesViewQuery(
+      String(nextItem.key),
+      cluster,
+      normalizedNamespace
+    );
+  }
+
+  if (nextItem.redirect) {
+    nextItem.redirect = withKubernetesViewQuery(
+      nextItem.redirect,
+      cluster,
+      normalizedNamespace
+    );
+  }
+
+  if (nextItem.children?.length) {
+    nextItem.children = nextItem.children.map((child) =>
+      applyViewQueryToMenu(child, cluster, normalizedNamespace)
+    );
+  }
+
+  return nextItem;
+};
+
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
 export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
+  if (typeof window !== 'undefined') {
+    const normalizedRoute = toKubernetesQueryRoute(
+      `${window.location.pathname}${window.location.search}${window.location.hash}`
+    );
+    const currentRoute = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    if (normalizedRoute !== currentRoute) {
+      history.replace(normalizedRoute);
+    }
+  }
+
   const waterMark = function () {
     if (initialState?.currentUser?.username !== undefined) {
       return [initialState?.currentUser?.remoteAddress, initialState?.currentUser?.username, initialState?.currentUser?.role];
@@ -192,45 +243,10 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
       if (window.location.pathname.startsWith('/kubernetes')) {
         let { cluster, namespace } = getCurrentViewInfo();
         const accessMap = buildAccess(initialState);
-        if (namespace === '' || !namespace) {
-          namespace = '-';
-        }
         menuData = filterMenuDataByAccess(menuData, accessMap);
-
-        for (let i = 0; i < menuData.length; i++) {
-          menuData[i].path = menuData[i].path?.replaceAll('/:cluster', `/${cluster}`);
-          menuData[i].path = menuData[i].path?.replaceAll('/:namespace', `/${namespace}`);
-          menuData[i].key = menuData[i].key?.replaceAll('/:cluster', `/${cluster}`);
-          menuData[i].key = menuData[i].key?.replaceAll('/:namespace', `/${namespace}`);
-          if (menuData[i]?.redirect) {
-            menuData[i].redirect = menuData[i].redirect.replaceAll('/:cluster/', `/${cluster}/`);
-            menuData[i].redirect = menuData[i].redirect.replaceAll('/:namespace/', `/${namespace}/`);
-          }
-          if (menuData[i]?.children && menuData[i].children && menuData[i].children.length > 0) {
-            for (let j = 0; j < menuData[i].children?.length; j++) {
-
-              menuData[i].children[j].path = menuData[i].children[j].path?.replaceAll('/:cluster', `/${cluster}`);
-              menuData[i].children[j].path = menuData[i].children[j].path?.replaceAll('/:namespace', `/${namespace}`);
-              menuData[i].children[j].key = menuData[i].children[j].key?.replaceAll('/:cluster', `/${cluster}`);
-              menuData[i].children[j].key = menuData[i].children[j].key?.replaceAll('/:namespace', `/${namespace}`);
-              if (menuData[i].children[j]?.redirect) {
-                menuData[i].children[j].redirect = menuData[i].children[j].redirect.replaceAll('/:cluster/', `/${cluster}/`);
-                menuData[i].children[j].redirect = menuData[i].children[j].redirect.replaceAll('/:namespace/', `/${namespace}/`);
-              }
-              for (let k = 0; k < menuData[i].children[j]?.children?.length; k++) {
-                menuData[i].children[j].children[k].path = menuData[i].children[j].children[k].path?.replaceAll('/:cluster', `/${cluster}`);
-                menuData[i].children[j].children[k].path = menuData[i].children[j].children[k].path?.replaceAll('/:namespace', `/${namespace}`);
-                menuData[i].children[j].children[k].key = menuData[i].children[j].children[k].key?.replaceAll('/:cluster', `/${cluster}`);
-                menuData[i].children[j].children[k].key = menuData[i].children[j].children[k].key?.replaceAll('/:namespace', `/${namespace}`);
-                if (menuData[i].children[j]?.children[k].redirect) {
-                  menuData[i].children[j].children[k].redirect = menuData[i].children[j].children[k].redirect?.replaceAll('/:cluster', `/${cluster}`);
-                  menuData[i].children[j].children[k].redirect = menuData[i].children[j].children[k].redirect?.replaceAll('/:namespace', `/${namespace}`);
-
-                }
-              }
-            }
-          }
-        }
+        menuData = menuData.map((item) =>
+          applyViewQueryToMenu(item, cluster, namespace)
+        );
       }
       return menuData;
     },
@@ -295,9 +311,9 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
         <SwapView />
         {/* {cluster && <RobotOutlined style={{ color: colorPrimary, fontSize: 18 }} onClick={() => {
           if (namespace) {
-            window.open(`/kubernetes/cluster/${cluster}/namespace/${namespace}/chat`)
+            window.open(toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/chat`))
           } else {
-            window.open(`/kubernetes/cluster/${cluster}/chat`)
+            window.open(toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/chat`))
           }
         }} />} */}
       </Space>

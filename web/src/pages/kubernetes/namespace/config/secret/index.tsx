@@ -16,7 +16,7 @@ import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.ap
 
 import { canAccessClusterNamespaces } from '@/services/personal.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { decodeBase64, getDaysUntilExpiry, parseCertificateExpiry } from '@/utils/crypto';
@@ -47,9 +47,9 @@ const IndexDashboard: React.FC = () => {
   const [searchFields, setSearchFields] = useState<{ [key: string]: string }>({});
   const [currnetNumber, setCurrnetNumber] = useState<number>(0);
   const [remainingItemCount, setRemainingItemCount] = useState<number>(0);
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/config/secrets`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/config/secrets`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/config/secrets`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/config/secrets`);
   }
   const debouncedNamespaceChange = debounce((value) => { setSearchNamespace(value); }, 1000);
   const [selectedNamespace, setSelectedNamespace] = useState<string>(namespace);
@@ -247,7 +247,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/config/secrets`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/config/secrets`),
                 );
               }}
             >
@@ -321,7 +321,7 @@ const IndexDashboard: React.FC = () => {
           <Space orientation='vertical'>
             <a
               onClick={() => {
-                window.location.pathname = `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/config/secrets/${entity?.metadata?.name}`;
+                window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/config/secrets/${entity?.metadata?.name}`);
               }}
             >
               {entity?.metadata?.name}
@@ -609,7 +609,7 @@ const IndexDashboard: React.FC = () => {
               nodes.push(<a
                 key="edit"
                 onClick={() => {
-                  window.location.href = `/kubernetes/cluster/${cluster}/namespace/${record?.metadata?.namespace}/config/secrets/${record?.metadata?.name}/update`;
+                  window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${record?.metadata?.namespace}/config/secrets/${record?.metadata?.name}/update`);
                 }}
               >
                 <EditOutlined style={{ color: colorPrimary }} />

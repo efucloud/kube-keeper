@@ -5,7 +5,7 @@ import { Card, Empty } from 'antd';
 import type { CanaryConfig } from '@kubernetes-models/fission/fission.io/v1';
 import ResourceJsonOrYamlForm from '@/pages/kubernetes/components/resource_form';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 
 const TextPage: React.FC = () => {
   const intl = useIntl();
@@ -15,9 +15,9 @@ const TextPage: React.FC = () => {
   const { cluster, namespace = '' } = getCurrentViewInfo();
   const resourceGroup = getClusterApiVersions(cluster, ['fission.io/v1'], 'CanaryConfig');
   const baseApi = namespace ? `apis/${resourceGroup.groupVersion}/namespaces/${namespace}/canaryconfigs` : `apis/${resourceGroup.groupVersion}/canaryconfigs`;
-  let baseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/faas/fission/canaryconfig`;
+  let baseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/faas/fission/canaryconfig`);
   if (namespace === '' || namespace === '-') {
-    baseAddress = `/kubernetes/cluster/${cluster}/faas/fission/canaryconfig`;
+    baseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/faas/fission/canaryconfig`);
   }
   const [info, setInfo] = useState<CanaryConfig>();
 

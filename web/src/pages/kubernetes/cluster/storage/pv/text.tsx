@@ -5,7 +5,7 @@ import ResourceJsonOrYamlForm from '@/pages/kubernetes/components/resource_form'
 import type { IPersistentVolume } from 'kubernetes-models/v1';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 
 const Update = 'update';
 const Create = 'create';
@@ -14,7 +14,7 @@ const YamOrJsonForm: FC<Record<string, any>> = () => {
   const { cluster } = getCurrentViewInfo();
   const [info, setInfo] = useState<IPersistentVolume>();
   const baseApi = `api/v1/persistentvolumes`;
-  const baseAddress = `/kubernetes/cluster/${cluster}/storage/persistentvolume`;
+  const baseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/storage/persistentvolume`);
   const params = useParams();
   const mode = params.action === Update ? Update : Create;
   const name = mode === Create ? '' : params.name || '';

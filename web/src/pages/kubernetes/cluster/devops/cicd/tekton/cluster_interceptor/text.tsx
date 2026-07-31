@@ -9,12 +9,12 @@ const Create = 'create';
 import type { ClusterInterceptor } from '@/k8s-models/tekton/triggers/triggers.tekton.dev/v1alpha1';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 
 const YamOrJsonForm: FC<Record<string, any>> = () => {
   const { cluster } = getCurrentViewInfo();
   const [info, setInfo] = useState<ClusterInterceptor>();
-  const BaseAddress = `/kubernetes/cluster/${cluster}/devops/cicd/tekton/clusterinterceptors`;
+  const BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/devops/cicd/tekton/clusterinterceptors`);
   const resourceGroup = getClusterApiVersions(cluster, ['triggers.tekton.dev/v1alpha1'], 'ClusterInterceptor');
   const BaseApi = `apis/${resourceGroup?.groupVersion}/clusterinterceptors`;
 

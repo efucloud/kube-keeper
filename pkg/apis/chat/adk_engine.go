@@ -38,7 +38,7 @@ func (e *ADKAgentEngine) Run(ctx context.Context, req ChatRequest) <-chan Stream
 func (e *ADKAgentEngine) run(ctx context.Context, req ChatRequest, ch chan<- StreamEvent) {
 	runID := newEventID("run")
 
-	if strings.TrimSpace(req.Question) == "" && req.A2UI == nil {
+	if strings.TrimSpace(req.Question) == "" {
 		emitRunError(ctx, ch, req, runID, "message is required", nil)
 		return
 	}
@@ -133,22 +133,6 @@ func (e *ADKAgentEngine) run(ctx context.Context, req ChatRequest, ch chan<- Str
 }
 
 func buildADKUserContent(req ChatRequest) *genai.Content {
-	if req.A2UI != nil && req.A2UI.ClientAction != nil {
-		payload, _ := json.Marshal(req.A2UI.ClientAction)
-		return genai.NewContentFromText("A2UI action:\n"+string(payload), genai.RoleUser)
-	}
-
-	if req.A2UI != nil {
-		payload, _ := json.Marshal(req.A2UI)
-		text := strings.TrimSpace(req.Question)
-		if text == "" {
-			text = string(payload)
-		} else {
-			text = text + "\n\nA2UI:\n" + string(payload)
-		}
-		return genai.NewContentFromText(text, genai.RoleUser)
-	}
-
 	return genai.NewContentFromText(req.Question, genai.RoleUser)
 }
 
@@ -370,14 +354,6 @@ func (t *adkEventTracker) handleFunctionResponse(ctx context.Context, event *ses
 			"reason":  reason,
 			"summary": summary,
 		})
-		if t.req.A2UI != nil {
-			emitTaskStatus(ctx, t.ch, t.req, t.runID, "running", map[string]any{
-				"agentId": t.req.A2UI.AgentId,
-				"taskId":  t.req.A2UI.TaskId,
-				"summary": summary,
-				"reason":  reason,
-			})
-		}
 	}
 }
 
@@ -416,15 +392,6 @@ func (t *adkEventTracker) finish(ctx context.Context) {
 		content,
 	)
 	emitMessageEnd(ctx, t.ch, t.req, t.messageID, content)
-	if t.req.A2UI != nil {
-		emitTaskStatus(ctx, t.ch, t.req, t.runID, "done", map[string]any{
-			"agentId": t.req.A2UI.AgentId,
-			"taskId":  t.req.A2UI.TaskId,
-			"result": map[string]any{
-				"text": content,
-			},
-		})
-	}
 	emitRunComplete(ctx, t.ch, t.req, t.runID, "completed", "stop", map[string]any{
 		"engine":    "adk",
 		"skillId":   skillID(t.req.MatchedSkill),
@@ -438,13 +405,6 @@ func (t *adkEventTracker) fail(ctx context.Context, err error) {
 		return
 	}
 	t.done = true
-	if t.req.A2UI != nil {
-		emitTaskStatus(ctx, t.ch, t.req, t.runID, "error", map[string]any{
-			"agentId": t.req.A2UI.AgentId,
-			"taskId":  t.req.A2UI.TaskId,
-			"error":   err.Error(),
-		})
-	}
 	emitRunError(ctx, t.ch, t.req, t.runID, err.Error(), map[string]any{
 		"engine":  "adk",
 		"skillId": skillID(t.req.MatchedSkill),

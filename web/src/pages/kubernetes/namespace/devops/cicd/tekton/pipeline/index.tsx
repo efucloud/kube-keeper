@@ -14,7 +14,7 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { clusterDeleteProxy, clusterGetProxy, clusterPostProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { debounce } from 'lodash';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/services/cluster_namespace';
@@ -49,9 +49,9 @@ const IndexDashboard: React.FC = () => {
   const formRef = useRef<ProFormInstance>(undefined);
   const resourceGroup = getClusterApiVersions(cluster, ['tekton.dev/v1beta1'], 'Pipeline');
   const address = namespace ? `apis/${resourceGroup?.groupVersion}/namespaces/${namespace}/pipelines` : `apis/${resourceGroup?.groupVersion}/pipelines`;
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/tekton/pipelines`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/tekton/pipelines`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/devops/cicd/tekton/pipelines`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/devops/cicd/tekton/pipelines`);
   }
   const [currnetNumber, setCurrnetNumber] = useState<number>(0);
   const [remainingItemCount, setRemainingItemCount] = useState<number>(0);
@@ -348,7 +348,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/devops/cicd/tekton/pipelines`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/devops/cicd/tekton/pipelines`),
                 );
               }}
             >
@@ -368,11 +368,11 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 if (namespace) {
-                  window.location.href = `/kubernetes/cluster/${cluster}/namespace/${entity.metadata?.namespace}/devops/cicd/tekton/pipelines/lego/detail/${entity.metadata?.name}`;
+                  window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity.metadata?.namespace}/devops/cicd/tekton/pipelines/lego/detail/${entity.metadata?.name}`);
 
                 } else {
                   window.open(
-                    `/kubernetes/cluster/${cluster}/namespace/${entity.metadata?.namespace}/devops/cicd/tekton/pipelines/lego/detail/${entity.metadata?.name}`,
+                    toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity.metadata?.namespace}/devops/cicd/tekton/pipelines/lego/detail/${entity.metadata?.name}`),
                     '_blank',
                   );
                 }
@@ -632,11 +632,11 @@ const IndexDashboard: React.FC = () => {
               key="edit"
               onClick={() => {
                 if (namespace) {
-                  window.location.href = `/kubernetes/cluster/${cluster}/namespace/${record.metadata?.namespace}/devops/cicd/tekton/pipelines/lego/update/${record.metadata?.name}`;
+                  window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${record.metadata?.namespace}/devops/cicd/tekton/pipelines/lego/update/${record.metadata?.name}`);
 
                 } else {
                   window.open(
-                    `/kubernetes/cluster/${cluster}/namespace/${record.metadata?.namespace}/devops/cicd/tekton/pipelines/lego/update/${record.metadata?.name}`,
+                    toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${record.metadata?.namespace}/devops/cicd/tekton/pipelines/lego/update/${record.metadata?.name}`),
                     '_blank',
                   );
                 }
@@ -1059,7 +1059,7 @@ const IndexDashboard: React.FC = () => {
           pipelineRun.kind = 'PipelineRun';
           pipelineRun.apiVersion = `${pipelineRunResourceGroup?.groupVersion}`;
           await clusterPostProxy({ cluster, address: `apis/${pipelineRunResourceGroup?.groupVersion}/namespaces/${namespace}/pipelineruns` }, pipelineRun);
-          window.location.href = `/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/tekton/pipelineruns`
+          window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/tekton/pipelineruns`)
         }}
         modalProps={{ maskClosable: true, destroyOnHidden: true, forceRender: true }}
       >

@@ -15,7 +15,7 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { debounce } from 'lodash';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/services/cluster_namespace';
@@ -44,9 +44,9 @@ const HTTPTriggerIndex: React.FC = () => {
   const [searchFields, setSearchFields] = useState<{ [key: string]: string }>({});
   const resourceGroup = getClusterApiVersions(cluster, ['fission.io/v1'], 'HTTPTrigger');
   const address = namespace ? `apis/${resourceGroup.groupVersion}/namespaces/${namespace}/httptriggers` : `apis/${resourceGroup.groupVersion}/httptriggers`;
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/faas/httptriggers`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/faas/httptriggers`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/faas/httptriggers`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/faas/httptriggers`);
   }
   const intl = useIntl();
   const [currnetNumber, setCurrnetNumber] = useState<number>(0);
@@ -269,7 +269,7 @@ const HTTPTriggerIndex: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/faas/httptriggers`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/faas/httptriggers`),
                 );
               }}
             >

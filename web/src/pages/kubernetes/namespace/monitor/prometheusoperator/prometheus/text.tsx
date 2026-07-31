@@ -5,7 +5,7 @@ import { Card, Empty } from 'antd';
 import type { Prometheus } from '@kubernetes-models/prometheus-operator/monitoring.coreos.com/v1';
 import ResourceJsonOrYamlForm from '@/pages/kubernetes/components/resource_form';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { formatResourceKind } from '@/pages/kubernetes/utils/resourceKind';
 
 const TextPage: React.FC = () => {
@@ -18,9 +18,9 @@ const TextPage: React.FC = () => {
   const { cluster, namespace = '' } = getCurrentViewInfo();
   const resourceGroup = getClusterApiVersions(cluster, ['monitoring.coreos.com/v1'], 'Prometheus');
   const baseApi = namespace ? `apis/${resourceGroup.groupVersion}/namespaces/${namespace}/prometheuses` : `apis/${resourceGroup.groupVersion}/prometheuses`;
-  let baseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/monitor/prometheus-operator/prometheus`;
+  let baseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/monitor/prometheus-operator/prometheus`);
   if (namespace === '' || namespace === '-') {
-    baseAddress = `/kubernetes/cluster/${cluster}/monitor/prometheus-operator/prometheus`;
+    baseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/monitor/prometheus-operator/prometheus`);
   }
   const [info, setInfo] = useState<Prometheus>();
 

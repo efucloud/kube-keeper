@@ -121,7 +121,7 @@ func parsePayload(req *restful.Request) (*dtos.ChatHTTPPayload, error) {
 	if err := req.ReadEntity(&payload); err != nil {
 		return nil, fmt.Errorf("invalid json")
 	}
-	if strings.TrimSpace(payload.Message) == "" && payload.A2UI == nil {
+	if strings.TrimSpace(payload.Message) == "" {
 		return nil, fmt.Errorf("message is required")
 	}
 
@@ -162,7 +162,6 @@ func buildDomainRequest(req *restful.Request, payload *dtos.ChatHTTPPayload) Cha
 		Context:   ctxInfo,
 		Resource:  resource,
 		CNCFInfo:  cncfInfo,
-		A2UI:      payload.A2UI,
 	}
 }
 

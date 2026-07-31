@@ -6,7 +6,7 @@ import { clusterGetProxy } from '@/services/cluster_proxy.api';
 import type { ClusterDashboard } from '@/services/dashboard';
 import { getClusterNamespaceDashboard } from '@/services/namespace.api';
 import { getClusterResource, getWorkloadStatus } from '@/utils/cluster';
-import { getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { RenderNamespaceWorkloadMetrics } from '@/pages/kubernetes/components/namespace_workload_metrics';
 import AICopilot from '../../components/ai';
 import { useIntl } from '@umijs/max';
@@ -45,7 +45,7 @@ const DetailView: React.FC = () => {
           <Card
             variant={'borderless'}
             onClick={() => {
-              window.open(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/pods`);
+              window.open(toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/pods`));
             }}
           >
             <span style={{ textAlign: 'center' }}>
@@ -61,7 +61,7 @@ const DetailView: React.FC = () => {
           <Card
             variant={'borderless'}
             onClick={() => {
-              window.open(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/deployments`);
+              window.open(toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/deployments`));
             }}
           >
             <span style={{ textAlign: 'center' }}>
@@ -77,7 +77,7 @@ const DetailView: React.FC = () => {
           <Card
             variant={'borderless'}
             onClick={() => {
-              window.open(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/statefulsets`);
+              window.open(toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/statefulsets`));
             }}
           >
             <span style={{ textAlign: 'center' }}>
@@ -93,7 +93,7 @@ const DetailView: React.FC = () => {
           <Card
             variant={'borderless'}
             onClick={() => {
-              window.open(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/daemonsets`);
+              window.open(toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/daemonsets`));
             }}
           >
             <span style={{ textAlign: 'center' }}>
@@ -110,7 +110,7 @@ const DetailView: React.FC = () => {
           <Card
             variant={'borderless'}
             onClick={() => {
-              window.open(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/jobs`);
+              window.open(toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/jobs`));
             }}
           >
             <span style={{ textAlign: 'center' }}>
@@ -126,7 +126,7 @@ const DetailView: React.FC = () => {
           <Card
             variant={'borderless'}
             onClick={() => {
-              window.open(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/cronjobs`);
+              window.open(toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/cronjobs`));
             }}
           >
             <span style={{ textAlign: 'center' }}>
@@ -144,7 +144,7 @@ const DetailView: React.FC = () => {
           <Card
             variant={'borderless'}
             onClick={() => {
-              window.open(`/kubernetes/cluster/${cluster}/namespace/${namespace}/config/configmaps`);
+              window.open(toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/config/configmaps`));
             }}
           >
             <span style={{ textAlign: 'center' }}>
@@ -160,7 +160,7 @@ const DetailView: React.FC = () => {
           <Card
             variant={'borderless'}
             onClick={() => {
-              window.open(`/kubernetes/cluster/${cluster}/namespace/${namespace}/config/secrets`);
+              window.open(toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/config/secrets`));
             }}
           >
             <span style={{ textAlign: 'center' }}>
@@ -176,7 +176,7 @@ const DetailView: React.FC = () => {
           <Card
             variant={'borderless'}
             onClick={() => {
-              window.open(`/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/services`);
+              window.open(toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/services`));
             }}
           >
             <span style={{ textAlign: 'center' }}>
@@ -192,7 +192,7 @@ const DetailView: React.FC = () => {
           <Card
             variant={'borderless'}
             onClick={() => {
-              window.open(`/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/ingress`);
+              window.open(toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/ingress`));
             }}
           >
             <span style={{ textAlign: 'center' }}>
@@ -208,7 +208,7 @@ const DetailView: React.FC = () => {
           <Card
             variant={'borderless'}
             onClick={() => {
-              window.open(`/kubernetes/cluster/${cluster}/namespace/${namespace}/market/helm/histories`);
+              window.open(toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/market/helm/histories`));
             }}
           >
             <span style={{ textAlign: 'center' }}>
@@ -224,7 +224,7 @@ const DetailView: React.FC = () => {
           <Card
             variant={'borderless'}
             onClick={() => {
-              window.open(`/kubernetes/cluster/${cluster}/namespace/${namespace}/storage/persistentvolumeclaim`);
+              window.open(toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/storage/persistentvolumeclaim`));
             }}
           >
             <span style={{ textAlign: 'center' }}>

@@ -5,7 +5,7 @@ import { Card, Empty } from 'antd';
 import type { TimeTrigger } from '@kubernetes-models/fission/fission.io/v1';
 import ResourceJsonOrYamlForm from '@/pages/kubernetes/components/resource_form';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 
 const TextPage: React.FC = () => {
   const intl = useIntl();
@@ -15,9 +15,9 @@ const TextPage: React.FC = () => {
   const { cluster, namespace = '' } = getCurrentViewInfo();
   const resourceGroup = getClusterApiVersions(cluster, ['fission.io/v1'], 'TimeTrigger');
   const baseApi = namespace ? `apis/${resourceGroup.groupVersion}/namespaces/${namespace}/timetriggers` : `apis/${resourceGroup.groupVersion}/timetriggers`;
-  let baseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/faas/fission/timetrigger`;
+  let baseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/faas/fission/timetrigger`);
   if (namespace === '' || namespace === '-') {
-    baseAddress = `/kubernetes/cluster/${cluster}/faas/fission/timetrigger`;
+    baseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/faas/fission/timetrigger`);
   }
   const [info, setInfo] = useState<TimeTrigger>();
 

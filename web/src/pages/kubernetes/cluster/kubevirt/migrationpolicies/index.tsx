@@ -8,7 +8,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { IMigrationPolicy } from '@/k8s-models/kubevirt/migrations.kubevirt.io/v1alpha1';
 import type { IKubeVirtResourceList } from '@/k8s-models/kubevirt';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { formatResourceKind } from '@/pages/kubernetes/utils/resourceKind';
 
 const IndexPage: React.FC = () => {
@@ -21,7 +21,7 @@ const IndexPage: React.FC = () => {
     [cluster],
   );
   const baseApi = 'apis/' + resourceGroup.groupVersion + '/migrationpolicies';
-  const baseAddress = '/kubernetes/cluster/' + cluster + '/kubevirt/migrationpolicies';
+  const baseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/kubevirt/migrationpolicies`);
   const [dataSource, setDataSource] = useState<IMigrationPolicy[]>([]);
   const [loading, setLoading] = useState(false);
 

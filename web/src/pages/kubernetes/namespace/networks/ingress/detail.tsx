@@ -1,4 +1,4 @@
-import { getClusterApiVersions, getCurrentViewInfo, getHeight } from "@/utils/global";
+import { getClusterApiVersions, getCurrentViewInfo, getHeight, toKubernetesQueryRoute } from '@/utils/global';
 import { PageContainer, ProColumns, ProDescriptions, ProTable } from "@ant-design/pro-components";
 import { useParams, useIntl, FormattedMessage } from "@umijs/max";
 import { ReactNode, useEffect, useState } from "react";
@@ -27,7 +27,7 @@ const DetailView: React.FC = () => {
   const [editorResource, setEditorResource] = useState<boolean>(false);
   const resourceGroup = getClusterApiVersions(cluster, ['networking.k8s.io/v1', 'extensions/v1', 'extensions/v1beta1'], 'Ingress');
   const BaseApi = `apis/${resourceGroup.groupVersion}/namespaces/${namespace}/ingresses`;
-  const BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/ingresses`;
+  const BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/ingresses`);
   const [podVisible, setPodVisible] = useState<boolean>(false);
   const [labels, setLabels] = useState<Record<string, string>>({});
   const [selectedServiceName, setSelectedServiceName] = useState<string | undefined>(undefined);
@@ -62,7 +62,7 @@ const DetailView: React.FC = () => {
     nodes.push({
       key: 'edit',
       label: <a style={{ color: colorPrimary }} onClick={() => {
-        window.location.href = `/kubernetes/cluster/${cluster}/namespace/${info?.metadata?.namespace}/networks/ingresses/${info?.metadata?.name}/update`
+        window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${info?.metadata?.namespace}/networks/ingresses/${info?.metadata?.name}/update`)
       }}><FormattedMessage id='cluster.resource.operation.edit' /></a>
     })
     nodes.push({

@@ -5,7 +5,7 @@ import ResourceJsonOrYamlForm from '@/pages/kubernetes/components/resource_form'
 import type { ClusterRoleBinding } from 'kubernetes-models/rbac.authorization.k8s.io/v1';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getCurrentViewInfo, getClusterApiVersions } from '@/utils/global';
+import { getCurrentViewInfo, getClusterApiVersions, toKubernetesQueryRoute } from '@/utils/global';
 
 const Update = 'update';
 const Create = 'create';
@@ -15,7 +15,7 @@ const YamOrJsonForm: FC<Record<string, any>> = () => {
   const resourceGroup = getClusterApiVersions(cluster, ['rbac.authorization.k8s.io/v1'], 'ClusterRoleBinding');
 const [info, setInfo] = useState<ClusterRoleBinding>();
   const baseApi = `apis/${resourceGroup.groupVersion}/clusterrolebindings`;
-  const baseAddress = `/kubernetes/cluster/${cluster}/access/clusterrolebindings`;
+  const baseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/access/clusterrolebindings`);
   const params = useParams();
   const mode = params.action === Update ? Update : Create;
   const name = mode === Create ? '' : params.name || '';

@@ -5,7 +5,7 @@ import { Card, Empty } from 'antd';
 import type { Environment } from '@kubernetes-models/fission/fission.io/v1';
 import ResourceJsonOrYamlForm from '@/pages/kubernetes/components/resource_form';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 
 const TextPage: React.FC = () => {
   const intl = useIntl();
@@ -15,9 +15,9 @@ const TextPage: React.FC = () => {
   const { cluster, namespace = '' } = getCurrentViewInfo();
   const resourceGroup = getClusterApiVersions(cluster, ['fission.io/v1'], 'Environment');
   const baseApi = namespace ? `apis/${resourceGroup.groupVersion}/namespaces/${namespace}/environments` : `apis/${resourceGroup.groupVersion}/environments`;
-  let baseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/faas/fission/environment`;
+  let baseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/faas/fission/environment`);
   if (namespace === '' || namespace === '-') {
-    baseAddress = `/kubernetes/cluster/${cluster}/faas/fission/environment`;
+    baseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/faas/fission/environment`);
   }
   const [info, setInfo] = useState<Environment>();
 

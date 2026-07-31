@@ -18,7 +18,7 @@ import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.ap
 
 import { canAccessClusterNamespaces } from '@/services/personal.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { syncClusterNamespace } from '@/services/cluster.api';
 
 import AICopilot from '@/pages/kubernetes/components/ai';
@@ -48,9 +48,9 @@ const IndexDashboard: React.FC = () => {
   const [resourceDrawerVisible, setResourceDrawerVisible] = useState<boolean>(false);
   const [drawerSize, setDrawerSize] = useState<number>(800);
   const [editorResource, setEditorResource] = useState<boolean>(false);
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/access/roles`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/access/roles`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/access/roles`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/access/roles`);
   }
   const debouncedNamespaceChange = debounce((value) => { setSearchNamespace(value); }, 1000);
   const [selectedNamespace, setSelectedNamespace] = useState<string>(namespace);
@@ -230,7 +230,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/access/roles`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/access/roles`),
                 );
               }}
             >
@@ -472,7 +472,7 @@ const IndexDashboard: React.FC = () => {
             <a
               key="edit"
               onClick={() => {
-                window.location.href = `/kubernetes/cluster/${cluster}/namespace/${record?.metadata?.namespace}/access/roles/${record?.metadata?.name}/update`;
+                window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${record?.metadata?.namespace}/access/roles/${record?.metadata?.name}/update`);
               }}
             >
               <EditOutlined style={{ color: colorPrimary }} />

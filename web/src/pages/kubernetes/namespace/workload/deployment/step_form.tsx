@@ -17,7 +17,7 @@ import { listNamespaceImagePullSecret } from '@/services/namespace.api';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import { canAccessClusterNamespaces } from '@/services/personal.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo, getHeight } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, getHeight, toKubernetesQueryRoute } from '@/utils/global';
 import { IDeployment } from 'kubernetes-models/apps/v1';
 import { Editor } from '@monaco-editor/react';
 import { FormIContainer } from '@/pages/kubernetes/components/form_kubernetes_resource';
@@ -36,9 +36,9 @@ const AdvancedStepForm: FC<Record<string, any>> = () => {
   const resourceGroup = getClusterApiVersions(cluster, ['apps/v1', 'apps/v1beta1', 'apps/v1beta2'], 'Deployment');
   const [info, setInfo] = useState<IDeployment>({ apiVersion: resourceGroup.groupVersion, kind: 'Deployment', metadata: { namespace: namespace }, spec: { replicas: 1 } } as IDeployment);
 
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${selectedNamespace}/workload/deployments`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${selectedNamespace}/workload/deployments`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/workload/deployments`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/workload/deployments`);
   }
   const params = useParams();
   const mode = params.action === Update ? Update : Create; // update or create
@@ -663,7 +663,7 @@ const AdvancedStepForm: FC<Record<string, any>> = () => {
               <Fragment>
                 <Button type="primary"
                   onClick={() => {
-                    window.location.href = `/kubernetes/cluster/${cluster}/namespace/${info.metadata?.namespace}/workload/deployments/${info.metadata?.name}`
+                    window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${info.metadata?.namespace}/workload/deployments/${info.metadata?.name}`)
                   }}
                 ><FormattedMessage id='pages.operation.go.detail' /></Button>
                 <Button

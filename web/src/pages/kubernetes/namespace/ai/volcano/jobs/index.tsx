@@ -17,7 +17,7 @@ import { clusterDeleteProxy, clusterGetProxy, clusterPostProxy } from '@/service
 
 import { canAccessClusterNamespaces } from '@/services/personal.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { syncClusterNamespace } from '@/services/cluster.api';
 
 import AICopilot from '@/pages/kubernetes/components/ai';
@@ -41,9 +41,9 @@ const IndexDashboard: React.FC = () => {
 
   const resourceGroup = getClusterApiVersions(cluster, ['batch.volcano.sh/v1alpha1'], 'Job');
   const address = namespace ? `apis/${resourceGroup.groupVersion}/namespaces/${namespace}/jobs` : `apis/${resourceGroup.groupVersion}/jobs`;
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/ai/volcano/jobs`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/ai/volcano/jobs`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/ai/volcano/jobs`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/ai/volcano/jobs`);
   }
   const intl = useIntl();
   const [currnetNumber, setCurrnetNumber] = useState<number>(0);
@@ -216,7 +216,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/ai/volcano/jobs`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/ai/volcano/jobs`),
                 );
               }}
             >

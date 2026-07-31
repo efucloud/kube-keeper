@@ -9,15 +9,15 @@ const Create = 'create';
 import type { TriggerTemplate } from '@/k8s-models/tekton/triggers/triggers.tekton.dev/v1beta1';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 
 const YamOrJsonForm: FC<Record<string, any>> = () => {
   const { cluster, namespace } = getCurrentViewInfo();
   const [info, setInfo] = useState<TriggerTemplate>();
   const resourceGroup = getClusterApiVersions(cluster, ['triggers.tekton.dev/v1beta1'], 'Trigger');
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/tekton/triggertemplates`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/tekton/triggertemplates`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/devops/cicd/tekton/triggers`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/devops/cicd/tekton/triggers`);
   }
   const params = useParams();
   const mode = params.action === Update ? Update : Create; // update or create

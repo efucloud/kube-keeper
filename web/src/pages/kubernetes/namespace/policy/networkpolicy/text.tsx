@@ -5,7 +5,7 @@ import ResourceJsonOrYamlForm from '@/pages/kubernetes/components/resource_form'
 import type { INetworkPolicy } from 'kubernetes-models/networking.k8s.io/v1';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getCurrentViewInfo, getClusterApiVersions } from '@/utils/global';
+import { getCurrentViewInfo, getClusterApiVersions, toKubernetesQueryRoute } from '@/utils/global';
 
 const Update = 'update';
 const Create = 'create';
@@ -15,7 +15,7 @@ const YamOrJsonForm: FC<Record<string, any>> = () => {
   const resourceGroup = getClusterApiVersions(cluster, ['networking.k8s.io/v1'], 'NetworkPolicy');
 const [info, setInfo] = useState<INetworkPolicy>();
   const baseApi = `apis/${resourceGroup.groupVersion}/namespaces/${namespace || '-'}/networkpolicies`;
-  const baseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace || '-'}/policy/networkpolicy`;
+  const baseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace || '-'}/policy/networkpolicy`);
   const params = useParams();
   const mode = params.action === Update ? Update : Create;
   const name = mode === Create ? '' : params.name || '';

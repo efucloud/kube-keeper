@@ -19,7 +19,7 @@ import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.ap
 
 import { canAccessClusterNamespaces } from '@/services/personal.api';
 import { getClusterResource, isK8sVersionSupported } from '@/utils/cluster';
-import { getClusterVersion, getCurrentViewInfo } from '@/utils/global';
+import { getClusterVersion, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import PatchLabels from '@/pages/kubernetes/components/patch_labels';
 import OwnerReferencesView from '@/pages/kubernetes/components/owner_references';
@@ -60,9 +60,9 @@ const IndexDashboard: React.FC = () => {
   const [editorResource, setEditorResource] = useState<boolean>(false);
   const [patchPod, setPatchPod] = useState<IPod>();
   const resourceResizeSupport = isK8sVersionSupported('1.35', getClusterVersion(cluster));
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/pods`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/pods`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/workload/pods`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/workload/pods`);
   }
   const debouncedNamespaceChange = debounce((value) => { setSearchNamespace(value); }, 1000);
   const [selectedNamespace, setSelectedNamespace] = useState<string>(namespace);
@@ -297,7 +297,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/pods`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/pods`),
                 );
               }}
             >
@@ -325,10 +325,10 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 if (namespace) {
-                  window.location.pathname = `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/pods/${entity?.metadata?.name}`;
+                  window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/pods/${entity?.metadata?.name}`);
                 } else {
                   window.open(
-                    `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/pods/${entity?.metadata?.name}`,
+                    toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/pods/${entity?.metadata?.name}`),
                     '_blank',
                   );
                 }
@@ -832,7 +832,7 @@ const IndexDashboard: React.FC = () => {
           nodes.unshift(
             <a
               onClick={() => {
-                window.location.href = `/kubernetes/cluster/${cluster}/namespace/${record?.metadata?.namespace}/workload/pods/${record?.metadata?.name}/update`;
+                window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${record?.metadata?.namespace}/workload/pods/${record?.metadata?.name}/update`);
               }}
             >
               <EditOutlined style={{ color: colorPrimary }} />

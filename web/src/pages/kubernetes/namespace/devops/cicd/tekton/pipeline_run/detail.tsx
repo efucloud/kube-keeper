@@ -1,4 +1,4 @@
-import { getClusterApiVersions, getCurrentViewInfo } from "@/utils/global";
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { PageContainer, ProDescriptions, ProTable } from "@ant-design/pro-components";
 import { useParams, useIntl, FormattedMessage } from "@umijs/max";
 import React, { useEffect, useState } from "react";
@@ -42,9 +42,9 @@ const DetailView: React.FC = () => {
   const [selectedContainer, setSelectedContainer] = useState<string>()
   const resourceGroup = getClusterApiVersions(cluster, ['tekton.dev/v1'], "PipelineRun");
   const BaseApi = `apis/${resourceGroup?.groupVersion}/namespaces/${namespace}/pipelineruns`;
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/tekton/pipelineruns`
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/tekton/pipelineruns`)
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/devops/cicd/tekton/pipelineruns`
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/devops/cicd/tekton/pipelineruns`)
   }
   const taskRunAddress = `apis/${resourceGroup?.groupVersion}/namespaces/${namespace}/taskruns`
   const getInfo = async () => {

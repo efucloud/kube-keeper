@@ -5,7 +5,7 @@ import ResourceJsonOrYamlForm from '@/pages/kubernetes/components/resource_form'
 import type { ILimitRange } from 'kubernetes-models/v1';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 
 const Update = 'update';
 const Create = 'create';
@@ -14,7 +14,7 @@ const YamOrJsonForm: FC<Record<string, any>> = () => {
   const { cluster, namespace } = getCurrentViewInfo();
   const [info, setInfo] = useState<ILimitRange>();
   const baseApi = `api/v1/namespaces/${namespace || '-'}/limitranges`;
-  const baseAddress = namespace ? `/kubernetes/cluster/${cluster}/namespace/${namespace}/config/limitranges` : `/kubernetes/cluster/${cluster}/config/limitranges`;
+  const baseAddress = namespace ? toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/config/limitranges`) : toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/config/limitranges`);
   const params = useParams();
   const mode = params.action === Update ? Update : Create;
   const name = mode === Create ? '' : params.name || '';

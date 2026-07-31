@@ -8,18 +8,18 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ResourceJsonOrYamlForm from '@/pages/kubernetes/components/resource_form';
 import type { KubernetesResource, KubernetesResourceList } from '@/services/common';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { formatResourceKind } from '@/pages/kubernetes/utils/resourceKind';
 import type { GatewayResourceConfig } from './resources';
 
 const getBaseAddress = (config: GatewayResourceConfig, cluster: string, namespace = '') => {
   if (config.scope === 'cluster') {
-    return `/kubernetes/cluster/${cluster}/networks/gateway/${config.routeSegment}`;
+    return toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/networks/gateway/${config.routeSegment}`);
   }
   if (namespace && namespace !== '-') {
-    return `/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/gateway/${config.routeSegment}`;
+    return toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/gateway/${config.routeSegment}`);
   }
-  return `/kubernetes/cluster/${cluster}/networks/gateway/${config.routeSegment}`;
+  return toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/networks/gateway/${config.routeSegment}`);
 };
 
 const getItemBaseAddress = (config: GatewayResourceConfig, cluster: string, namespace = '', itemNamespace = '') => {
@@ -28,9 +28,9 @@ const getItemBaseAddress = (config: GatewayResourceConfig, cluster: string, name
   }
   const targetNamespace = namespace && namespace !== '-' ? namespace : itemNamespace;
   if (targetNamespace) {
-    return `/kubernetes/cluster/${cluster}/namespace/${targetNamespace}/networks/gateway/${config.routeSegment}`;
+    return toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${targetNamespace}/networks/gateway/${config.routeSegment}`);
   }
-  return `/kubernetes/cluster/${cluster}/networks/gateway/${config.routeSegment}`;
+  return toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/networks/gateway/${config.routeSegment}`);
 };
 
 const getBaseApi = (config: GatewayResourceConfig, groupVersion: string, namespace = '') => {

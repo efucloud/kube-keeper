@@ -13,7 +13,7 @@ import FilterSelector from '@/pages/kubernetes/components/filter_selector';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import AICopilot from '../../components/ai';
 
@@ -162,7 +162,7 @@ const IndexDashboard: React.FC = () => {
           <>
             <a
               onClick={() => {
-                window.location.pathname = `/kubernetes/cluster/${cluster}/apiservices/${entity?.metadata?.name}`;
+                window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/apiservices/${entity?.metadata?.name}`);
               }}
             >
               {entity?.metadata?.name}

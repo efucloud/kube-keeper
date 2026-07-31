@@ -3,7 +3,7 @@ import { ClusterNamespaceDetail, ClusterNamespaceDetailList } from "@/services/c
 import { clusterGetProxy, clusterPostProxy, clusterPutProxy } from "@/services/cluster_proxy.api";
 import { canAccessClusterNamespaces } from "@/services/personal.api";
 import { getClusterResource } from "@/utils/cluster";
-import { getClusterApiVersions, getCurrentViewInfo, getHeight } from "@/utils/global";
+import { getClusterApiVersions, getCurrentViewInfo, getHeight, toKubernetesQueryRoute } from '@/utils/global';
 import { ActionType, ModalForm, ProForm, ProFormInstance, ProFormSelect, ProFormSwitch, ProFormText, ProFormTextArea, ProTable } from "@ant-design/pro-components";
 import { FooterToolbar, PageContainer } from "@ant-design/pro-layout";
 import { FormattedMessage, useIntl, useParams } from "@umijs/max";
@@ -81,14 +81,14 @@ const IngressForm: React.FC = () => {
     if (action === 'update') {
       let params = { cluster, address: `${BaseApi}/${name}` } as Record<string, any>;
       await clusterPutProxy(params, info) as Ingress;
-      window.location.href = `/kubernetes/cluster/${cluster}/namespace/${info.metadata?.namespace}/networks/ingresses/${info.metadata?.name}/update`
+      window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${info.metadata?.namespace}/networks/ingresses/${info.metadata?.name}/update`)
     } else {
       if (!info?.metadata) { info.metadata = {} }
       info.metadata.name = values.metadata.name;
       info.metadata.namespace = values.metadata.namespace;
       let params = { cluster, address: `${BaseApi}` } as Record<string, any>;
       await clusterPostProxy(params, info) as Ingress;
-      window.location.href = `/kubernetes/cluster/${cluster}/namespace/${info.metadata?.namespace}/networks/ingresses/${info.metadata?.name}/update`
+      window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${info.metadata?.namespace}/networks/ingresses/${info.metadata?.name}/update`)
     }
   };
   return (

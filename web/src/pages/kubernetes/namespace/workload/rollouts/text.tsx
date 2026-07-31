@@ -9,7 +9,7 @@ const { Text } = Typography;
 import { Rollout } from "@kubernetes-models/argo-rollouts/argoproj.io/v1alpha1/Rollout";
 import { IContainer } from 'kubernetes-models/v1';
 import { clusterGetProxy, clusterDeleteProxy, clusterPostProxy } from '@/services/cluster_proxy.api';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { IntlShape } from "react-intl";
 import dayjs from 'dayjs';
 import PatchLabels from '@/pages/kubernetes/components/patch_labels';
@@ -49,9 +49,9 @@ const IndexDashboard: React.FC = () => {
   const [searchFields, setSearchFields] = useState<{ [key: string]: string; }>({});
   const resourceGroup = getClusterApiVersions(cluster, ['argoproj.io/v1alpha1'], "Rollout");
   const address = namespace ? `apis/${resourceGroup?.groupVersion}/namespaces/${namespace}/rollouts` : `apis/${resourceGroup?.groupVersion}/rollouts`;
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/rollouts`
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/rollouts`)
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/workload/rollouts`
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/workload/rollouts`)
   }
 
   const intl = useIntl();
@@ -248,7 +248,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/rollouts`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/rollouts`),
                 );
               }}
             >
@@ -272,9 +272,9 @@ const IndexDashboard: React.FC = () => {
               title={<span style={{ fontSize: '12px' }}>{description}</span>}>
               < a onClick={() => {
                 if (namespace) {
-                  window.location.pathname = `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/rollouts/${entity?.metadata?.name}`
+                  window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/rollouts/${entity?.metadata?.name}`)
                 } else {
-                  window.open(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/rollouts/${entity?.metadata?.name}`, '_blank')
+                  window.open(toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/rollouts/${entity?.metadata?.name}`), '_blank')
                 }
               }}  >
                 {entity?.metadata?.name}
@@ -286,9 +286,9 @@ const IndexDashboard: React.FC = () => {
             {hasStorage && <><SaveOutlined style={{ color: colorPrimary }} />&nbsp;</>}
             < a onClick={() => {
               if (namespace) {
-                window.location.pathname = `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/rollouts/${entity?.metadata?.name}`
+                window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/rollouts/${entity?.metadata?.name}`)
               } else {
-                window.open(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/rollouts/${entity?.metadata?.name}`, '_blank', 'noreferrer')
+                window.open(toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/rollouts/${entity?.metadata?.name}`), '_blank', 'noreferrer')
               }
             }}>
               {entity?.metadata?.name}
@@ -494,7 +494,7 @@ const IndexDashboard: React.FC = () => {
           </Popconfirm>];
         if (!record?.metadata?.ownerReferences) {
           nodes.unshift(<a key='edit' onClick={() => {
-            window.location.href = `/kubernetes/cluster/${cluster}/namespace/${record?.metadata?.namespace}/workload/rollouts/${record?.metadata?.name}/update`
+            window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${record?.metadata?.namespace}/workload/rollouts/${record?.metadata?.name}/update`)
           }
           }><EditOutlined style={{ color: colorPrimary }} /></a>);
         }

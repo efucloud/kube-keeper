@@ -14,7 +14,7 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import AICopilot from '@/pages/kubernetes/components/ai';
 import { CncfVolcano } from '@/utils/cncf';
 
@@ -34,7 +34,7 @@ const IndexDashboard: React.FC = () => {
   const [searchFields, setSearchFields] = useState<{ [key: string]: string }>({});
   const resourceGroup = getClusterApiVersions(cluster, ['topology.volcano.sh/v1alpha1'], 'HyperNode');
   const address = `apis/${resourceGroup.groupVersion}/hypernodes`;
-  const BaseAddress = `/kubernetes/cluster/${cluster}/ai/volcano/hypernode`;
+  const BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/ai/volcano/hypernode`);
   const intl = useIntl();
   const [currnetNumber, setCurrnetNumber] = useState<number>(0);
   const [remainingItemCount, setRemainingItemCount] = useState<number>(0);

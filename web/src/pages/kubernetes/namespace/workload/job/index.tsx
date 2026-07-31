@@ -19,7 +19,7 @@ import { clusterDeleteProxy, clusterGetProxy, clusterPostProxy } from '@/service
 
 import { canAccessClusterNamespaces } from '@/services/personal.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import PatchImages from '@/pages/kubernetes/components/patch_image';
 
@@ -55,9 +55,9 @@ const IndexDashboard: React.FC = () => {
 
   const [dataSource, setDataSource] = useState<IJob[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/jobs`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/jobs`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/workload/jobs`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/workload/jobs`);
   }
   const debouncedNamespaceChange = debounce((value) => { setSearchNamespace(value); }, 1000);
   const [selectedNamespace, setSelectedNamespace] = useState<string>(namespace);
@@ -284,7 +284,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/jobs`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/jobs`),
                 );
               }}
             >
@@ -310,10 +310,10 @@ const IndexDashboard: React.FC = () => {
               <a
                 onClick={() => {
                   if (namespace) {
-                    window.location.pathname = `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/jobs/${entity?.metadata?.name}`;
+                    window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/jobs/${entity?.metadata?.name}`);
                   } else {
                     window.open(
-                      `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/jobs/${entity?.metadata?.name}`,
+                      toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/jobs/${entity?.metadata?.name}`),
                       '_blank',
                     );
                   }
@@ -335,10 +335,10 @@ const IndexDashboard: React.FC = () => {
               <a
                 onClick={() => {
                   if (namespace) {
-                    window.location.pathname = `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/jobs/${entity?.metadata?.name}`;
+                    window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/jobs/${entity?.metadata?.name}`);
                   } else {
                     window.open(
-                      `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/jobs/${entity?.metadata?.name}`,
+                      toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/jobs/${entity?.metadata?.name}`),
                       '_blank',
                     );
                   }
@@ -730,7 +730,7 @@ const IndexDashboard: React.FC = () => {
             <a
               key="edit"
               onClick={() => {
-                window.location.href = `/kubernetes/cluster/${cluster}/namespace/${record?.metadata?.namespace}/workload/jobs/${record?.metadata?.name}/update`;
+                window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${record?.metadata?.namespace}/workload/jobs/${record?.metadata?.name}/update`);
               }}
             >
               <EditOutlined style={{ color: colorPrimary }} />

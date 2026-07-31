@@ -7,7 +7,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import * as yaml from 'js-yaml';
 import type { IVirtualMachineClusterInstancetype } from '@/k8s-models/kubevirt/instancetype.kubevirt.io/v1beta1';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { formatResourceKind } from '@/pages/kubernetes/utils/resourceKind';
 import ReadOnlyYamlEditor from '@/pages/kubernetes/components/read_only_yaml_editor';
 
@@ -21,7 +21,7 @@ const DetailPage: React.FC = () => {
     [cluster],
   );
   const baseApi = 'apis/' + resourceGroup.groupVersion + '/virtualmachineclusterinstancetypes';
-  const baseAddress = '/kubernetes/cluster/' + cluster + '/kubevirt/clusterinstancetypes';
+  const baseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/kubevirt/clusterinstancetypes`);
   const [info, setInfo] = useState<IVirtualMachineClusterInstancetype>();
 
   const getStatusText = (resource?: IVirtualMachineClusterInstancetype) => {

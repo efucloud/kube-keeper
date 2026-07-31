@@ -24,7 +24,6 @@ import {
 } from 'antd';
 import { createStyles } from 'antd-style';
 import dayjs from 'dayjs';
-import MarkdownIt from 'markdown-it';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { FaRegHandPointRight } from 'react-icons/fa';
 import { useAiCopilot } from '@/hooks/useAiCopilot';
@@ -414,10 +413,6 @@ export const AICopilot: React.FC<CopilotChatProps> = (props) => {
   const viewStyles = styles as CopilotStyleMap;
   const { token } = theme.useToken();
   const { namespace } = getCurrentViewInfo();
-  const markdownIt = useMemo(
-    () => new MarkdownIt({ html: false, linkify: true, breaks: true }),
-    [],
-  );
   const mainPanelRef = useRef<HTMLDivElement | null>(null);
   const streamEndRef = useRef<HTMLDivElement | null>(null);
   const attachmentsRef = useRef<GetRef<typeof Attachments>>(null);
@@ -434,28 +429,16 @@ export const AICopilot: React.FC<CopilotChatProps> = (props) => {
   const {
     loading,
     sendMessage,
-    submitA2UIAction,
     cancelRequest,
     sessionId,
     runList,
-    processor,
   } = useAiCopilot({
     cluster: props.cluster,
     namespace: props.namespace,
   });
-  const markdownToHtml = useMemo(
-    () => async (markdown: string) => markdownIt.render(markdown),
-    [markdownIt],
-  );
   const markdownRenderer = useMemo(
-    () =>
-      createAiMarkdownRenderer({
-        processor,
-        submitAction: submitA2UIAction,
-        markdownToHtml,
-        intl,
-      }),
-    [intl, markdownToHtml, processor, submitA2UIAction],
+    () => createAiMarkdownRenderer(intl),
+    [intl],
   );
 
   useEffect(() => {

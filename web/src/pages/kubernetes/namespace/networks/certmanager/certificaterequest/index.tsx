@@ -14,7 +14,7 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { formatResourceKind } from '@/pages/kubernetes/utils/resourceKind';
 import { debounce } from 'lodash';
 import { syncClusterNamespace } from '@/services/cluster.api';
@@ -50,9 +50,9 @@ const IndexDashboard: React.FC = () => {
   const [searchFields, setSearchFields] = useState<{ [key: string]: string }>({});
   const resourceGroup = getClusterApiVersions(cluster, ['cert-manager.io/v1'], 'CertificateRequest');
   const address = namespace ? `apis/${resourceGroup.groupVersion}/namespaces/${namespace}/certificaterequests` : `apis/${resourceGroup.groupVersion}/certificaterequests`;
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/certmanager/certificaterequests`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/certmanager/certificaterequests`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/networks/certmanager/certificaterequests`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/networks/certmanager/certificaterequests`);
   }
   const intl = useIntl();
   const resourceLabel = formatResourceKind(intl, 'CertificateRequest');
@@ -209,7 +209,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/networks/certmanager/certificaterequests`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/networks/certmanager/certificaterequests`),
                 );
               }}
             >

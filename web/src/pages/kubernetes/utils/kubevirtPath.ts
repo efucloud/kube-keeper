@@ -1,5 +1,6 @@
 import type { IKubeVirtResourceList } from '@/k8s-models/kubevirt';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
+import { toKubernetesQueryRoute } from '@/utils/global';
 
 type KubeVirtScopedResource = {
   metadata?: {
@@ -27,8 +28,8 @@ export const buildKubeVirtBaseAddress = (
   namespace = '',
 ) =>
   namespace
-    ? `/kubernetes/cluster/${cluster}/namespace/${namespace}/kubevirt/${routeSegment}`
-    : `/kubernetes/cluster/${cluster}/kubevirt/${routeSegment}`;
+    ? toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/kubevirt/${routeSegment}`)
+    : toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/kubevirt/${routeSegment}`);
 
 export const resolveKubeVirtResourceByName = async <T extends KubeVirtScopedResource>({
   cluster,

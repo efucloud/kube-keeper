@@ -38,7 +38,6 @@ type ChatRequest struct {
 	CNCFInfo       string
 	MatchedSkill   *embeds.DynamicSkill
 	AvailableTools []mcp.Tool
-	A2UI           *dtos.A2UIInteractionInput
 }
 
 const (
@@ -63,7 +62,6 @@ type visibleSession struct {
 type chatPromptData struct {
 	CurrentSkillName  string
 	SkillInstructions string
-	A2UISchemaSummary string
 	Lang              string
 	NowRFC3339        string
 	NowWithTimezone   string
@@ -194,7 +192,6 @@ func buildAgentSystemPrompt(req ChatRequest, skill *embeds.DynamicSkill) string 
 	systemData := chatPromptData{
 		CurrentSkillName:  skillName,
 		SkillInstructions: skillInstruction,
-		A2UISchemaSummary: embeds.GetA2UISchemaSummary(req.Context.Language),
 		Lang:              req.Context.Language,
 		NowRFC3339:        time.Now().UTC().Format(time.RFC3339),
 		NowWithTimezone:   currentPromptTimeWithTimezone(),

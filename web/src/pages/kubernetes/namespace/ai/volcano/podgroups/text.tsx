@@ -10,14 +10,14 @@ import type { PodGroup } from '@/k8s-models/volcano/scheduling.volcano.sh/v1beta
 
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 
 const YamOrJsonForm: FC<Record<string, any>> = () => {
   const { cluster, namespace } = getCurrentViewInfo();
   const [info, setInfo] = useState<PodGroup>();
   const resourceGroup = getClusterApiVersions(cluster, ['scheduling.volcano.sh/v1beta1'], 'PodGroup');
   const BaseApi = namespace ? `apis/${resourceGroup?.groupVersion}/namespaces/${namespace}/podgroups` : `apis/${resourceGroup?.groupVersion}/podgroups`;
-  const BaseAddress = `/kubernetes/cluster/${cluster}/ai/volcano/podgroups`;
+  const BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/ai/volcano/podgroups`);
   const params = useParams();
   const mode = params.action === Update ? Update : Create; // update or create
   const name = mode === Create ? '' : params.name || ''; // resource name

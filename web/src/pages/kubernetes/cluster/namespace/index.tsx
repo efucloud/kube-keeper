@@ -19,7 +19,7 @@ import type { ClusterRoleTemplate, ClusterRoleTemplateList, NamespaceAuthorizeBy
 import { listClusterRoleTemplate } from '@/services/cluster_role_template.api';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import AICopilot from '@/pages/kubernetes/components/ai';
 import FormAnnotation from '@/pages/kubernetes/components/form_annotation';
 import FormLabel from '@/pages/kubernetes/components/form_label';
@@ -310,7 +310,7 @@ const IndexDashboard: React.FC = () => {
                 <a
                   onClick={() => {
                     window.open(
-                      `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.name}/dashboard/overview`,
+                      toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.name}/dashboard/overview`),
                     );
                   }}
                 >
@@ -330,7 +330,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.name}/dashboard/overview`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.name}/dashboard/overview`),
                 );
               }}
             >

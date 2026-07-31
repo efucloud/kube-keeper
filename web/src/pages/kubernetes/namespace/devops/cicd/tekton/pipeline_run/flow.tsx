@@ -1,4 +1,4 @@
-import { getClusterApiVersions, getCurrentViewInfo, getCurrentUTCTimeString, getExecutionTimeDetailed } from "@/utils/global";
+import { getClusterApiVersions, getCurrentViewInfo, getCurrentUTCTimeString, getExecutionTimeDetailed, toKubernetesQueryRoute } from '@/utils/global';
 import { PageContainer, ProDescriptions } from "@ant-design/pro-components";
 import { Card, Divider, Drawer, message, Splitter, Tabs } from "antd";
 import { useState, useCallback, useEffect, useMemo } from "react";
@@ -536,7 +536,7 @@ const DnDFlow = () => {
                         <a
                           onClick={() =>
                             window.open(
-                              `/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/tekton/pipelines/lego/detail/${pipelineRun.spec?.pipelineRef?.name}`,
+                              toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/tekton/pipelines/lego/detail/${pipelineRun.spec?.pipelineRef?.name}`),
                               '_blank'
                             )
                           }

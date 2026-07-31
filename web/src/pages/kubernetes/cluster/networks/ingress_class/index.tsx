@@ -12,7 +12,7 @@ import Continue from '@/pages/kubernetes/components/continue';
 import FilterSelector from '@/pages/kubernetes/components/filter_selector';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
-import { getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { getClusterResource } from '@/utils/cluster';
 
@@ -42,7 +42,7 @@ const IndexDashboard: React.FC = () => {
   const [searchFields, setSearchFields] = useState<{ [key: string]: string }>({});
   const [currnetNumber, setCurrnetNumber] = useState<number>(0);
   const [remainingItemCount, setRemainingItemCount] = useState<number>(0);
-  const BaseAddress = `/kubernetes/cluster/${cluster}/networks/ingressclasses`;
+  const BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/networks/ingressclasses`);
   const listIngresss = async () => {
     setLoading(true);
     try {

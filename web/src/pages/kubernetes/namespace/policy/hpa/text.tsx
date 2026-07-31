@@ -5,7 +5,7 @@ import ResourceJsonOrYamlForm from '@/pages/kubernetes/components/resource_form'
 import type { IHorizontalPodAutoscaler } from 'kubernetes-models/autoscaling/v1';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getCurrentViewInfo, getClusterApiVersions } from '@/utils/global';
+import { getCurrentViewInfo, getClusterApiVersions, toKubernetesQueryRoute } from '@/utils/global';
 
 const Update = 'update';
 const Create = 'create';
@@ -15,7 +15,7 @@ const YamOrJsonForm: FC<Record<string, any>> = () => {
   const resourceGroup = getClusterApiVersions(cluster, ['autoscaling/v2beta2', 'autoscaling/v2', 'autoscaling/v1'], 'HorizontalPodAutoscaler');
 const [info, setInfo] = useState<IHorizontalPodAutoscaler>();
   const baseApi = `apis/${resourceGroup.groupVersion}/namespaces/${namespace || '-'}/horizontalpodautoscalers`;
-  const baseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace || '-'}/policy/hpa`;
+  const baseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace || '-'}/policy/hpa`);
   const params = useParams();
   const mode = params.action === Update ? Update : Create;
   const name = mode === Create ? '' : params.name || '';

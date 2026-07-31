@@ -15,7 +15,7 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { debounce } from 'lodash';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import { canAccessClusterNamespaces } from '@/services/personal.api';
@@ -46,9 +46,9 @@ const MessageQueueTriggerIndex: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const resourceGroup = getClusterApiVersions(cluster, ['fission.io/v1'], 'MessageQueueTrigger');
   const address = namespace ? `apis/${resourceGroup.groupVersion}/namespaces/${namespace}/messagequeuetriggers` : `apis/${resourceGroup.groupVersion}/messagequeuetriggers`;
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/faas/messagequeuetriggers`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/faas/messagequeuetriggers`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/faas/messagequeuetriggers`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/faas/messagequeuetriggers`);
   }
   const intl = useIntl();
   const [currnetNumber, setCurrnetNumber] = useState<number>(0);
@@ -273,7 +273,7 @@ const MessageQueueTriggerIndex: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/faas/messagequeuetriggers`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/faas/messagequeuetriggers`),
                 );
               }}
             >

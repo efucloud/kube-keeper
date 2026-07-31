@@ -14,7 +14,7 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 
 import AICopilot from '@/pages/kubernetes/components/ai';
 
@@ -422,7 +422,7 @@ const IndexDashboard: React.FC = () => {
                 type="primary"
                 key="create"
                 onClick={() => {
-                  window.location.href = `/kubernetes/cluster/${cluster}/storage/storageclass/create/text`;
+                  window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/storage/storageclass/create/text`);
                 }}
               >
                 <FormattedMessage id="pages.operation.create" />

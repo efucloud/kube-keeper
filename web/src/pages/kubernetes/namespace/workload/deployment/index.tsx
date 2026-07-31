@@ -21,7 +21,7 @@ import { clusterDeleteProxy, clusterGetProxy, clusterPostProxy } from '@/service
 
 import { canAccessClusterNamespaces } from '@/services/personal.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import OwnerReferencesView from '@/pages/kubernetes/components/owner_references';
 import PatchImages from '@/pages/kubernetes/components/patch_image';
@@ -55,9 +55,9 @@ const IndexDashboard: React.FC = () => {
   const [imageVisible, setImageVisible] = useState<boolean>(false);
   const resourceGroup = getClusterApiVersions(cluster, ['apps/v1', 'apps/v1beta1', 'apps/v1beta2'], 'Deployment');
   const address = namespace ? `apis/${resourceGroup.groupVersion}/namespaces/${namespace}/deployments` : `apis/${resourceGroup.groupVersion}/deployments`;
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/deployments`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/deployments`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/workload/deployments`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/workload/deployments`);
   }
   const intl = useIntl();
   const [currnetNumber, setCurrnetNumber] = useState<number>(0);
@@ -321,7 +321,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/deployments`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/deployments`),
                 );
               }}
             >
@@ -360,10 +360,10 @@ const IndexDashboard: React.FC = () => {
                 <a
                   onClick={() => {
                     if (namespace) {
-                      window.location.pathname = `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/deployments/${entity?.metadata?.name}`;
+                      window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/deployments/${entity?.metadata?.name}`);
                     } else {
                       window.open(
-                        `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/deployments/${entity?.metadata?.name}`,
+                        toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/deployments/${entity?.metadata?.name}`),
                         '_blank',
                       );
                     }
@@ -392,10 +392,10 @@ const IndexDashboard: React.FC = () => {
               <a
                 onClick={() => {
                   if (namespace) {
-                    window.location.pathname = `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/deployments/${entity?.metadata?.name}`;
+                    window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/deployments/${entity?.metadata?.name}`);
                   } else {
                     window.open(
-                      `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/deployments/${entity?.metadata?.name}`,
+                      toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/workload/deployments/${entity?.metadata?.name}`),
                       '_blank',
                       'noreferrer',
                     );
@@ -801,7 +801,7 @@ const IndexDashboard: React.FC = () => {
             <a
               key="edit"
               onClick={() => {
-                window.location.href = `/kubernetes/cluster/${cluster}/namespace/${record?.metadata?.namespace}/workload/deployments/${record?.metadata?.name}/update`;
+                window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${record?.metadata?.namespace}/workload/deployments/${record?.metadata?.name}/update`);
               }}
             >
               <EditOutlined style={{ color: colorPrimary }} />

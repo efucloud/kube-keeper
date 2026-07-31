@@ -1,4 +1,4 @@
-import { getClusterApiVersions, getCurrentViewInfo } from "@/utils/global";
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { ModalForm, PageContainer, ProColumns, ProDescriptions, ProFormDependency, ProFormSelect, ProFormText, ProFormTextArea, ProTable } from "@ant-design/pro-components"
 import { Button, Form, message, Popconfirm, Splitter, Tabs, theme, Tooltip } from "antd";
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
@@ -106,7 +106,7 @@ const DnDFlow = () => {
     }
     message.success(intl.formatMessage({ id: 'cluster.pages.operation.success' }));
     resetClusterPipeline(cluster, namespace, action, pipeline);
-    window.location.href = `/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/tekton/pipelines/lego/detail/${pipeline.metadata?.name}`
+    window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/tekton/pipelines/lego/detail/${pipeline.metadata?.name}`)
   }
   const getPipeline = async () => {
     if (action !== 'detail') {

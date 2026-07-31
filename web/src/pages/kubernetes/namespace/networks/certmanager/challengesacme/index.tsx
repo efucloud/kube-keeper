@@ -14,7 +14,7 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { formatResourceKind } from '@/pages/kubernetes/utils/resourceKind';
 import { debounce } from 'lodash';
 import { syncClusterNamespace } from '@/services/cluster.api';
@@ -49,9 +49,9 @@ const IndexDashboard: React.FC = () => {
   const resourceGroup = getClusterApiVersions(cluster, ['acme.cert-manager.io/v1'], 'Challenge');
 
   const address = namespace ? `apis/${resourceGroup.groupVersion}/namespaces/${namespace}/challenges` : `apis/${resourceGroup.groupVersion}/challenges`;
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/certmanager/challenges`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/certmanager/challenges`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/networks/certmanager/challenges`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/networks/certmanager/challenges`);
   }
   const intl = useIntl();
   const resourceLabel = formatResourceKind(intl, 'Challenge');
@@ -204,7 +204,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/networks/certmanager/challenges`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/networks/certmanager/challenges`),
                 );
               }}
             >

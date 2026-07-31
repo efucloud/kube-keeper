@@ -7,7 +7,7 @@ const Update = 'update';
 const Create = 'create';
 import { StatefulSet } from "kubernetes-models/apps/v1";
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { getClusterResource } from '@/utils/cluster';
 import { Card } from 'antd';
 
@@ -16,7 +16,7 @@ const YamOrJsonForm: FC<Record<string, any>> = () => {
 
   const { cluster, namespace } = getCurrentViewInfo();
   const [info, setInfo] = useState<StatefulSet>();
-  const BaseAddress = namespace ? `/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/statefulsets` : `/kubernetes/cluster/${cluster}/workload/statefulsets`
+  const BaseAddress = namespace ? toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/workload/statefulsets`) : toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/workload/statefulsets`)
   const params = useParams();
   const mode = params.action === Update ? Update : Create; // update or create
   const name = mode === Create ? '' : params.name || ''

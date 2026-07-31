@@ -2,35 +2,6 @@
 # yarn lockfile v1
 
 
-"@a2ui/markdown-it@^0.0.4":
-  version "0.0.4"
-  resolved "https://registry.npmmirror.com/@a2ui/markdown-it/-/markdown-it-0.0.4.tgz"
-  integrity sha512-uaYNywdiHDH4i//pHpyckFnApvOshiUNT2Xl8awceNjL1XAX/gqtki9GRUJQ26RE7id2+aPNgOy1W6mXNBxriQ==
-  dependencies:
-    dompurify "^3.3.1"
-    markdown-it "^14.1.0"
-
-"@a2ui/react@^0.10.1":
-  version "0.10.1"
-  resolved "https://registry.npmmirror.com/@a2ui/react/-/react-0.10.1.tgz"
-  integrity sha512-m7rBhOKA2PNwrD9Q7kaJn+l2u0WLAmd/n0RmaUNkTRdzCTcSfEbcet5sbCHGpT7xu4TSp+ABWfowG+mcL7HAnQ==
-  dependencies:
-    "@a2ui/markdown-it" "^0.0.4"
-    "@a2ui/web_core" "^0.10.1"
-    clsx "^2.1.1"
-    markdown-it "^14.2.0"
-    zod "^3.25.76"
-
-"@a2ui/web_core@^0.10.1", "@a2ui/web_core@^0.10.2":
-  version "0.10.2"
-  resolved "https://registry.npmmirror.com/@a2ui/web_core/-/web_core-0.10.2.tgz"
-  integrity sha512-IfS4K7baTL9P9AzUOzKRWzL9A9/+Z7TCgMY2GPwsZ0H7LgY/9/uJnlbReNhpHsAfN12KZtW9iERWkw5HOf71GA==
-  dependencies:
-    "@preact/signals-core" "^1.14.2"
-    date-fns "^4.4.0"
-    zod "^3.25.76"
-    zod-to-json-schema "^3.25.2"
-
 "@ahooksjs/use-request@^2.0.0", "@ahooksjs/use-request@^2.8.14":
   version "2.8.15"
   resolved "https://registry.npmmirror.com/@ahooksjs/use-request/-/use-request-2.8.15.tgz"
@@ -5271,11 +5242,6 @@
   version "2.11.8"
   resolved "https://registry.npmmirror.com/@popperjs/core/-/core-2.11.8.tgz"
   integrity sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==
-
-"@preact/signals-core@^1.14.2":
-  version "1.14.3"
-  resolved "https://registry.npmmirror.com/@preact/signals-core/-/signals-core-1.14.3.tgz"
-  integrity sha512-m0K3vnbSLC5rHs2ZVfeAMvBtT1zIyq4mxx5OlNncSgMj5Iz6W5Rn3kPrDxAC+iIKmiVe0lSl6U37t5ZkEWoVAw==
 
 "@radix-ui/popper@^0.0.10":
   version "0.0.10"
@@ -12428,11 +12394,6 @@ data-view-byte-offset@^1.0.1:
     es-errors "^1.3.0"
     is-data-view "^1.0.1"
 
-date-fns@^4.4.0:
-  version "4.4.0"
-  resolved "https://registry.npmmirror.com/date-fns/-/date-fns-4.4.0.tgz"
-  integrity sha512-+1UMbeh68lH1SegH83CGWwpb6OHHbpSgr3+s5Eww5M4CAgswBpoWS0AjTOfEJ33HiYKz1hdj/KTFprzXHmq/6w==
-
 date-fns@2.x:
   version "2.30.0"
   resolved "https://registry.npmmirror.com/date-fns/-/date-fns-2.30.0.tgz"
@@ -12951,7 +12912,7 @@ domparser-rs@^0.0.5:
     domparser-win32-arm64-msvc "0.0.5"
     domparser-win32-x64-msvc "0.0.5"
 
-dompurify@^3.2.4, dompurify@^3.2.5, dompurify@^3.2.6, dompurify@^3.3.0, dompurify@^3.3.1:
+dompurify@^3.2.4, dompurify@^3.2.5, dompurify@^3.2.6, dompurify@^3.3.0:
   version "3.4.11"
   resolved "https://registry.npmmirror.com/dompurify/-/dompurify-3.4.11.tgz"
   integrity sha512-zhlUV12GsaRzMsf9q5M254YhA4+VuF0fG+QFqu6aYpoGlKtz+w8//jBcGVYBgQkR5GHjUomejY84AV+/uPbWdw==
@@ -18564,7 +18525,7 @@ maplibre-gl@^3.5.2:
     tinyqueue "^2.0.3"
     vt-pbf "^3.1.3"
 
-markdown-it@^14.1.0, markdown-it@^14.2.0:
+markdown-it@^14.1.0:
   version "14.2.0"
   resolved "https://registry.npmmirror.com/markdown-it/-/markdown-it-14.2.0.tgz"
   integrity sha512-1TGiQiJVRQ3NPmZH6sx5Cfnmg6GQm9jvC1ch4TK511NjSJvjzKLzn5pPfZRNZkRPZP0HqCioSndqH8v2nRaWVQ==
@@ -28037,17 +27998,12 @@ zimmerframe@^1.1.2:
   resolved "https://registry.npmmirror.com/zimmerframe/-/zimmerframe-1.1.4.tgz"
   integrity sha512-B58NGBEoc8Y9MWWCQGl/gq9xBCe4IiKM0a2x7GZdQKOW5Exr8S1W24J6OgM1njK8xCRGvAJIL/MxXHf6SkmQKQ==
 
-zod-to-json-schema@^3.25.2:
-  version "3.25.2"
-  resolved "https://registry.npmmirror.com/zod-to-json-schema/-/zod-to-json-schema-3.25.2.tgz"
-  integrity sha512-O/PgfnpT1xKSDeQYSCfRI5Gy3hPf91mKVDuYLUHZJMiDFptvP41MSnWofm8dnCm0256ZNfZIM7DSzuSMAFnjHA==
-
 zod-validation-error@^2.1.0:
   version "2.1.0"
   resolved "https://registry.npmmirror.com/zod-validation-error/-/zod-validation-error-2.1.0.tgz"
   integrity sha512-VJh93e2wb4c3tWtGgTa0OF/dTt/zoPCPzXq4V11ZjxmEAFaPi/Zss1xIZdEB5RD8GD00U0/iVXgqkF77RV7pdQ==
 
-zod@^3.22.4, zod@^3.25.76:
+zod@^3.22.4:
   version "3.25.76"
   resolved "https://registry.npmmirror.com/zod/-/zod-3.25.76.tgz"
   integrity sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==

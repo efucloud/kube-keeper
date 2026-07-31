@@ -14,6 +14,7 @@ import type { AccountDetail, AccountDetailList } from '@/services/account';
 import { listAccount } from '@/services/account.api';
 import { changeClusterStatus, createClusterSupperUser, deleteCluster, deleteClusterUser, listCluster } from '@/services/cluster.api';
 import type { ClusterDetail } from '@/services/cluster.d';
+import { toKubernetesQueryRoute } from '@/utils/global';
 
 
 const TableList: React.FC = () => {
@@ -243,7 +244,7 @@ const TableList: React.FC = () => {
               <SiKubernetes
                 onClick={() =>
                   window.open(
-                    `/kubernetes/cluster/${entity.code}/dashboard/overview`,
+                    toKubernetesQueryRoute(`/kubernetes/cluster/${entity.code}/dashboard/overview`),
                   )
                 }
                 style={{

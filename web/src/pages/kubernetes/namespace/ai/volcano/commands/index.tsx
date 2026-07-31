@@ -17,7 +17,7 @@ import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.ap
 
 import { canAccessClusterNamespaces } from '@/services/personal.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { syncClusterNamespace } from '@/services/cluster.api';
 
 import AICopilot from '@/pages/kubernetes/components/ai';
@@ -41,9 +41,9 @@ const IndexDashboard: React.FC = () => {
 
   const resourceGroup = getClusterApiVersions(cluster, ['bus.volcano.sh/v1alpha1'], 'Command');
   const address = namespace ? `apis/${resourceGroup.groupVersion}/namespaces/${namespace}/commands` : `apis/${resourceGroup.groupVersion}/commands`;
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/ai/volcano/commands`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/ai/volcano/commands`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/ai/volcano/commands`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/ai/volcano/commands`);
   }
   const intl = useIntl();
   const [currnetNumber, setCurrnetNumber] = useState<number>(0);
@@ -194,7 +194,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/ai/volcano/commands`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/ai/volcano/commands`),
                 );
               }}
             >

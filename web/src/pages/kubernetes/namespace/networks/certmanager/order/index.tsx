@@ -14,7 +14,7 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { formatResourceKind } from '@/pages/kubernetes/utils/resourceKind';
 import { debounce } from 'lodash';
 import { syncClusterNamespace } from '@/services/cluster.api';
@@ -47,9 +47,9 @@ const IndexDashboard: React.FC = () => {
   const [searchFields, setSearchFields] = useState<{ [key: string]: string }>({});
   const resourceGroup = getClusterApiVersions(cluster, ['acme.cert-manager.io/v1'], 'Order');
   const address = namespace ? `apis/${resourceGroup.groupVersion}/namespaces/${namespace}/orders` : `apis/${resourceGroup.groupVersion}/orders`;
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/certmanager/orders`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/certmanager/orders`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/networks/certmanager/orders`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/networks/certmanager/orders`);
   }
   const intl = useIntl();
   const resourceLabel = formatResourceKind(intl, 'Order');
@@ -201,7 +201,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/networks/certmanager/orders`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/networks/certmanager/orders`),
                 );
               }}
             >

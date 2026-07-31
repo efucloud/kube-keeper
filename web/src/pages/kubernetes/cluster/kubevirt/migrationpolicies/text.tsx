@@ -5,7 +5,7 @@ import { Card, Empty } from 'antd';
 import ResourceJsonOrYamlForm from '@/pages/kubernetes/components/resource_form';
 import type { IMigrationPolicy } from '@/k8s-models/kubevirt/migrations.kubevirt.io/v1alpha1';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { formatResourceKind } from '@/pages/kubernetes/utils/resourceKind';
 
 const TextPage: React.FC = () => {
@@ -19,7 +19,7 @@ const TextPage: React.FC = () => {
     [cluster],
   );
   const baseApi = 'apis/' + resourceGroup.groupVersion + '/migrationpolicies';
-  const baseAddress = '/kubernetes/cluster/' + cluster + '/kubevirt/migrationpolicies';
+  const baseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/kubevirt/migrationpolicies`);
   const [info, setInfo] = useState<IMigrationPolicy>();
 
   useEffect(() => {

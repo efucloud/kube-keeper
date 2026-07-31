@@ -13,7 +13,7 @@ import ResourceEditor from '@/pages/kubernetes/components/resource_editor';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import type { Queue } from '@/k8s-models/volcano/scheduling.volcano.sh/v1beta1';
 
 import AICopilot from '@/pages/kubernetes/components/ai';
@@ -35,7 +35,7 @@ const IndexDashboard: React.FC = () => {
   const [searchFields, setSearchFields] = useState<{ [key: string]: string }>({});
   const resourceGroup = getClusterApiVersions(cluster, ['scheduling.volcano.sh/v1beta1'], 'Queue');
   const address = `apis/${resourceGroup.groupVersion}/queues`;
-  const BaseAddress = `/kubernetes/cluster/${cluster}/ai/volcano/queue`;
+  const BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/ai/volcano/queue`);
   const intl = useIntl();
   const [currnetNumber, setCurrnetNumber] = useState<number>(0);
   const [remainingItemCount, setRemainingItemCount] = useState<number>(0);

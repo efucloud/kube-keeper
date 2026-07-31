@@ -13,7 +13,7 @@ import type { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/servi
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { canAccessClusterNamespaces } from '@/services/personal.api';
-import { getCurrentViewInfo } from '@/utils/global';
+import { getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { syncClusterNamespace } from '@/services/cluster.api';
 import { RenderPods } from '@/pages/kubernetes/components/pod';
 
@@ -33,9 +33,9 @@ const IndexDashboard: React.FC = () => {
   const [podVisible, setPodVisible] = useState<boolean>(false);
   const [drawerSize, setDrawerSize] = useState<number>(800);
   const [selectedService, setSelectedService] = useState<IService | undefined>(undefined);
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/services`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/services`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/networks/services`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/networks/services`);
   }
   const intl = useIntl();
   const address = namespace ? `api/v1/namespaces/${namespace}/services` : `api/v1/services`;
@@ -186,7 +186,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/networks/services`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/networks/services`),
                 );
               }}
             >
@@ -201,7 +201,7 @@ const IndexDashboard: React.FC = () => {
       dataIndex: 'name',
       search: { transform: (value: string) => setSearchName(value) },
       render: (dom, entity) => {
-        return <a href={`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/networks/services/${entity?.metadata?.name}`}>{entity?.metadata?.name}</a>
+        return <a href={toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/networks/services/${entity?.metadata?.name}`)}>{entity?.metadata?.name}</a>
       },
     },
     {
@@ -322,7 +322,7 @@ const IndexDashboard: React.FC = () => {
           </Tooltip>,
           <a
             onClick={() => {
-              window.location.href = `/kubernetes/cluster/${cluster}/namespace/${record?.metadata?.namespace}/networks/services/${record?.metadata?.name}/update`;
+              window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${record?.metadata?.namespace}/networks/services/${record?.metadata?.name}/update`);
             }}
           >
             <EditOutlined style={{ color: colorPrimary }} />

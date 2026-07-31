@@ -7,7 +7,7 @@ import { clusterServerGroups } from '@/services/cluster.api';
 import { canAccessClusters } from '@/services/personal.api';
 import type { AuthedUserInfo } from '@/services/common';
 import type { UserAccessCluster, UserAccessClusterList } from '@/services/kubernetes';
-import { saveClusterApiVersions, saveClusterVersion } from '@/utils/global';
+import { saveClusterApiVersions, saveClusterVersion, toKubernetesQueryRoute } from '@/utils/global';
 import useStyles from '@/pages/kubernetes/workplace/style.style';
 import { ClusterConnect, ClusterOverView } from '@/pages/kubernetes/workplace/cluster/overview';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -33,7 +33,7 @@ const Workplace: FC = () => {
     if (!cluster.code) {
       return undefined;
     }
-    const basePath = `/kubernetes/cluster/${cluster.code}/dashboard/overview`;
+    const basePath = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster.code}/dashboard/overview`);
     if (
       !cluster.builtinMaxClusterRole &&
       cluster.namespaces &&
@@ -41,7 +41,7 @@ const Workplace: FC = () => {
     ) {
       const namespace = cluster.namespaces[0];
       if (namespace) {
-        return `/kubernetes/cluster/${cluster.code}/namespace/${namespace}/dashboard/overview`;
+        return toKubernetesQueryRoute(`/kubernetes/cluster/${cluster.code}/namespace/${namespace}/dashboard/overview`);
       }
     }
     return basePath;

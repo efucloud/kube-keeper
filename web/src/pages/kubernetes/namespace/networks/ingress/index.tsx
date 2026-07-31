@@ -13,7 +13,7 @@ import type { ClusterNamespaceDetail, ClusterNamespaceDetailList } from '@/servi
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
 
 import { canAccessClusterNamespaces } from '@/services/personal.api';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 import { syncClusterNamespace } from '@/services/cluster.api';
 
 import AICopilot from '@/pages/kubernetes/components/ai';
@@ -28,9 +28,9 @@ const IndexDashboard: React.FC = () => {
   const formRef = useRef<ProFormInstance>(undefined);
   const [dataSource, setDataSource] = useState<IIngress[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  let BaseAddress = `/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/ingresses`;
+  let BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/networks/ingresses`);
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/networks/ingresses`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/networks/ingresses`);
   }
   const resourceGroup = getClusterApiVersions(cluster, ['networking.k8s.io/v1', 'extensions/v1', 'extensions/v1beta1'], 'Ingress');
   const [expandInfo, setExpandInfo] = useState<boolean>(false);
@@ -184,7 +184,7 @@ const IndexDashboard: React.FC = () => {
             <a
               onClick={() => {
                 window.open(
-                  `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/networks/ingresses`,
+                  toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/networks/ingresses`),
                 );
               }}
             >
@@ -199,7 +199,7 @@ const IndexDashboard: React.FC = () => {
       dataIndex: 'name',
       search: { transform: (value: string) => setSearchName(value) },
       render: (dom, entity) => {
-        return <a href={`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/networks/ingresses/${entity?.metadata?.name}`}>{entity?.metadata?.name}</a>
+        return <a href={toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/networks/ingresses/${entity?.metadata?.name}`)}>{entity?.metadata?.name}</a>
       },
     },
     {
@@ -267,7 +267,7 @@ const IndexDashboard: React.FC = () => {
         const nodes = [
           <a
             onClick={() => {
-              window.location.href = `/kubernetes/cluster/${cluster}/namespace/${record?.metadata?.namespace}/networks/ingresses/${record?.metadata?.name}/update`;
+              window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${record?.metadata?.namespace}/networks/ingresses/${record?.metadata?.name}/update`);
             }}
           >
             <EditOutlined style={{ color: colorPrimary }} />

@@ -9,18 +9,18 @@ const Create = 'create';
 import type { Interceptor } from '@/k8s-models/tekton/triggers/triggers.tekton.dev/v1alpha1';
 import { clusterGetProxy } from '@/services/cluster_proxy.api';
 import { getClusterResource } from '@/utils/cluster';
-import { getClusterApiVersions, getCurrentViewInfo } from '@/utils/global';
+import { getClusterApiVersions, getCurrentViewInfo, toKubernetesQueryRoute } from '@/utils/global';
 
 const YamOrJsonForm: FC<Record<string, any>> = () => {
   const { cluster, namespace } = getCurrentViewInfo();
   const [info, setInfo] = useState<Interceptor>();
   let BaseAddress = namespace
-    ? `/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/tekton/interceptors`
-    : `/kubernetes/cluster/${cluster}/devops/cicd/tekton/interceptors`;
+    ? toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${namespace}/devops/cicd/tekton/interceptors`)
+    : toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/devops/cicd/tekton/interceptors`);
   const resourceGroup = getClusterApiVersions(cluster, ['triggers.tekton.dev/v1beta1'], 'EventListener');
   const BaseApi = `apis/${resourceGroup?.groupVersion}/namespaces/${namespace}/interceptors`;
   if (!namespace || namespace === '' || namespace === '-') {
-    BaseAddress = `/kubernetes/cluster/${cluster}/devops/cicd/tekton/interceptors`;
+    BaseAddress = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/devops/cicd/tekton/interceptors`);
   }
   const params = useParams();
   const mode = params.action === Update ? Update : Create; // update or create

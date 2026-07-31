@@ -15,6 +15,7 @@ import type {
 import { useRef, useState } from 'react';
 import type { IntlShape } from 'react-intl';
 import { clusterDeleteProxy, clusterGetProxy } from '@/services/cluster_proxy.api';
+import { toKubernetesQueryRoute } from '@/utils/global';
 
 export type RenderServiceProps = {
   cluster: string;
@@ -86,7 +87,7 @@ export const RelatedServices: React.FC<RenderServiceProps> = (props) => {
           <>
             <a
               onClick={() => {
-                window.location.pathname = `/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/networks/services/${entity?.metadata?.name}`;
+                window.location.href = toKubernetesQueryRoute(`/kubernetes/cluster/${cluster}/namespace/${entity?.metadata?.namespace}/networks/services/${entity?.metadata?.name}`);
               }}
             >
               {entity?.metadata?.name}
