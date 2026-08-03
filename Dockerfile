@@ -1,5 +1,5 @@
 # 构建阶段
-FROM golang:1.25.5 AS builder
+FROM registry.cn-shenzhen.aliyuncs.com/efucloud-public/tektoncd-golang:1.26.4 AS builder
 
 ARG TARGETOS
 ARG TARGETARCH
