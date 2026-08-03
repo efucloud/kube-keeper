@@ -1136,7 +1136,6 @@ const IndexDashboard: React.FC = () => {
         namespace={namespace || ''}
         kind="Deployment"
         apiVersion={resourceGroup.groupVersion}
-        externalSkills={['k8s-troubleshoot']}
       />
     </PageContainer>
   );

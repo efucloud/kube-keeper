@@ -550,7 +550,6 @@ const DetailView: React.FC = () => {
           resourceContent={yaml.dump(cleanK8sResourceForAI(info))}
           status={info?.status?.phase === 'Running' ? 'success' : 'error'}
           externalMessage={externalAiMessage}
-          externalSkills={['k8s-troubleshoot', 'k8s-log-diagnose-from-user-content']}
         />}
 
     </PageContainer>}

@@ -465,7 +465,7 @@ const IndexDashboard: React.FC = () => {
       {info && <AICopilot
         view={undefined}
         cluster={cluster}
-        questions={[{ mode: 'plan', skill: 'k8s-cluster-inspect', question: intl.formatMessage({ id: 'copilot.cluster.inspection' }) }]}
+        questions={[{ question: intl.formatMessage({ id: 'copilot.cluster.inspection' }) }]}
         status='success'
       />}
     </PageContainer>

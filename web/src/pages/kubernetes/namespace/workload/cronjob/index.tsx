@@ -927,7 +927,6 @@ const IndexDashboard: React.FC = () => {
         namespace={namespace || ''}
         kind="CronJob"
         apiVersion={resourceGroup.groupVersion}
-        externalSkills={['k8s-troubleshoot']}
       />
     </PageContainer>
   );

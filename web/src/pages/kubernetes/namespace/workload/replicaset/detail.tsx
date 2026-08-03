@@ -418,7 +418,6 @@ const DetailView: React.FC = () => {
           kind="ReplicaSet"
           resourceContent={yaml.dump(cleanK8sResourceForAI(info))}
           status={getWorkloadStatus(info, 'ReplicaSet')}
-          externalSkills={['k8s-troubleshoot', 'k8s-log-diagnose-from-user-content']}
         />}
       {patchLabelVisible && <PatchLabels setVisible={patchVisibleReflash} patchType='labels' title={<FormattedMessage id='cluster.patch.labels' />} key='label' kind="ReplicaSet" address={`${BaseApi}/${name}`} cluster={cluster} name={info?.metadata?.name || ''} visible={patchLabelVisible} labels={info?.metadata?.labels || {}} />}
       {patchAnnotationsVisible && <PatchLabels setVisible={patchVisibleReflash} patchType='annotations' title={<FormattedMessage id='cluster.patch.annotations' />} key='annotations' kind="ReplicaSet" address={`${BaseApi}/${name}`} cluster={cluster} name={info?.metadata?.name || ''} visible={patchAnnotationsVisible} labels={info?.metadata?.annotations || {}} />}

@@ -11,7 +11,6 @@ import (
 	"github.com/efucloud/common"
 	filters2 "github.com/efucloud/kube-keeper/pkg/apis/filters"
 	config2 "github.com/efucloud/kube-keeper/pkg/config"
-	"github.com/efucloud/kube-keeper/pkg/embeds"
 	mcpprompt "github.com/efucloud/kube-keeper/pkg/mcp"
 	client2 "github.com/efucloud/kube-keeper/pkg/mcp/client"
 	"github.com/efucloud/kube-keeper/pkg/models/dtos"
@@ -71,9 +70,6 @@ func (cp *AiChatResource) aiChat(req *restful.Request, resp *restful.Response) {
 	}
 	domainReq := buildDomainRequest(req, payload)
 	domainReq.Context.Language = normalizeChatLanguage(lang)
-	if domainReq.SkillId != "" {
-		domainReq.MatchedSkill = findSkillByID(domainReq.SkillId)
-	}
 	if config2.ApplicationConfig.ChatConfig.UseTool {
 		domainReq.AvailableTools = loadBuiltinMCPTools(ctx, domainReq)
 	}
@@ -157,7 +153,6 @@ func buildDomainRequest(req *restful.Request, payload *dtos.ChatHTTPPayload) Cha
 		Question:  payload.Message,
 		SessionId: payload.SessionId,
 		RequestId: payload.RequestId,
-		SkillId:   payload.SkillId,
 		AuthToken: filters2.GetRequestToken(config2.AuthHeader, req),
 		Context:   ctxInfo,
 		Resource:  resource,
@@ -201,35 +196,4 @@ func loadBuiltinMCPTools(ctx context.Context, req ChatRequest) []mcp.Tool {
 		return nil
 	}
 	return mcpTools
-	// if req.MatchedSkill == nil || len(req.MatchedSkill.Tools) == 0 {
-	// 	return mcpTools
-	// }
-
-	// allowSet := make(map[string]struct{}, len(req.MatchedSkill.Tools))
-	// for _, name := range req.MatchedSkill.Tools {
-	// 	allowSet[name] = struct{}{}
-	// }
-
-	// filterTools := make([]mcp.Tool, 0, len(mcpTools))
-	// for _, tool := range mcpTools {
-	// 	if _, ok := allowSet[tool.Name]; ok {
-	// 		filterTools = append(filterTools, tool)
-	// 	}
-	// }
-	// return filterTools
-}
-
-func findSkillByID(skillID string) *embeds.DynamicSkill {
-	skillID = strings.TrimSpace(skillID)
-	if skillID == "" {
-		return nil
-	}
-
-	for _, skill := range embeds.DynamicSkills {
-		if skill.ID == skillID {
-			copied := skill
-			return &copied
-		}
-	}
-	return nil
 }

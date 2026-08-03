@@ -117,7 +117,6 @@ export interface CopilotRunState {
   toolCount?: number;
   usage?: ChatStopMeta;
   error?: string;
-  skillId?: string;
   stream: CopilotStreamItem[];
   messages: CopilotMessageRecord[];
   commentary: CopilotCommentaryRecord[];
@@ -499,7 +498,6 @@ const applyEventToRun = (
         run.engine = asString(data.engine) || run.engine;
         run.provider = asString(data.provider) || run.provider;
         run.model = asString(data.model) || run.model;
-        run.skillId = asString(data.skillId) || run.skillId;
         if (typeof data.toolCount === "number") {
           run.toolCount = data.toolCount;
         }
@@ -763,7 +761,7 @@ export function useAiCopilot(options: UseAiCopilotOptions) {
   const orgToken = getToken();
 
   const sendMessage = useCallback(
-    async (request: ChatRequest) => {
+    async (request: ChatRequest, displayQuestion?: string) => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
@@ -773,7 +771,7 @@ export function useAiCopilot(options: UseAiCopilotOptions) {
       setErrors([]);
 
       const requestId = request.requestId || `req_${Date.now()}`;
-      const question = request.message || "";
+      const question = displayQuestion || request.message || "";
       setRuns((prev) => ({
         ...prev,
         [requestId]: createEmptyRun(requestId, question),

@@ -37,15 +37,10 @@ export default {
   "copilot.messages.download": "Chats Download",
   "copilot.log.analysis":
     "Please analyze the following container logs from container {container} in Pod {pod} under namespace {namespace} for errors or anomalies:\n\n```log\n{selectedText}\n```",
-  "copilot.skills": "Skills",
+  "copilot.expert": "Kubernetes Expert",
+  "copilot.quickQuestions": "Quick questions",
   "copilot.click.cancel.chat": "Click Cancel Chat",
   "copilot.cncf.description": "CNCF description",
-  "copilot.chat.skill.k8s-default": "Kubernetes Default",
-  "copilot.chat.skill.k8s-cluster-inspect": "Cluster Inspection",
-  "copilot.chat.skill.k8s-log-diagnose-from-user-content":
-    "Log Diagnosis From User Content",
-  "copilot.chat.skill.k8s-namespace-inspect": "Namespace Inspection",
-  "copilot.chat.skill.k8s-troubleshoot": "Troubleshooting",
   "copilot.chat.agent.trajectory": "Agent Trajectory",
   "copilot.chat.agent.task.format":
     "{successCount} out of {total} tasks completed",

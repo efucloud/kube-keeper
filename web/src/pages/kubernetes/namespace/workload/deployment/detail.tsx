@@ -25,6 +25,7 @@ import ResourceDiffEditor from "@/pages/kubernetes/components/resource_diff_edit
 import { PatchSubsetValue } from "@/services/common";
 import PatchImages from "@/pages/kubernetes/components/patch_image";
 import AICopilot from "@/pages/kubernetes/components/ai";
+import * as yaml from 'js-yaml';
 
 
 const DetailView: React.FC = () => {
@@ -726,9 +727,9 @@ const DetailView: React.FC = () => {
           name={info.metadata?.name || ''}
           kind="Deployment"
           apiVersion={resourceGroup.groupVersion}
+          resourceContent={yaml.dump(info)}
           status={getWorkloadStatus(info, 'Deployment')}
           externalMessage={externalAiMessage}
-          externalSkills={['k8s-troubleshoot', 'k8s-log-diagnose-from-user-content']}
         />}
     </PageContainer>}
 

@@ -37,14 +37,10 @@ export default {
   "copilot.messages.download": "对话记录下载",
   "copilot.log.analysis":
     "请分析命名空间 {namespace} 中 Pod {pod} 的容器 {container} 以下容器日志中是否存在错误或异常，如果存在请分析原因并给出解决方案：\n\n```log\n{selectedText}\n```",
-  "copilot.skills": "技能",
+  "copilot.expert": "Kubernetes 专家",
+  "copilot.quickQuestions": "快捷问题",
   "copilot.click.cancel.chat": "点击取消对话",
   "copilot.cncf.description": "CNCF项目介绍",
-  "copilot.chat.skill.k8s-default": "Kubernetes 综合管理助手",
-  "copilot.chat.skill.k8s-cluster-inspect": "集群巡检",
-  "copilot.chat.skill.k8s-log-diagnose-from-user-content": "日志故障分析",
-  "copilot.chat.skill.k8s-namespace-inspect": "命名空间巡检",
-  "copilot.chat.skill.k8s-troubleshoot": "故障定位分析",
   "copilot.chat.agent.trajectory": "Agent轨迹",
   "copilot.chat.agent.task.format":
     "共 {total} 个任务，已经完成 {successCount} 个",

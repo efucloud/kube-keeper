@@ -16,7 +16,6 @@ type PlanResult = {
   goal?: string;
   cluster?: string;
   namespace?: string;
-  skillId?: string;
   steps?: PlanStep[];
 };
 

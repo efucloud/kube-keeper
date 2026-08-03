@@ -252,7 +252,7 @@ const DetailView: React.FC = () => {
           cluster={cluster}
           namespace={namespace || ''}
           name={info.metadata?.name || ''}
-          questions={[{ mode: 'plan', skill: 'k8s-namespace-inspect', question: intl.formatMessage({ id: 'copilot.namespace.inspection' }) }]}
+          questions={[{ question: intl.formatMessage({ id: 'copilot.namespace.inspection' }) }]}
           kind="Namespace"
           status='success'
         />}

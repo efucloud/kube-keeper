@@ -1112,7 +1112,6 @@ const IndexDashboard: React.FC = () => {
         namespace={namespace || ''}
         kind="DaemonSet"
         apiVersion={resourceGroup.groupVersion}
-        externalSkills={['k8s-troubleshoot']}
       />
     </PageContainer>
   );

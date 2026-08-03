@@ -1216,7 +1216,6 @@ const IndexDashboard: React.FC = () => {
         namespace={namespace || ''}
         kind="Pod"
         externalMessage={externalAiMessage}
-        externalSkills={['k8s-troubleshoot']}
       />
     </PageContainer>
   );

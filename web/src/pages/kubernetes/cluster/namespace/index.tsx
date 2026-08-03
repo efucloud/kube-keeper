@@ -1230,7 +1230,7 @@ const IndexDashboard: React.FC = () => {
         cluster={cluster}
         kind="Namespace"
         apiVersion=""
-        questions={[{ mode: 'plan', skill: 'k8s-namespace-inspect', question: intl.formatMessage({ id: 'copilot.namespace.inspection' }) }]}
+        questions={[{ question: intl.formatMessage({ id: 'copilot.namespace.inspection' }) }]}
       />
     </PageContainer >
   );

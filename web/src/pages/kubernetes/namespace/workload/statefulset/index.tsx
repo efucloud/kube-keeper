@@ -1137,7 +1137,6 @@ const IndexDashboard: React.FC = () => {
         cluster={cluster}
         namespace={namespace || ''}
         kind="StatefulSet"
-        externalSkills={['k8s-troubleshoot']}
       />
     </PageContainer>
   );

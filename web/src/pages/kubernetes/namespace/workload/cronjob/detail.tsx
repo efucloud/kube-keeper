@@ -263,7 +263,6 @@ const DetailView: React.FC = () => {
           apiVersion={resourceGroup.groupVersion}
           resourceContent={yaml.dump(cleanK8sResourceForAI(info))}
           status={getWorkloadStatus(info, 'CronJob')}
-          externalSkills={['k8s-troubleshoot', 'k8s-log-diagnose-from-user-content']}
         />}
     </PageContainer>}
 

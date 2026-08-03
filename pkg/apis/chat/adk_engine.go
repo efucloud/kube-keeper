@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/efucloud/kube-keeper/pkg/config"
-	"github.com/efucloud/kube-keeper/pkg/embeds"
 	"google.golang.org/adk/agent"
 	"google.golang.org/adk/agent/llmagent"
 	"google.golang.org/adk/runner"
@@ -58,18 +57,14 @@ func (e *ADKAgentEngine) run(ctx context.Context, req ChatRequest, ch chan<- Str
 		return
 	}
 
-	skill := resolveSkill(req)
-	req.MatchedSkill = skill
-
 	tools := req.AvailableTools
 	if len(tools) == 0 {
 		tools = loadBuiltinMCPTools(ctx, req)
 	}
-	tools = filterToolsBySkill(tools, skill)
 	req.AvailableTools = tools
 
-	systemPrompt := buildAgentSystemPrompt(req, skill)
-	modelImpl := newOpenAIADKModel(provider, req.SessionId, skillID(skill))
+	systemPrompt := buildAgentSystemPrompt(req)
+	modelImpl := newOpenAIADKModel(provider, req.SessionId)
 
 	rootAgent, err := llmagent.New(llmagent.Config{
 		Name:        "cluster_chat_agent",
@@ -77,14 +72,11 @@ func (e *ADKAgentEngine) run(ctx context.Context, req ChatRequest, ch chan<- Str
 		Model:       modelImpl,
 		Instruction: systemPrompt,
 		Toolsets: []adktool.Toolset{
-			newMCPADKToolset(req, tools, skill),
+			newMCPADKToolset(req, tools),
 		},
 	})
 	if err != nil {
-		emitRunError(ctx, ch, req, runID, err.Error(), map[string]any{
-			"engine":  "adk",
-			"skillId": skillID(skill),
-		})
+		emitRunError(ctx, ch, req, runID, err.Error(), map[string]any{"engine": "adk"})
 		return
 	}
 
@@ -95,7 +87,6 @@ func (e *ADKAgentEngine) run(ctx context.Context, req ChatRequest, ch chan<- Str
 		"model":     provider.Model,
 		"toolCount": len(tools),
 		"engine":    "adk",
-		"skillId":   skillID(skill),
 	})
 	emitMessageStart(ctx, ch, req, messageID, "assistant")
 
@@ -113,7 +104,7 @@ func (e *ADKAgentEngine) run(ctx context.Context, req ChatRequest, ch chan<- Str
 	}
 
 	userContent := buildADKUserContent(req)
-	tracker := newADKEventTracker(req, runID, messageID, skill, ch)
+	tracker := newADKEventTracker(req, runID, messageID, ch)
 
 	userID := strings.TrimSpace(req.Context.Cluster)
 	if userID == "" {
@@ -152,7 +143,7 @@ type adkEventTracker struct {
 	done            bool
 }
 
-func newADKEventTracker(req ChatRequest, runID, messageID string, skill *embeds.DynamicSkill, ch chan<- StreamEvent) *adkEventTracker {
+func newADKEventTracker(req ChatRequest, runID, messageID string, ch chan<- StreamEvent) *adkEventTracker {
 	return &adkEventTracker{
 		req:             req,
 		runID:           runID,
@@ -215,10 +206,9 @@ func (t *adkEventTracker) consumeTextPart(ctx context.Context, text string, part
 		t.appendTextDelta(ctx, nextText)
 	case nextText == current:
 		config.Logger.Debugf(
-			"adk model final text duplicate skipped, requestId: %s, sessionId: %s, skillId: %s, messageId: %s",
+			"adk model final text duplicate skipped, requestId: %s, sessionId: %s, messageId: %s",
 			strings.TrimSpace(t.req.RequestId),
 			strings.TrimSpace(t.req.SessionId),
-			skillID(t.req.MatchedSkill),
 			t.messageID,
 		)
 	case strings.HasPrefix(nextText, current):
@@ -228,10 +218,9 @@ func (t *adkEventTracker) consumeTextPart(ctx context.Context, text string, part
 		}
 	default:
 		config.Logger.Warnf(
-			"adk model final text mismatched streamed buffer, requestId: %s, sessionId: %s, skillId: %s, messageId: %s, streamedLen: %d, finalLen: %d",
+			"adk model final text mismatched streamed buffer, requestId: %s, sessionId: %s, messageId: %s, streamedLen: %d, finalLen: %d",
 			strings.TrimSpace(t.req.RequestId),
 			strings.TrimSpace(t.req.SessionId),
-			skillID(t.req.MatchedSkill),
 			t.messageID,
 			len(current),
 			len(nextText),
@@ -247,10 +236,9 @@ func (t *adkEventTracker) appendTextDelta(ctx context.Context, text string) {
 	}
 	t.textChunkCount++
 	config.Logger.Debugf(
-		"adk model text delta, requestId: %s, sessionId: %s, skillId: %s, messageId: %s, chunkIndex: %d, chunk: %q",
+		"adk model text delta, requestId: %s, sessionId: %s, messageId: %s, chunkIndex: %d, chunk: %q",
 		strings.TrimSpace(t.req.RequestId),
 		strings.TrimSpace(t.req.SessionId),
-		skillID(t.req.MatchedSkill),
 		t.messageID,
 		t.textChunkCount,
 		text,
@@ -383,10 +371,9 @@ func (t *adkEventTracker) finish(ctx context.Context) {
 	t.done = true
 	content := t.buffer.String()
 	config.Logger.Infof(
-		"adk model text complete, requestId: %s, sessionId: %s, skillId: %s, messageId: %s, chunks: %d, content: %q",
+		"adk model text complete, requestId: %s, sessionId: %s, messageId: %s, chunks: %d, content: %q",
 		strings.TrimSpace(t.req.RequestId),
 		strings.TrimSpace(t.req.SessionId),
-		skillID(t.req.MatchedSkill),
 		t.messageID,
 		t.textChunkCount,
 		content,
@@ -394,7 +381,6 @@ func (t *adkEventTracker) finish(ctx context.Context) {
 	emitMessageEnd(ctx, t.ch, t.req, t.messageID, content)
 	emitRunComplete(ctx, t.ch, t.req, t.runID, "completed", "stop", map[string]any{
 		"engine":    "adk",
-		"skillId":   skillID(t.req.MatchedSkill),
 		"messageId": t.messageID,
 		"content":   content,
 	})
@@ -405,10 +391,7 @@ func (t *adkEventTracker) fail(ctx context.Context, err error) {
 		return
 	}
 	t.done = true
-	emitRunError(ctx, t.ch, t.req, t.runID, err.Error(), map[string]any{
-		"engine":  "adk",
-		"skillId": skillID(t.req.MatchedSkill),
-	})
+	emitRunError(ctx, t.ch, t.req, t.runID, err.Error(), map[string]any{"engine": "adk"})
 }
 
 func summarizeToolResult(req ChatRequest, value interface{}) string {

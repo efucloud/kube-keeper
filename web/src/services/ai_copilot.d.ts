@@ -19,7 +19,6 @@ export type ChatHTTPPayload = {
   message?: string;
   requestId?: string;
   sessionId?: string;
-  skillId?: string;
   cncf?: string;
   kind?: string;
   name?: string;
@@ -33,7 +32,6 @@ export type ChatRequest = {
   message?: string;
   requestId?: string;
   sessionId?: string;
-  skillId?: string;
   cncf?: string;
   kind?: string;
   name?: string;

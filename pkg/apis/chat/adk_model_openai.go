@@ -22,7 +22,6 @@ type openAIADKModel struct {
 	model     string
 	client    *openai.Client
 	sessionID string
-	skillID   string
 }
 
 const (
@@ -70,14 +69,13 @@ type toolResponseCompactionOptions struct {
 	preserveValuesArray bool
 }
 
-func newOpenAIADKModel(runtime *providerRuntime, sessionID string, skillID string) model.LLM {
+func newOpenAIADKModel(runtime *providerRuntime, sessionID string) model.LLM {
 	startRollingSummaryJanitor()
 	return &openAIADKModel{
 		name:      runtime.Name,
 		model:     runtime.Model,
 		client:    runtime.Client,
 		sessionID: strings.TrimSpace(sessionID),
-		skillID:   strings.TrimSpace(skillID),
 	}
 }
 
@@ -145,7 +143,7 @@ func (m *openAIADKModel) buildChatCompletionRequest(req *model.LLMRequest, strea
 		}
 		messages = append(messages, msgs...)
 	}
-	messages = compressMessagesForContext(req, messages, m.sessionID, m.skillID, firstNonEmpty(strings.TrimSpace(req.Model), strings.TrimSpace(m.model)))
+	messages = compressMessagesForContext(req, messages, m.sessionID, firstNonEmpty(strings.TrimSpace(req.Model), strings.TrimSpace(m.model)))
 
 	tools, err := buildOpenAIToolsFromRequest(req)
 	if err != nil {
@@ -658,7 +656,7 @@ func contentToPlainText(content *genai.Content) string {
 	return builder.String()
 }
 
-func compressMessagesForContext(req *model.LLMRequest, messages []openai.ChatCompletionMessage, sessionID string, skillID string, modelName string) []openai.ChatCompletionMessage {
+func compressMessagesForContext(req *model.LLMRequest, messages []openai.ChatCompletionMessage, sessionID string, modelName string) []openai.ChatCompletionMessage {
 	if len(messages) == 0 {
 		return messages
 	}
@@ -675,7 +673,10 @@ func compressMessagesForContext(req *model.LLMRequest, messages []openai.ChatCom
 	}
 
 	systemMessages, conversationMessages := splitSystemMessages(messages)
-	policy := compressionPolicyForSkill(skillID)
+	policy := contextCompressionPolicy{
+		ProtectedUserTurns: recentUserTurnsProtectedDefault,
+		ProtectAllRecent:   false,
+	}
 	protectedStart := protectedTurnStartIndex(conversationMessages, policy.ProtectedUserTurns)
 	if protectedStart <= 0 {
 		return withRollingSummaryIfPresent(req, sessionID, messages)
@@ -758,26 +759,6 @@ func protectedTurnStartIndex(messages []openai.ChatCompletionMessage, protectedT
 		}
 	}
 	return -1
-}
-
-func compressionPolicyForSkill(skillID string) contextCompressionPolicy {
-	switch strings.TrimSpace(skillID) {
-	case "k8s-troubleshoot":
-		return contextCompressionPolicy{
-			ProtectedUserTurns: recentUserTurnsProtectedDefault,
-			ProtectAllRecent:   true,
-		}
-	case "k8s-cluster-inspect", "k8s-namespace-inspect":
-		return contextCompressionPolicy{
-			ProtectedUserTurns: recentUserTurnsProtectedDefault,
-			ProtectAllRecent:   false,
-		}
-	default:
-		return contextCompressionPolicy{
-			ProtectedUserTurns: recentUserTurnsProtectedDefault,
-			ProtectAllRecent:   false,
-		}
-	}
 }
 
 func protectActiveExecutionChainStart(messages []openai.ChatCompletionMessage, fallbackStart int) int {

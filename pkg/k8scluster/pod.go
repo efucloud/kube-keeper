@@ -63,26 +63,18 @@ func (svc *PodService) CreateClusterTerminalPod(req *restful.Request, resp *rest
 	result.TargetCluster = clusterCode
 
 	clusterSvc := database2.ClusterService{}
-	managerCluster, _ := clusterSvc.GetClusterByCode(ctx, "manager")
-	if len(managerCluster.ID) == 0 {
-		writeErr("manager cluster is not found", nil)
-		return
-	}
-	managerCluster.Default(ctx)
-	result.Cluster = managerCluster.Code
-
 	targetCluster, _ := clusterSvc.GetClusterByCode(ctx, clusterCode)
 	if len(targetCluster.ID) == 0 {
 		writeErr(fmt.Sprintf("target cluster is not found: %s", clusterCode), nil)
 		return
 	}
 	targetCluster.Default(ctx)
+	result.Cluster = targetCluster.Code
 	result.TargetCluster = targetCluster.Code
 
-	var errorData common.ErrorData
-	clientSet, errorData := NewAdminClientSetForConfigByCluster(managerCluster)
+	clientSet, errorData := NewAdminClientSetForConfigByCluster(targetCluster)
 	if errorData.IsNotNil() {
-		writeErr("create manager cluster clientset failed", errorData.Err)
+		writeErr("create target cluster clientset failed", errorData.Err)
 		return
 	}
 
@@ -113,10 +105,7 @@ func (svc *PodService) CreateClusterTerminalPod(req *restful.Request, resp *rest
 		return
 	}
 
-	runNamespace := strings.TrimSpace(config2.RunNamespace)
-	if runNamespace == "" {
-		runNamespace = "efucloud"
-	}
+	runNamespace := namespace
 	result.Namespace = runNamespace
 	terminalImage := strings.TrimSpace(config2.ApplicationConfig.TerminalContainer)
 	if terminalImage == "" {
@@ -228,7 +217,7 @@ func (svc *PodService) CreateClusterTerminalPod(req *restful.Request, resp *rest
 					"delete reusable terminal pod %s/%s due to invalid expire annotation %q: %v",
 					reusablePod.Namespace, reusablePod.Name, existingExpireAt, parseErr,
 				)
-			} else {
+			} else if time.Now().Unix() < existingExpireUnix {
 				result.Pod = reusablePod.Name
 				result.Container = terminalContainerName
 				result.Phase = string(reusablePod.Status.Phase)
@@ -236,10 +225,15 @@ func (svc *PodService) CreateClusterTerminalPod(req *restful.Request, resp *rest
 				result.Message = ""
 				writeResult()
 				return
+			} else {
+				config2.Logger.Infof(
+					"delete expired terminal pod %s/%s (expire=%d)",
+					reusablePod.Namespace, reusablePod.Name, existingExpireUnix,
+				)
 			}
 		}
 
-		// Missing expire annotation: delete stale pod and continue as "no reusable pod found".
+		// Invalid, missing, or expired annotations make the pod unsafe to reuse.
 		deleteErr := podClient.Delete(ctx, reusablePod.Name, metav1.DeleteOptions{})
 		if deleteErr != nil && !k8serrors.IsNotFound(deleteErr) {
 			writeErr("delete stale reusable terminal pod failed", deleteErr)
@@ -345,6 +339,35 @@ func sanitizeLabelValue(v string) string {
 		out = "unknown"
 	}
 	return out
+}
+
+func parseTerminalExpireUnix(raw string) (int64, error) {
+	value := strings.TrimSpace(raw)
+	if value == "" {
+		return 0, errors.New("empty value")
+	}
+
+	ts, err := strconv.ParseInt(value, 10, 64)
+	if err != nil || ts <= 0 {
+		return 0, fmt.Errorf("invalid timestamp: %s", raw)
+	}
+
+	switch len(value) {
+	case 10:
+		return ts, nil
+	case 13:
+		return ts / 1000, nil
+	case 19:
+		return ts / int64(time.Second), nil
+	}
+
+	if ts > 1e18 {
+		return ts / int64(time.Second), nil
+	}
+	if ts > 1e12 {
+		return ts / 1000, nil
+	}
+	return ts, nil
 }
 
 func hasKubeConfigInjected(pod *corev1.Pod, secretName string) bool {

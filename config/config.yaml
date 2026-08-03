@@ -26,7 +26,6 @@ oidcConfig:
   issuer: https://eauth.efucloud.com
 chatConfig:
   useTool: true
-  useSkillToolFilter: false
   provider: ""
   address: https://dashscope.aliyuncs.com/compatible-mode/v1
   apiKey: sk-23486e1c9ed44d4c84f5cbb4babeaa41

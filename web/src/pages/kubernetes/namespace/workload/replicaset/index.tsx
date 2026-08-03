@@ -1001,7 +1001,6 @@ const IndexDashboard: React.FC = () => {
         cluster={cluster}
         namespace={namespace || ''}
         kind="ReplicaSet"
-        externalSkills={['k8s-troubleshoot']}
       />
     </PageContainer>
   );

@@ -731,7 +731,7 @@ const Independent: React.FC = () => {
         }
         loading={isRequesting}
         className={styles.sender}
-        placeholder={locale.askOrInputUseSkills}
+        placeholder={locale.askKubernetesQuestion}
       />
     </Flex>
   );

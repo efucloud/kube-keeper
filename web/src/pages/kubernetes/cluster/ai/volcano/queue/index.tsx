@@ -560,7 +560,7 @@ const IndexDashboard: React.FC = () => {
         cluster={cluster}
         kind="Queue"
         cncf={CncfVolcano}
-        questions={[{ mode: 'agent', skill: 'k8s-default', question: intl.formatMessage({ id: 'copilot.cluster.resource.describe' }) }]}
+        questions={[{ question: intl.formatMessage({ id: 'copilot.cluster.resource.describe' }) }]}
         apiVersion={resourceGroup.groupVersion}
       />
     </PageContainer>

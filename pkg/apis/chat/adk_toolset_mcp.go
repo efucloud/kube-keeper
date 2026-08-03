@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/efucloud/kube-keeper/pkg/config"
-	"github.com/efucloud/kube-keeper/pkg/embeds"
 	client2 "github.com/efucloud/kube-keeper/pkg/mcp/client"
 	gojsonschema "github.com/google/jsonschema-go/jsonschema"
 	"github.com/mark3labs/mcp-go/mcp"
@@ -19,15 +18,13 @@ import (
 type mcpADKToolset struct {
 	req       ChatRequest
 	tools     []mcp.Tool
-	skill     *embeds.DynamicSkill
 	mcpClient *client2.MCPClient
 }
 
-func newMCPADKToolset(req ChatRequest, tools []mcp.Tool, skill *embeds.DynamicSkill) adktool.Toolset {
+func newMCPADKToolset(req ChatRequest, tools []mcp.Tool) adktool.Toolset {
 	return &mcpADKToolset{
 		req:       req,
 		tools:     tools,
-		skill:     skill,
 		mcpClient: buildMCPClient(req),
 	}
 }
@@ -70,19 +67,17 @@ func (t *mcpADKToolset) convertTool(item mcp.Tool) (adktool.Tool, error) {
 		if err != nil {
 			return nil, fmt.Errorf("marshal args for tool %s: %w", item.Name, err)
 		}
-		config.Logger.Debugf("adk mcp tool call start, requestId: %s, sessionId: %s, skillId: %s, tool: %s, args: %s",
+		config.Logger.Debugf("adk mcp tool call start, requestId: %s, sessionId: %s, tool: %s, args: %s",
 			strings.TrimSpace(t.req.RequestId),
 			strings.TrimSpace(t.req.SessionId),
-			skillID(t.skill),
 			item.Name,
 			string(body),
 		)
 		result, err := callMCPToolStructured(toolCtx, t.req, t.mcpClient, item.Name, json.RawMessage(body))
 		if err != nil {
-			config.Logger.Errorf("adk mcp tool call failed, requestId: %s, sessionId: %s, skillId: %s, tool: %s, error: %v",
+			config.Logger.Errorf("adk mcp tool call failed, requestId: %s, sessionId: %s, tool: %s, error: %v",
 				strings.TrimSpace(t.req.RequestId),
 				strings.TrimSpace(t.req.SessionId),
-				skillID(t.skill),
 				item.Name,
 				err,
 			)
@@ -90,18 +85,16 @@ func (t *mcpADKToolset) convertTool(item mcp.Tool) (adktool.Tool, error) {
 		}
 		resultBody, marshalErr := json.Marshal(result)
 		if marshalErr != nil {
-			config.Logger.Debugf("adk mcp tool call success, requestId: %s, sessionId: %s, skillId: %s, tool: %s, result_marshal_error: %v",
+			config.Logger.Debugf("adk mcp tool call success, requestId: %s, sessionId: %s, tool: %s, result_marshal_error: %v",
 				strings.TrimSpace(t.req.RequestId),
 				strings.TrimSpace(t.req.SessionId),
-				skillID(t.skill),
 				item.Name,
 				marshalErr,
 			)
 		} else {
-			config.Logger.Debugf("adk mcp tool call success, requestId: %s, sessionId: %s, skillId: %s, tool: %s, result: %s",
+			config.Logger.Debugf("adk mcp tool call success, requestId: %s, sessionId: %s, tool: %s, result: %s",
 				strings.TrimSpace(t.req.RequestId),
 				strings.TrimSpace(t.req.SessionId),
-				skillID(t.skill),
 				item.Name,
 				string(resultBody),
 			)

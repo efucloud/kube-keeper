@@ -674,9 +674,8 @@ const IndexDashboard: React.FC = () => {
         namespace={namespace || ''}
         kind="Rollout"
         cncf={CncfArgoCD}
-        questions={[{ mode: 'agent', skill: 'k8s-default', question: intl.formatMessage({ id: 'copilot.cluster.resource.describe' }) }]}
+        questions={[{ question: intl.formatMessage({ id: 'copilot.cluster.resource.describe' }) }]}
         resourceContent={yaml.dump(patchDeployment)}
-        externalSkills={['k8s-troubleshoot', 'k8s-log-diagnose-from-user-content']}
       />
     </PageContainer>
   );

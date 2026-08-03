@@ -6,7 +6,6 @@ type ChatHTTPPayload struct {
 	Message    string `json:"message" description:"问题"`
 	RequestId  string `json:"requestId" description:"请求ID"`
 	SessionId  string `json:"sessionId" description:"对话session id"`
-	SkillId    string `json:"skillId" description:"用户选择的Skill ID"`
 	CNCF       string `json:"cncf" description:"cncf项目"`
 	Kind       string `json:"kind" description:"问题关于的资源类型"`
 	Name       string `json:"name" description:"问题关于的资源名称"`
@@ -46,7 +45,6 @@ type ChatRequest struct {
 	Message    string `json:"message" description:"问题"`
 	RequestId  string `json:"requestId,omitempty" description:"请求ID"`
 	SessionId  string `json:"sessionId,omitempty" description:"对话session id"`
-	SkillId    string `json:"skillId,omitempty" description:"用户选择的Skill ID"`
 	CNCF       string `json:"cncf,omitempty" description:"cncf项目"`
 	Kind       string `json:"kind,omitempty" description:"问题关于的资源类型"`
 	Name       string `json:"name,omitempty" description:"问题关于的资源名称"`

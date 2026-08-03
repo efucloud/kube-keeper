@@ -25,13 +25,12 @@ type RedisConfig struct {
 	MasterName string `json:"masterName" yaml:"masterName" description:"sentinel主节点名称"`
 }
 type ChatConfig struct {
-	UseTool            bool   `json:"useTool" yaml:"useTool" description:"使用工具"`
-	UseSkillToolFilter bool   `json:"useSkillToolFilter" yaml:"useSkillToolFilter" description:"是否按 skill.tools 过滤工具"`
-	Provider           string `json:"provider" yaml:"provider" description:"模型提供商（部署时固定）"`
-	Address            string `json:"address" yaml:"address" description:"大模型地址"`
-	ApiKey             string `json:"apiKey" yaml:"apiKey" description:"api key"`
-	Model              string `json:"model" yaml:"model" description:"模型"`
-	Header             string `json:"header" yaml:"header" description:"请求头"`
+	UseTool  bool   `json:"useTool" yaml:"useTool" description:"使用工具"`
+	Provider string `json:"provider" yaml:"provider" description:"模型提供商（部署时固定）"`
+	Address  string `json:"address" yaml:"address" description:"大模型地址"`
+	ApiKey   string `json:"apiKey" yaml:"apiKey" description:"api key"`
+	Model    string `json:"model" yaml:"model" description:"模型"`
+	Header   string `json:"header" yaml:"header" description:"请求头"`
 }
 
 type OidcConfig struct {

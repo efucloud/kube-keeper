@@ -1001,7 +1001,6 @@ const IndexDashboard: React.FC = () => {
         namespace={namespace || ''}
         kind="Job"
         apiVersion={resourceGroup.groupVersion}
-        externalSkills={['k8s-troubleshoot']}
       />
     </PageContainer>
   );

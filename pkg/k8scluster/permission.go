@@ -22,7 +22,6 @@ import (
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labelutil "k8s.io/apimachinery/pkg/labels"
-	"k8s.io/client-go/kubernetes"
 	"net/http"
 	"strings"
 	"time"
@@ -226,59 +225,6 @@ func (svc *PermissionService) DeleteClusterAccountByIds(ctx context.Context, req
 		}
 	}
 
-	return
-}
-func (svc *PermissionService) CreateManagerClusterCertificateSigningRequests(ctx context.Context,
-	clientSet *kubernetes.Clientset, email, csrName string) (certificate string, private []byte, errorData common.ErrorData) {
-	var (
-		certRequest *certv1.CertificateSigningRequest
-	)
-	errorData.Err = clientSet.CertificatesV1().CertificateSigningRequests().Delete(ctx, csrName, metav1.DeleteOptions{})
-	if errorData.IsNil() {
-		time.Sleep(2 * time.Second)
-	}
-	certRequest, errorData.Err = clientSet.CertificatesV1().CertificateSigningRequests().Get(ctx, csrName, metav1.GetOptions{})
-	if len(certRequest.Name) == 0 {
-		certRequest, private, errorData.Err = BuildCertificateSigningRequest(ctx, email, csrName, email, []string{}, config2.CSRExpireSecond)
-		if errorData.IsNotNil() {
-			config2.Logger.Errorf("cluster: %s buildCertificateSigningRequest failed, err: %s", "manager", errorData.Err.Error())
-			return
-		}
-
-		certRequest, errorData.Err = clientSet.CertificatesV1().CertificateSigningRequests().Create(ctx, certRequest, metav1.CreateOptions{})
-		if errorData.IsNotNil() {
-			config2.Logger.Errorf("cluster: %s create CertificateSigningRequest failed, err: %s", "manager", errorData.Err.Error())
-			return
-		}
-		if certRequest != nil {
-			for i := 0; i < 10; i++ {
-				certRequest, _ = clientSet.CertificatesV1().CertificateSigningRequests().Get(ctx, csrName, metav1.GetOptions{})
-				approved := false
-				for _, con := range certRequest.Status.Conditions {
-					if con.Type == certv1.CertificateApproved {
-						approved = true
-					}
-				}
-				if len(certRequest.Status.Certificate) > 0 {
-					certificate = base64.StdEncoding.EncodeToString(certRequest.Status.Certificate)
-					approved = true
-					break
-				} else if !approved {
-					certRequest.Status.Conditions = append(certRequest.Status.Conditions, certv1.CertificateSigningRequestCondition{
-						Type:           certv1.CertificateApproved,
-						Reason:         fmt.Sprintf("User activation, application: %s created", config2.ApplicationName),
-						Status:         corev1.ConditionTrue,
-						Message:        "This CSR was approved",
-						LastUpdateTime: metav1.Now(),
-					})
-					certRequest, errorData.Err = clientSet.CertificatesV1().CertificateSigningRequests().UpdateApproval(ctx, certRequest.Name, certRequest, metav1.UpdateOptions{})
-				}
-				time.Sleep(2 * time.Second)
-
-			}
-		}
-
-	}
 	return
 }
 func (svc *PermissionService) CreateUserClusterCertificateSigningRequests(ctx context.Context,
@@ -835,28 +781,6 @@ func (svc *PermissionService) createClusterCSR(ctx context.Context, creatorId, c
 	}
 	return
 }
-func (svc *PermissionService) CreateManagerCSR(ctx context.Context, clientSet *kubernetes.Clientset) (private []byte, certificate string, errorData common.ErrorData) {
-	csrName := fmt.Sprintf("efucloud-csr-%s", "efucloud-manager")
-	certificate, private, errorData = svc.CreateManagerClusterCertificateSigningRequests(ctx, clientSet, "cluster-manager@efucloud.cn", csrName)
-	if errorData.IsNotNil() {
-		config2.Logger.Errorf("cluster: manager create CertificateSigningRequests failed, err: %s", errorData.Err.Error())
-		return
-	}
-	if certificate == "" && len(private) == 0 {
-		errorData.Err = fmt.Errorf("certificate or private is empty")
-		config2.Logger.Errorf("cluster: manager create CertificateSigningRequests failed, err: %s", errorData.Err.Error())
-		return
-	}
-	if len(certificate) > 0 && len(private) > 0 {
-		//删除集群中的csr
-		err := clientSet.CertificatesV1().CertificateSigningRequests().Delete(ctx, csrName, metav1.DeleteOptions{})
-		if err != nil {
-			config2.Logger.Errorf("delete csr: %s failed, err: %s", csrName, err)
-		}
-	}
-	return
-}
-
 func BuildCertificateSigningRequest(ctx context.Context, creator, csrName, email string, groups []string, expirationSeconds int32) (*certv1.CertificateSigningRequest, []byte, error) {
 	commonName := strings.TrimSpace(email)
 	subject := pkix.Name{

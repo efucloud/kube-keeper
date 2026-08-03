@@ -1,4 +1,5 @@
 import {
+  BulbOutlined,
   CloudUploadOutlined,
   DownloadOutlined,
   LinkOutlined,
@@ -16,7 +17,6 @@ import {
   Drawer,
   Flex,
   FloatButton,
-  Select,
   Space,
   Tag,
   Tooltip,
@@ -33,16 +33,19 @@ import {
   type CopilotStyleMap,
 } from '@/pages/kubernetes/components/ai_content_stream';
 import type { ChatRequest } from '@/services/ai_copilot.d';
-import { getCurrentViewInfo } from '@/utils/global';
+import {
+  buildResourceIntroductionQuestion,
+  buildResourceTroubleshootingQuestion,
+  resolveK8sApiVersion,
+} from '@/utils/copilot';
 
 export type QuicklyQuestion = {
-  mode?: 'agent';
-  skill: string;
   question: string;
+  prompt?: string;
 };
 
 export type CopilotChatProps = {
-    cluster: string;
+  cluster: string;
   namespace?: string;
   apiVersion?: string;
   cncf?: string;
@@ -50,7 +53,6 @@ export type CopilotChatProps = {
   name?: string;
   resourceContent?: string;
   view: 'list' | 'detail' | 'update' | 'create' | undefined;
-  externalSkills?: string[];
   questions?: QuicklyQuestion[];
   status?: 'success' | 'error' | undefined;
   externalMessage?: {
@@ -58,8 +60,6 @@ export type CopilotChatProps = {
     questionType?: 'log' | 'chat' | 'resource' | 'inspection';
   };
 };
-
-type SkillOption = { id: string; name: string; mode: 'agent' };
 
 const useCopilotStyle = createStyles(({ css }) => ({
   copilotShell: css`
@@ -119,15 +119,27 @@ const useCopilotStyle = createStyles(({ css }) => ({
     flex-wrap: wrap;
   `,
   suggestionPanel: css`
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 8px;
+    width: 100%;
+  `,
+  suggestionHeading: css`
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: 0.04em;
   `,
   suggestionButton: css`
-    border-radius: 999px !important;
-    min-height: 42px;
-    padding-inline: 16px !important;
+    justify-content: flex-start;
+    border-radius: 14px !important;
+    min-height: 46px;
+    height: auto !important;
+    padding: 10px 14px !important;
     background: #ffffff !important;
     border: 1px solid #dbe5f0 !important;
     color: #0f172a !important;
@@ -140,6 +152,21 @@ const useCopilotStyle = createStyles(({ css }) => ({
       border-color: #93c5fd !important;
       box-shadow: 0 16px 32px rgba(37, 99, 235, 0.12);
     }
+
+    > span:last-child {
+      white-space: normal;
+      text-align: left;
+      line-height: 1.4;
+    }
+  `,
+  expertBadge: css`
+    margin: 0 !important;
+    padding: 5px 10px !important;
+    border-radius: 999px !important;
+    border-color: #bfdbfe !important;
+    background: #eff6ff !important;
+    color: #1d4ed8 !important;
+    font-weight: 600;
   `,
   runSection: css`
     display: flex;
@@ -412,7 +439,6 @@ export const AICopilot: React.FC<CopilotChatProps> = (props) => {
   const { styles } = useCopilotStyle();
   const viewStyles = styles as CopilotStyleMap;
   const { token } = theme.useToken();
-  const { namespace } = getCurrentViewInfo();
   const mainPanelRef = useRef<HTMLDivElement | null>(null);
   const streamEndRef = useRef<HTMLDivElement | null>(null);
   const attachmentsRef = useRef<GetRef<typeof Attachments>>(null);
@@ -424,85 +450,49 @@ export const AICopilot: React.FC<CopilotChatProps> = (props) => {
   const [questions, setQuestions] = useState<QuicklyQuestion[]>(
     props.questions || [],
   );
-  const [skills, setSkills] = useState<SkillOption[]>([]);
-  const [selectedSkill, setSelectedSkill] = useState<string>('k8s-default');
-  const {
-    loading,
-    sendMessage,
-    cancelRequest,
-    sessionId,
-    runList,
-  } = useAiCopilot({
-    cluster: props.cluster,
-    namespace: props.namespace,
-  });
+  const resolvedApiVersion = resolveK8sApiVersion(props.kind, props.apiVersion);
+  const english = intl.locale.toLowerCase().startsWith('en');
+  const { loading, sendMessage, cancelRequest, sessionId, runList } =
+    useAiCopilot({
+      cluster: props.cluster,
+      namespace: props.namespace,
+    });
   const markdownRenderer = useMemo(
     () => createAiMarkdownRenderer(intl),
     [intl],
   );
 
   useEffect(() => {
-    const filterSkills: SkillOption[] = [
-      {
-        id: 'k8s-default',
-        name: intl.formatMessage({ id: 'copilot.chat.skill.k8s-default' }),
-        mode: 'agent',
-      },
-    ];
-    if (namespace) {
-      filterSkills.push({
-        id: 'k8s-namespace-inspect',
-        name: intl.formatMessage({
-          id: 'copilot.chat.skill.k8s-namespace-inspect',
-        }),
-        mode: 'agent',
-      });
-    } else {
-      filterSkills.push({
-        id: 'k8s-cluster-inspect',
-        name: intl.formatMessage({
-          id: 'copilot.chat.skill.k8s-cluster-inspect',
-        }),
-        mode: 'agent',
-      });
-    }
-    if (props.externalSkills?.includes('k8s-log-diagnose-from-user-content')) {
-      filterSkills.push({
-        id: 'k8s-log-diagnose-from-user-content',
-        name: intl.formatMessage({
-          id: 'copilot.chat.skill.k8s-log-diagnose-from-user-content',
-        }),
-        mode: 'agent',
-      });
-    }
-    if (props.externalSkills?.includes('k8s-troubleshoot')) {
-      filterSkills.push({
-        id: 'k8s-troubleshoot',
-        name: intl.formatMessage({ id: 'copilot.chat.skill.k8s-troubleshoot' }),
-        mode: 'agent',
-      });
-    }
-    setSkills(filterSkills);
-  }, [intl, namespace, props.externalSkills]);
-
-  useEffect(() => {
-    const defaultQuestions = [...(props.questions || [])];
+    const resourceDescriptionLabel = intl.formatMessage({
+      id: 'copilot.cluster.resource.describe',
+    });
+    const resourceContext = {
+      kind: props.kind,
+      apiVersion: resolvedApiVersion,
+      name: props.name,
+      resourceContent: props.resourceContent,
+      english,
+    };
+    const defaultQuestions = (props.questions || []).map((item) =>
+      item.question === resourceDescriptionLabel
+        ? {
+            ...item,
+            prompt: buildResourceIntroductionQuestion(resourceContext),
+          }
+        : item,
+    );
     if (props.view) {
       defaultQuestions.push({
-        mode: 'agent',
-        skill: 'k8s-default',
-        question: intl.formatMessage({
-          id: 'copilot.cluster.resource.describe',
-        }),
+        question: resourceDescriptionLabel,
+        prompt: buildResourceIntroductionQuestion(resourceContext),
       });
     }
     if (props.status === 'error') {
       defaultQuestions.push({
-        mode: 'agent',
-        skill: 'k8s-troubleshoot',
         question: intl.formatMessage({
-          id: 'copilot.chat.skill.k8s-troubleshoot',
+          id: 'copilot.cluster.resource.troubleshoot',
         }),
+        prompt: buildResourceTroubleshootingQuestion(resourceContext),
       });
     }
     setQuestions(
@@ -512,11 +502,21 @@ export const AICopilot: React.FC<CopilotChatProps> = (props) => {
           self.findIndex(
             (candidate) =>
               candidate.question === item.question &&
-              candidate.skill === item.skill,
+              candidate.prompt === item.prompt,
           ),
       ),
     );
-  }, [intl, props.questions, props.status, props.view]);
+  }, [
+    english,
+    intl,
+    props.kind,
+    props.name,
+    props.questions,
+    props.resourceContent,
+    props.status,
+    props.view,
+    resolvedApiVersion,
+  ]);
 
   useEffect(() => {
     if (!props.externalMessage?.message) {
@@ -529,13 +529,9 @@ export const AICopilot: React.FC<CopilotChatProps> = (props) => {
       sessionId,
       message: props.externalMessage.message,
       mode: 'agent',
-      skillId:
-        props.externalMessage.questionType === 'log'
-          ? 'k8s-log-diagnose-from-user-content'
-          : selectedSkill,
       kind: props.kind,
       name: props.name,
-      apiVersion: props.apiVersion,
+      apiVersion: resolvedApiVersion,
       namespace: props.namespace || '',
       cncf: props.cncf,
     };
@@ -556,25 +552,20 @@ export const AICopilot: React.FC<CopilotChatProps> = (props) => {
     return () => window.cancelAnimationFrame(frame);
   }, [runList, loading]);
 
-  const applySkillSelection = (skillId: string) => {
-    setSelectedSkill(skillId);
-  };
-
-  const submitQuestion = (messageText: string, skillId?: string) => {
+  const submitQuestion = (messageText: string, displayText = messageText) => {
     const requestId = nanoid();
     const request: ChatRequest = {
       requestId,
       sessionId,
       message: messageText,
       mode: 'agent',
-      skillId: skillId || selectedSkill,
       namespace: props.namespace || '',
       kind: props.kind,
       name: props.name,
-      apiVersion: props.apiVersion || '',
+      apiVersion: resolvedApiVersion,
       cncf: props.cncf,
     };
-    sendMessage(request);
+    sendMessage(request, displayText);
   };
 
   const saveDataToFile = () => {
@@ -585,9 +576,10 @@ export const AICopilot: React.FC<CopilotChatProps> = (props) => {
           .map((item) =>
             run.messages.find((message) => message.id === item.messageId),
           )
-          .filter(
-            (message): message is NonNullable<typeof message> =>
-              Boolean(message && message.role === 'assistant' && message.text.trim()),
+          .filter((message): message is NonNullable<typeof message> =>
+            Boolean(
+              message && message.role === 'assistant' && message.text.trim(),
+            ),
           )
           .map((message) => message.text.trim())
           .join('\n\n');
@@ -642,17 +634,9 @@ export const AICopilot: React.FC<CopilotChatProps> = (props) => {
     <div className={styles.senderDock}>
       <Flex vertical gap="middle">
         <Flex gap={10} wrap>
-          <Select
-            disabled={loading}
-            style={{ minWidth: 220 }}
-            placeholder={intl.formatMessage({ id: 'copilot.skills' })}
-            value={selectedSkill}
-            onChange={(value) => applySkillSelection(String(value))}
-            options={skills.map((item) => ({
-              label: item.name,
-              value: item.id,
-            }))}
-          />
+          <Tag className={styles.expertBadge} icon={<RobotOutlined />}>
+            {intl.formatMessage({ id: 'copilot.expert' })}
+          </Tag>
           {runList.length > 0 && (
             <Button
               disabled={loading}
@@ -704,7 +688,7 @@ export const AICopilot: React.FC<CopilotChatProps> = (props) => {
             if (!inputValue.trim()) {
               return;
             }
-            submitQuestion(inputValue, selectedSkill);
+            submitQuestion(inputValue);
             setInputValue('');
           }}
           onCancel={cancelRequest}
@@ -720,22 +704,25 @@ export const AICopilot: React.FC<CopilotChatProps> = (props) => {
           <Tag color="blue">{props.cluster}</Tag>
           {props.namespace && <Tag color="cyan">{props.namespace}</Tag>}
           {props.kind && <Tag>{props.kind}</Tag>}
+          {resolvedApiVersion && <Tag>{resolvedApiVersion}</Tag>}
           {props.name && <Tag>{props.name}</Tag>}
         </Space>
       </div>
       {questions.length > 0 && runList.length === 0 && (
         <div className={styles.suggestionPanel}>
+          <div className={styles.suggestionHeading}>
+            <BulbOutlined />
+            {intl.formatMessage({ id: 'copilot.quickQuestions' })}
+          </div>
           {questions.map((item) => (
             <Button
-              key={`${item.skill}-${item.question}`}
+              key={`${item.question}-${item.prompt || ''}`}
               size="small"
               type="default"
               className={styles.suggestionButton}
               icon={<FaRegHandPointRight style={{ fontSize: 14 }} />}
               onClick={() => {
-                const skillId = item.skill || selectedSkill;
-                applySkillSelection(skillId);
-                submitQuestion(item.question, skillId);
+                submitQuestion(item.prompt || item.question, item.question);
               }}
             >
               {item.question}

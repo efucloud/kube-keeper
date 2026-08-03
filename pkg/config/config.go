@@ -35,21 +35,17 @@ var (
 	BuildDate string
 )
 var (
-	ChatBuiltin          string
-	ApplicationConfig    *Config
-	configOnce           sync.Once
-	DBConnect            *gorm.DB
-	AuthProvider         *oidc.Provider
-	SystemVerifier       *oidc.IDTokenVerifier
-	Bundle               *i18n.Bundle
-	TenantAuth           *tenantAuth
-	Logger               *zap.SugaredLogger
-	RedisClient          redis.UniversalClient
-	ContextDBTx          ContextDatabaseTx
-	RunNamespace         string
-	ServerName           string
-	KubeSystemCreateTime string
-	KubeSystemUID        string
+	ChatBuiltin       string
+	ApplicationConfig *Config
+	configOnce        sync.Once
+	DBConnect         *gorm.DB
+	AuthProvider      *oidc.Provider
+	SystemVerifier    *oidc.IDTokenVerifier
+	Bundle            *i18n.Bundle
+	TenantAuth        *tenantAuth
+	Logger            *zap.SugaredLogger
+	RedisClient       redis.UniversalClient
+	ContextDBTx       ContextDatabaseTx
 )
 
 type ContextDatabaseTx string
