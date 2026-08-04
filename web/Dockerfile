@@ -1,14 +1,15 @@
 # 构建阶段
-FROM registry.cn-shenzhen.aliyuncs.com/efucloud-public/node-python3:20-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
+
+RUN apk add --no-cache python3 make g++
 
 # 1. 先只复制依赖文件（触发缓存）
 COPY package.json yarn.lock ./
 
 # 2. 安装依赖（含 devDependencies，因为 Umi 需要）
 # 使用 --frozen-lockfile 确保一致性
-ENV YARN_REGISTRY=https://registry.npmmirror.com
 RUN yarn install --frozen-lockfile --non-interactive
 
 # 3. 再复制源码（这一步变动频繁，放最后）
@@ -19,7 +20,7 @@ RUN yarn build
 
 
 # 运行阶段
-FROM registry.cn-shenzhen.aliyuncs.com/efucloud-public/nginx:1.29.4-alpine
+FROM nginx:1.29.4-alpine
 
 ARG GIT_COMMIT
 ARG BUILD_DATE

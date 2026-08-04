@@ -1,5 +1,5 @@
 # 构建阶段
-FROM registry.cn-shenzhen.aliyuncs.com/efucloud-public/tektoncd-golang:1.26.4 AS builder
+FROM golang:1.26.4-alpine AS builder
 
 ARG TARGETOS
 ARG TARGETARCH
@@ -8,6 +8,8 @@ ARG BUILD_DATE
 
 WORKDIR /workspace
 COPY . .
+
+RUN apk add --no-cache git
 
 ENV GOPROXY='https://goproxy.cn,direct'
 ENV GOSUMDB='off'
