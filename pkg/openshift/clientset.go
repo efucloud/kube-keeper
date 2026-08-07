@@ -239,20 +239,3 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 	cs.DiscoveryClient = discovery.NewDiscoveryClientForConfigOrDie(c)
 	return &cs
 }
-
-// New creates a new Clientset for the given RESTClient.
-func New(c rest.Interface) *Clientset {
-	var cs Clientset
-	//cs.authorizationV1 = authorizationv1.New(c)
-	cs.appsV1 = appsv1.New(c)
-	//cs.buildV1 = buildv1.New(c)
-	//cs.imageV1 = imagev1.New(c)
-	//cs.oauthV1 = oauthv1.New(c)
-	//cs.quotaV1 = quotav1.New(c)
-	//cs.routeV1 = routev1.New(c)
-	//cs.securityV1 = securityv1.New(c)
-	//cs.templateV1 = templatev1.New(c)
-	cs.userV1 = userv1.New(c)
-	cs.DiscoveryClient = discovery.NewDiscoveryClient(c)
-	return &cs
-}
