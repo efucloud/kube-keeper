@@ -19,14 +19,10 @@ package config
 import (
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
-	ulid "github.com/oklog/ulid/v2"
 	redis "github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-	"math/rand"
-	"strings"
 	"sync"
-	"time"
 )
 
 var (
@@ -35,7 +31,6 @@ var (
 	BuildDate string
 )
 var (
-	ChatBuiltin       string
 	ApplicationConfig *Config
 	configOnce        sync.Once
 	DBConnect         *gorm.DB
@@ -50,15 +45,8 @@ var (
 
 type ContextDatabaseTx string
 
-func generateDatabaseId() string {
-	entropy := rand.New(rand.NewSource(time.Now().UnixNano()))
-	ms := ulid.Timestamp(time.Now())
-	id, _ := ulid.New(ms, entropy)
-	m := strings.ToLower(id.String())
-	return m
-}
 func init() {
-	ChatBuiltin = generateDatabaseId()
+
 	if ApplicationConfig == nil {
 		configOnce.Do(func() {
 			ApplicationConfig = new(Config)

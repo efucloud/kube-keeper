@@ -184,8 +184,8 @@ func loadBuiltinMCPTools(ctx context.Context, req ChatRequest) []mcp.Tool {
 	}
 
 	mcpClient := &client2.MCPClient{
-		BaseURL: fmt.Sprintf("http://localhost:%d/api/stream1/cluster/%s/%s/check",
-			config2.ServerPort, req.Context.Cluster, config2.ChatBuiltin),
+		BaseURL: fmt.Sprintf("http://localhost:%d/api/stream/cluster/%s/mcp",
+			config2.ServerPort, req.Context.Cluster),
 		Token:  req.AuthToken,
 		Client: &http.Client{Timeout: 120 * time.Second},
 	}

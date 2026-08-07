@@ -251,8 +251,8 @@ func buildMCPClient(req ChatRequest) *client2.MCPClient {
 	}
 
 	return &client2.MCPClient{
-		BaseURL: fmt.Sprintf("http://localhost:%d/api/stream1/cluster/%s/%s/check",
-			config.ServerPort, cluster, config.ChatBuiltin),
+		BaseURL: fmt.Sprintf("http://localhost:%d/api/stream/cluster/%s/%s/mcp",
+			config.ServerPort, cluster),
 		Token:  req.AuthToken,
 		Client: &http.Client{Timeout: 120 * time.Second},
 	}

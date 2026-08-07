@@ -2,7 +2,6 @@ package cluster
 
 import (
 	"context"
-	"fmt"
 	"github.com/efucloud/common"
 	filters2 "github.com/efucloud/kube-keeper/pkg/apis/filters"
 	config2 "github.com/efucloud/kube-keeper/pkg/config"
@@ -22,8 +21,8 @@ func (r ServerResource) AddWebService(ws *restful.WebService) {
 	apiInfo.Tag = "mcp-server"
 	apiInfo.Description = "MCP Server"
 	common.RegisterApiInfo(apiInfo)
-	apiExtend := fmt.Sprintf("/%s/check", config2.ChatBuiltin)
-	ws.Route(ws.POST(config2.ClusterAgentAPIPrefix+apiExtend).
+	apiExtend := "/mcp"
+	ws.Route(ws.POST(config2.ClusterStreamAPIPrefix+apiExtend).
 		Param(ws.HeaderParameter(config2.AuthHeader, "系统用户Token")).
 		Param(ws.PathParameter("cluster", "集群编码")).
 		To(r.handleRequest).
@@ -31,7 +30,8 @@ func (r ServerResource) AddWebService(ws *restful.WebService) {
 		Returns(http.StatusForbidden, "用户没有权限", dtos.ResponseError{}).
 		Returns(http.StatusInternalServerError, "内部处理逻辑错误", dtos.ResponseError{}).
 		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Auth).
-		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()))
+		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
+		Metadata(config2.FrontApiTag, "mcpServerRequest"))
 
 }
 func (r ServerResource) handleRequest(req *restful.Request, resp *restful.Response) {

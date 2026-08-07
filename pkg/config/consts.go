@@ -23,12 +23,12 @@ const (
 	ClusterNamespaceWebsocketAPIPrefix = "/api/ws/cluster/{cluster}/namespace/{namespace}"
 	ClusterProxyAPIPrefix              = "/api/v1/proxy/{cluster}"
 	ClusterStreamAPIPrefix             = "/api/stream/cluster/{cluster}"
-	ClusterAgentAPIPrefix              = "/api/stream1/cluster/{cluster}"
-	ApplicationName                    = "kube-keeper"
-	ServerPort                         = 9002
-	RequestForm                        = "application/x-www-form-urlencoded"
-	FrontApiTag                        = "FrontApiTag"
-	SerialNumber                       = "SerialNumber"
+
+	ApplicationName = "kube-keeper"
+	ServerPort      = 9002
+	RequestForm     = "application/x-www-form-urlencoded"
+	FrontApiTag     = "FrontApiTag"
+	SerialNumber    = "SerialNumber"
 )
 
 const (
