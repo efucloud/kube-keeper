@@ -1,6 +1,6 @@
 import { request } from '@umijs/max';
 
-import { BuiltinShellCommandDetailList, BuiltinShellCommandDetail, BuiltinShellCommandCreate, BuiltinShellCommandUpdate } from './builtin_shell_command.d';
+import { BuiltinShellCommandCreate, BuiltinShellCommandDetail, BuiltinShellCommandDetailList, BuiltinShellCommandUpdate } from './builtin_shell_command.d';
 
 //删除内置Shell命令
 //删除内置Shell命令信息详情
@@ -33,11 +33,11 @@ export async function deleteBuiltinShellCommand(
 //参数名: size 参数类型: number 参数位置: query 是否必须: false  参数说明: 每页大小
 export async function listBuiltinShellCommand<BuiltinShellCommandDetailList>(
   params: {
+    description?: string;// 命名描述
+    name?: string;// 内置Shell命令名
+    order?: string;// 排序
     page?: number;// 页码
     size?: number;// 每页大小
-    order?: string;// 排序
-    name?: string;// 内置Shell命令名
-    description?: string;// 命名描述
   },
   options?: { [key: string]: any }) {
   return request<BuiltinShellCommandDetailList>(`/api/v1/builtin-shell-command`, {

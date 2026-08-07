@@ -1,6 +1,6 @@
 import { request } from '@umijs/max';
 
-import { AuthedUserInfo, AccessTokenResponse, LoginByOIDC } from './common.d';
+import { AccessTokenResponse, AuthedUserInfo, LoginByOIDC } from './common.d';
 
 //获取认证地址
 //获取认证地址

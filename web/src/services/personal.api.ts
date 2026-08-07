@@ -1,6 +1,5 @@
 import { request } from '@umijs/max';
 
-import { WorkspaceDetailList } from './workspace.d';
 import { ClusterNamespaceDetailList } from './cluster_namespace.d';
 import { UserAccessClusterList } from './kubernetes.d';
 
@@ -17,8 +16,8 @@ export async function canAccessClusterNamespaces<ClusterNamespaceDetailList>(
   params: {
     cluster: string;// 集群编码
     current?: number;// 页码
-    pageSize?: number;// 每页大小
     order?: string;// 排序
+    pageSize?: number;// 每页大小
     search?: string;// 命名空间
   },
   options?: { [key: string]: any }) {
@@ -43,37 +42,12 @@ export async function canAccessClusterNamespaces<ClusterNamespaceDetailList>(
 export async function canAccessClusters<UserAccessClusterList>(
   params: {
     current?: number;// 页码
-    pageSize?: number;// 每页大小
     order?: string;// 排序
+    pageSize?: number;// 每页大小
     search?: string;// 集群名称或者编码
   },
   options?: { [key: string]: any }) {
   return request<UserAccessClusterList>(`/api/v1/personal/cluster/list`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    params: params,
-    ...(options || {}),
-  });
-}
-//获取用户可以访问的工作空间
-//获取用户可以访问的工作空间
-//请求方法: GET
-//请求地址: /api/v1/personal/workspace/list
-//参数名: current 参数类型: number 参数位置: query 是否必须: false  参数说明: 页码
-//参数名: order 参数类型: string 参数位置: query 是否必须: false  参数说明: 排序
-//参数名: pageSize 参数类型: number 参数位置: query 是否必须: false  参数说明: 每页大小
-//参数名: search 参数类型: string 参数位置: query 是否必须: false  参数说明: 工作空间名称或者编码
-export async function canAccessWorkspaces<WorkspaceDetailList>(
-  params: {
-    search?: string;// 工作空间名称或者编码
-    current?: number;// 页码
-    pageSize?: number;// 每页大小
-    order?: string;// 排序
-  },
-  options?: { [key: string]: any }) {
-  return request<WorkspaceDetailList>(`/api/v1/personal/workspace/list`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -95,9 +69,9 @@ export async function getWorkspaceNamespaces<ClusterNamespaceDetailList>(
   params: {
     workspace: string;// 工作空间编码
     current?: number;// 页码
-    pageSize?: number;// 每页大小
-    order?: string;// 排序
     namespace?: string;// 命名空间
+    order?: string;// 排序
+    pageSize?: number;// 每页大小
   },
   options?: { [key: string]: any }) {
   const { workspace, ...rest } = params;

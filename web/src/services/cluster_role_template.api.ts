@@ -6,10 +6,12 @@ import { ClusterRoleTemplateList } from './cluster_role_template.d';
 //
 //请求方法: GET
 //请求地址: /api/v1/cluster/{cluster}/cluster-role-template
+//参数名: category 参数类型: string 参数位置: query 是否必须: false  参数说明: 角色类型
 //参数名: cluster 参数类型: string 参数位置: path 是否必须: true  参数说明: 集群编码
 export async function listClusterRoleTemplate<ClusterRoleTemplateList>(
   params: {
     cluster: string;// 集群编码
+    category?: string;// 角色类型
   },
   options?: { [key: string]: any }) {
   const { cluster, ...rest } = params;

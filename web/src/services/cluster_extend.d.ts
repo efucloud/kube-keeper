@@ -1,4 +1,4 @@
-import { S3StorageConfig, AuditLogConfig } from './common.d';
+import { AuditLogConfig, S3StorageConfig } from './common.d';
 // ClusterExtendCreate 集群扩展信息创建
 // 包括集群审计日志信息，集群备份信息等，未来可继续扩展
 export type ClusterExtendCreate = { 
@@ -11,7 +11,7 @@ export type ClusterExtendCreate = {
   fileStorageConfig?: S3StorageConfig;
   //集群审计日志配置
   auditLogConfig?: AuditLogConfig;
-} ; 
+}; 
 // ClusterExtendDetail 集群扩展信息
 // 包括集群审计日志信息，集群备份信息等，未来可继续扩展
 export type ClusterExtendDetail = { 
@@ -39,14 +39,14 @@ export type ClusterExtendDetail = {
   fileStorageConfig?: S3StorageConfig;
   //集群审计日志配置
   auditLogConfig?: AuditLogConfig;
-} ; 
+}; 
 // ClusterExtendDetailList  集群扩展信息列表响应
 export type ClusterExtendDetailList = { 
   //当前页数据
   data?: ClusterExtendDetail[];
   //数据库满足条件的数据总数
   total?: number;
-} ; 
+}; 
 // ClusterExtendUpdate 集群扩展信息修改
 // 包括集群审计日志信息，集群备份信息等，未来可继续扩展
 export type ClusterExtendUpdate = { 
@@ -62,4 +62,4 @@ export type ClusterExtendUpdate = {
   fileStorageConfig?: S3StorageConfig;
   //集群审计日志配置
   auditLogConfig?: AuditLogConfig;
-} ; 
+}; 

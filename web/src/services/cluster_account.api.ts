@@ -1,10 +1,10 @@
 import { request } from '@umijs/max';
 
-import { AuthorizeByAccount, ClusterAuthorizeByTemplate, NamespaceAuthorizeByTemplate } from './cluster_role_template.d';
-import { ClusterNamespaceAccountRoleDetailList } from './cluster_namespace_account_role.d';
-import { BatchOperationIds } from './common.d';
-import { ClusterAccountDetailList, ClusterAccountDetail } from './cluster_account.d';
+import { ClusterAccountDetail, ClusterAccountDetailList } from './cluster_account.d';
 import { ClusterAccountRoleDetailList } from './cluster_account_role.d';
+import { ClusterNamespaceAccountRoleDetailList } from './cluster_namespace_account_role.d';
+import { AuthorizeByAccount, ClusterAuthorizeByTemplate, NamespaceAuthorizeByTemplate } from './cluster_role_template.d';
+import { BatchOperationIds } from './common.d';
 
 //删除集群用户
 //删除集群用户信息详情
@@ -41,12 +41,12 @@ export async function deleteClusterAccount(
 export async function listClusterAccount<ClusterAccountDetailList>(
   params: {
     cluster: string;// 集群编码
-    size?: number;// 每页大小
-    order?: string;// 排序
-    name?: string;// 用户名
-    isSupper?: string;// 超级管理员
-    page?: number;// 页码
     accountId?: string;// 组织用户ID
+    isSupper?: string;// 超级管理员
+    name?: string;// 用户名
+    order?: string;// 排序
+    page?: number;// 页码
+    size?: number;// 每页大小
   },
   options?: { [key: string]: any }) {
   const { cluster, ...rest } = params;
@@ -67,8 +67,8 @@ export async function listClusterAccount<ClusterAccountDetailList>(
 //参数名: id 参数类型: string 参数位置: path 是否必须: true  参数说明: ID
 export async function getClusterAccount<ClusterAccountDetail>(
   params: {
-    id: string;// ID
     cluster: string;// 集群编码
+    id: string;// ID
   },
   options?: { [key: string]: any }) {
   const { cluster, id, ...rest } = params;

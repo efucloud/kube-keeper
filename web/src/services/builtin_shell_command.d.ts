@@ -9,7 +9,7 @@ export type BuiltinShellCommandCreate = {
   description?: string;
   //命令内容:支持模板化参数
   command: string;
-} ; 
+}; 
 // BuiltinShellCommandDetail 内置的shell命令详情
 // 用户可以选择内置的命令快速实现对容器的运维，同时减少手动输入错误的可能性
 export type BuiltinShellCommandDetail = { 
@@ -36,14 +36,14 @@ export type BuiltinShellCommandDetail = {
   description?: string;
   //命令内容:支持模板化参数
   command: string;
-} ; 
+}; 
 // BuiltinShellCommandDetailList 内建shell命令列表响应
 export type BuiltinShellCommandDetailList = { 
   //当前页数据
   data?: BuiltinShellCommandDetail[];
   //数据库满足条件的数据总数
   total?: number;
-} ; 
+}; 
 //命令内容:支持模板化参数
 export type BuiltinShellCommandUpdate = { 
   //主键
@@ -57,4 +57,4 @@ export type BuiltinShellCommandUpdate = {
   description?: string;
   //命令内容:支持模板化参数
   command: string;
-} ; 
+}; 

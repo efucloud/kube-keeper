@@ -1,10 +1,10 @@
 import { request } from '@umijs/max';
 
-import { ClusterDetailList, ClusterDetail, ClusterCreate, ClusterRegistry, ClusterStatus, ClusterUpdate } from './cluster.d';
+import { ClusterCreate, ClusterDetail, ClusterDetailList, ClusterRegistry, ClusterStatus, ClusterUpdate } from './cluster.d';
 import { ClusterAccountDetailList } from './cluster_account.d';
-import { KubernetesVersion, ClusterServerGroupChecks } from './kubernetes.d';
-import { ClusterDashboard } from './dashboard.d';
 import { BatchOperationIds, ClusterAdmin, QueryParam } from './common.d';
+import { ClusterDashboard } from './dashboard.d';
+import { ClusterServerGroupChecks, KubernetesVersion } from './kubernetes.d';
 
 //删除集群
 //删除集群信息，删除集群将会删除系统中跟集群关联的所有信息，但不会删除集群的任何信息，包括自动创建的csr以及相关资源的labels和annotations
@@ -55,13 +55,13 @@ export async function deleteClusterUser(
 //参数名: size 参数类型: number 参数位置: query 是否必须: false  参数说明: 每页大小
 export async function listCluster<ClusterDetailList>(
   params: {
-    page?: number;// 页码
-    size?: number;// 每页大小
-    order?: string;// 排序
-    name?: string;// 用户名
-    code?: string;// 编码
-    search?: string;// 搜索
     category?: string;// 集群类型
+    code?: string;// 编码
+    name?: string;// 用户名
+    order?: string;// 排序
+    page?: number;// 页码
+    search?: string;// 搜索
+    size?: number;// 每页大小
   },
   options?: { [key: string]: any }) {
   return request<ClusterDetailList>(`/api/v1/cluster`, {
@@ -165,8 +165,8 @@ export async function clusterApiGroupResources(
 //参数名: cluster 参数类型: string 参数位置: path 是否必须: true  参数说明: 集群编码
 export async function clusterApiResources(
   params: {
-    cluster: string;// 集群编码
     category: string;// 角色类型
+    cluster: string;// 集群编码
   },
   options?: { [key: string]: any }) {
   const { category, cluster, ...rest } = params;
@@ -270,9 +270,9 @@ export async function getClusterResourceDashboard<ClusterDashboard>(
 export async function getClusterRoleRbac(
   params: {
     cluster: string;// 集群编码
+    kind?: string;// 角色类型
     name?: string;// 用户名或Group名或ServiceAccount
     namespace?: string;// Namespace，在name为ServiceAccount时有效
-    kind?: string;// 角色类型
   },
   options?: { [key: string]: any }) {
   const { cluster, ...rest } = params;
@@ -364,7 +364,7 @@ export async function getClusterById<ClusterDetail>(
     params: { ...rest },
     ...(options || {}),
   });
-} 
+}
 //获取集群的GatewayClass
 //获取集群的GatewayClass
 //请求方法: GET

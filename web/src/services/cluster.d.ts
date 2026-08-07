@@ -10,7 +10,7 @@ export type ClusterCreate = {
   name: string;
   //是否有效
   //默认值: true
-  enable: boolean;
+  enable?: boolean;
   //集群类型
   //最大长度: 50
   category: string;
@@ -32,7 +32,7 @@ export type ClusterCreate = {
   domainList?: string[];
   //扩展配置信息
   extendConfig?: ClusterExtendConfig;
-} ; 
+}; 
 // ClusterDetail 集群
 export type ClusterDetail = { 
   //主键
@@ -58,7 +58,7 @@ export type ClusterDetail = {
   name: string;
   //是否有效
   //默认值: true
-  enable: boolean;
+  enable?: boolean;
   //集群类型
   //最大长度: 50
   category: string;
@@ -76,14 +76,15 @@ export type ClusterDetail = {
   domainList?: string[];
   //扩展配置信息
   extendConfig?: ClusterExtendConfig;
-} ; 
+}; 
 // ClusterDetailList 集群列表响应
 export type ClusterDetailList = { 
   //当前页数据
   data?: ClusterDetail[];
   //数据库满足条件的数据总数
   total?: number;
-} ; 
+}; 
+//扩展配置信息
 export type ClusterRegistry = { 
   //集群编码
   //最大长度: 50
@@ -105,15 +106,15 @@ export type ClusterRegistry = {
   clientKey: string;
   //域名列表:用于模版部署时提示使用
   domainList?: string[];
-} ; 
+}; 
 // ClusterStatus  集群启用禁用
 export type ClusterStatus = { 
   //主键
   ids: string[];
   //是否有效
   //默认值: true
-  enable: boolean;
-} ; 
+  enable?: boolean;
+}; 
 // ClusterUpdate 集群修改
 export type ClusterUpdate = { 
   //主键
@@ -127,7 +128,7 @@ export type ClusterUpdate = {
   name: string;
   //是否有效
   //默认值: true
-  enable: boolean;
+  enable?: boolean;
   //集群类型
   //最大长度: 50
   category: string;
@@ -150,9 +151,14 @@ export type ClusterUpdate = {
   //扩展配置信息
   extendConfig?: ClusterExtendConfig;
   //更新链接信息
-  updateConnect: boolean;
-} ; 
- 
+  updateConnect?: boolean;
+}; 
+// ClusterUpdateFeatures 集群特性修改
+export type ClusterUpdateFeatures = { 
+  //主键
+  //最大长度: 50
+  id: string;
+}; 
 // ShortClusterDetail 集群
 export type ShortClusterDetail = { 
   //主键
@@ -166,7 +172,7 @@ export type ShortClusterDetail = {
   name: string;
   //是否有效
   //默认值: true
-  enable: boolean;
+  enable?: boolean;
   //集群类型
   //最大长度: 50
   category: string;
@@ -175,4 +181,4 @@ export type ShortClusterDetail = {
   //描述
   //最大长度: 255
   description?: string;
-} ; 
+}; 

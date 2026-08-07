@@ -57,9 +57,9 @@ export async function helmRelease(
 //参数名: release 参数类型: string 参数位置: path 是否必须: true  参数说明: Release名称
 export async function helmInstallHistory(
   params: {
+    cluster: string;// 集群编码
     namespace: string;// Namespace
     release: string;// Release名称
-    cluster: string;// 集群编码
   },
   options?: { [key: string]: any }) {
   const { cluster, namespace, release, ...rest } = params;

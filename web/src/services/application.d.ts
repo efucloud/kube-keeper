@@ -1,5 +1,5 @@
-import { ResourceIndex } from './kubernetes.d';
 import { ParameterDefinitions } from './application_def.d';
+import { ResourceIndex } from './kubernetes.d';
 // ApplicationCreate 应用部署模版创建
 export type ApplicationCreate = { 
   //创建者
@@ -19,13 +19,13 @@ export type ApplicationCreate = {
   //最大长度: 255
   resourceIndex: ResourceIndex;
   //有CRD资源
-  hasCrd: boolean;
+  hasCrd?: boolean;
   // 应用参数
   parameters?: ParameterDefinitions;
   //版本
   //最大长度: 50
   version: string;
-} ; 
+}; 
 // ApplicationDetail 模版应用
 export type ApplicationDetail = { 
   //主键
@@ -48,19 +48,19 @@ export type ApplicationDetail = {
   //最大长度: 255
   resourceIndex: ResourceIndex;
   //有CRD资源
-  hasCrd: boolean;
+  hasCrd?: boolean;
   // 应用参数
   parameters?: ParameterDefinitions;
   //版本
   //最大长度: 50
   version: string;
-} ; 
+}; 
 export type ApplicationDetailList = { 
   //当前页数据
   data?: ApplicationDetail[];
   //数据库满足条件的数据总数
   total?: number;
-} ; 
+}; 
 // ApplicationExportImport 应用版本导入导出
 export type ApplicationExportImport = { 
   //显示名称
@@ -74,13 +74,13 @@ export type ApplicationExportImport = {
   //最大长度: 255
   resourceIndex: ResourceIndex;
   //有CRD资源
-  hasCrd: boolean;
+  hasCrd?: boolean;
   // 应用参数
   parameters?: ParameterDefinitions;
   //版本
   //最大长度: 50
   version: string;
-} ; 
+}; 
 // ApplicationUpdate 应用部署模版更新
 export type ApplicationUpdate = { 
   //主键
@@ -105,12 +105,10 @@ export type ApplicationUpdate = {
   //最大长度: 255
   resourceIndex: ResourceIndex;
   //有CRD资源
-  hasCrd: boolean;
+  hasCrd?: boolean;
   // 应用参数
   parameters?: ParameterDefinitions;
   //版本
   //最大长度: 50
   version: string;
-} ; 
-export type getTemplateIndex = { 
-} ; 
+}; 

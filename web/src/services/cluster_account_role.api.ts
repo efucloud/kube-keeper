@@ -1,7 +1,7 @@
 import { request } from '@umijs/max';
 
+import { ClusterAccountRoleCreate, ClusterAccountRoleDetail, ClusterAccountRoleDetailList } from './cluster_account_role.d';
 import { BatchOperationIds } from './common.d';
-import { ClusterAccountRoleDetailList, ClusterAccountRoleDetail, ClusterAccountRoleCreate } from './cluster_account_role.d';
 
 //删除集群用户角色
 //删除集群用户角色信息详情
@@ -39,13 +39,13 @@ export async function deleteClusterAccountRole(
 export async function listClusterAccountRole<ClusterAccountRoleDetailList>(
   params: {
     cluster: string;// 集群编码
-    page?: number;// 页码
-    size?: number;// 每页大小
     accountId?: string;// 用户Id
-    order?: string;// 排序
-    roleName?: string;// 角色名称
     bindingName?: string;// 绑定角色
     isTemp?: boolean;// 是否临时
+    order?: string;// 排序
+    page?: number;// 页码
+    roleName?: string;// 角色名称
+    size?: number;// 每页大小
   },
   options?: { [key: string]: any }) {
   const { cluster, ...rest } = params;

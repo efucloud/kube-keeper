@@ -3,19 +3,19 @@ export type ApplicationEdge = {
   id?: string;
   source?: string;
   target?: string;
-} ; 
+}; 
 // Value 实现 driver.Valuer 接口，Value 返回 json value
 export type ApplicationEdgeStyle = { 
   height?: number;
   weight?: number;
-} ; 
+}; 
 // ApplicationEdges 应用边
 export type ApplicationEdges = ApplicationEdge[];
 // ApplicationMetrics 应用指标
 export type ApplicationMetrics = { 
   promql?: string;
   name?: string;
-} ; 
+}; 
 // ApplicationNode 应用节点
 export type ApplicationNode = { 
   //组件名称 作为画布节点的ID，同时作为集群资源名称的一部分
@@ -23,7 +23,7 @@ export type ApplicationNode = {
   data?: ApplicationNodeInfo;
   type?: string;
   position?: Position;
-} ; 
+}; 
 // ApplicationNodeInfo 节点中应用信息
 export type ApplicationNodeInfo = { 
   source?: string;
@@ -48,8 +48,8 @@ export type ApplicationNodeInfo = {
   //节点类型
   nodeType: string;
   //版本信息
-  version?: EmbedMarketApplicationVersion;
-} ; 
+  version?: EmbedMarketApplication;
+}; 
 // ApplicationNodes 应用节点
 export type ApplicationNodes = ApplicationNode[];
 export type ApplicationState = { 
@@ -62,18 +62,18 @@ export type ApplicationState = {
   //状态
   state: number;
   //当前版本设置为默认版本
-  setDefaultVersion: boolean;
+  setDefaultVersion?: boolean;
   //设置某个版本为默认版本
   defaultVersion?: string;
-} ; 
+}; 
 // 映射的应用参数
 export type ApplicationVariable = { 
   //Canvas上应用ID,若ID为空表示基础应用的参数映射
   id?: string;
   name?: string;
-} ; 
-// EmbedMarketApplicationVersion 模版应用
-export type EmbedMarketApplicationVersion = { 
+}; 
+// EmbedMarketApplication 模版应用
+export type EmbedMarketApplication = { 
   //主键
   //最大长度: 50
   id: string;
@@ -115,7 +115,7 @@ export type EmbedMarketApplicationVersion = {
   edges?: ApplicationEdges;
   //画布连接属性
   handleProps?: string[];
-} ; 
+}; 
 //设置某个版本为默认版本
 export type IdeTemplateState = { 
   //工作空间ID
@@ -127,15 +127,15 @@ export type IdeTemplateState = {
   //状态
   state: number;
   //当前版本设置为默认版本
-  setDefaultVersion: boolean;
+  setDefaultVersion?: boolean;
   //设置某个版本为默认版本
   defaultVersion?: string;
-} ; 
+}; 
 // NodeMeasured 节点尺寸
 export type NodeMeasured = { 
   width?: number;
   height?: number;
-} ; 
+}; 
 // ParameterDefinition 参数定义
 // 用于应用模版，ide模版中对参数的定义，借鉴了openshift的template概念
 export type ParameterDefinition = { 
@@ -144,16 +144,16 @@ export type ParameterDefinition = {
   //显示名称
   displayName?: string;
   //是否必须
-  required: boolean;
+  required?: boolean;
   //类型
   type: string;
   //描述
   description?: string;
   //默认值
-  defaultValue?: any;//todo 可能需要手动完善结构;
+  defaultValue?: any;
   //可选值，只针对Type为string类型
-  allowableValues?: any;//todo 可能需要手动完善结构;
-} ; 
+  allowableValues?: any;
+}; 
 // ParameterDefinitions 数组
 export type ParameterDefinitions = ParameterDefinition[];
 // ParametersMapping 参数映射
@@ -163,22 +163,22 @@ export type ParametersMapping = {
   //显示名称
   displayName?: string;
   //是否必须
-  required: boolean;
+  required?: boolean;
   //类型
   type: string;
   //描述
   description?: string;
   //参数值
-  defaultValue?: any;//todo 可能需要手动完善结构;
+  defaultValue?: any;
   //输入值
-  inputValue?: any;//todo 可能需要手动完善结构;
+  inputValue?: any;
   // 映射的应用参数
   variables?: ApplicationVariable[];
-} ; 
+}; 
 // ParametersMappings 数组
 export type ParametersMappings = ParametersMapping[];
 // Value 实现 driver.Valuer 接口，Value 返回 json value
 export type Position = { 
   x?: number;
   y?: number;
-} ; 
+}; 

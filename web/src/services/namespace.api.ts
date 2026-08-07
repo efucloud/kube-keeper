@@ -1,7 +1,6 @@
 import { request } from '@umijs/max';
 
 import { NamespaceDashboard } from './dashboard.d';
-import { NamespaceBindWorkspace } from './kubernetes.d';
 
 //命名空间删除
 //命名空间删除，前端在调用集群删除命名空间接口后调用，用于清理系统中集群命名空间列表和命名空间与工作空间的绑定管理
@@ -159,48 +158,6 @@ export async function namespaceImageSearch(
     headers: {
       'Content-Type': 'application/json',
     },
-    params: { ...rest },
-    ...(options || {}),
-  });
-}
-//命名空间绑定所属的工作空间
-//命名空间绑定所属的工作空间，将会把工作空间管理员设置为命名空间管理员权限
-//请求方法: POST
-//请求地址: /api/v1/cluster/{cluster}/namespace/bind/workspace
-//参数名: cluster 参数类型: string 参数位置: path 是否必须: true  参数说明: 集群编码
-export async function namespacesBindWorkspace(
-  params: {
-    cluster: string;// 集群编码
-  },
-  data: NamespaceBindWorkspace,   options?: { [key: string]: any }) {
-  const { cluster, ...rest } = params;
-  return request(`/api/v1/cluster/${cluster}/namespace/bind/workspace`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    data,
-    params: { ...rest },
-    ...(options || {}),
-  });
-}
-//命名空间解绑所属的工作空间
-//命名空间解绑所属的工作空间，只清理用户权限相关资源，不清理命名空间其他资源
-//请求方法: POST
-//请求地址: /api/v1/cluster/{cluster}/namespace/unbind/workspace
-//参数名: cluster 参数类型: string 参数位置: path 是否必须: true  参数说明: 集群编码
-export async function namespacesUnBindWorkspace(
-  params: {
-    cluster: string;// 集群编码
-  },
-  data: NamespaceBindWorkspace,   options?: { [key: string]: any }) {
-  const { cluster, ...rest } = params;
-  return request(`/api/v1/cluster/${cluster}/namespace/unbind/workspace`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    data,
     params: { ...rest },
     ...(options || {}),
   });

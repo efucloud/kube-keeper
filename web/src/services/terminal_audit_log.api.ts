@@ -17,13 +17,13 @@ import { TerminalAuditLogDetailList } from './terminal_audit_log.d';
 export async function listTerminalAuditLog<TerminalAuditLogDetailList>(
   params: {
     cluster: string;// 集群编码
-    container?: string;// 容器
-    page?: number;// 页码
-    order?: string;// 排序
     accountId?: number;// 用户id
-    size?: number;// 每页大小
+    container?: string;// 容器
     namespace?: string;// 集群命名空间
+    order?: string;// 排序
+    page?: number;// 页码
     pod?: string;// 集群Pod
+    size?: number;// 每页大小
   },
   options?: { [key: string]: any }) {
   const { cluster, ...rest } = params;

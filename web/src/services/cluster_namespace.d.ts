@@ -20,8 +20,8 @@ export type ClusterNamespaceCreate = {
   clusterCreateTime: string;
   //命名空间类型public:工作空间中所有成员均可加入,private:工作空间成员私有命名空间,命名空间管理员可以邀请工作空间用户加入
   //默认值: true
-  isPublic: boolean;
-} ; 
+  isPublic?: boolean;
+}; 
 // ClusterNamespaceDetail 集群命名空间信息
 // 记录了集群里面的命名空间，以及命名空间所属的工作空间，以及是不是webide部署的namespace，若为webide部署，则需标识该namespace的管理员，即开发者，支持多个管理员
 export type ClusterNamespaceDetail = { 
@@ -60,15 +60,15 @@ export type ClusterNamespaceDetail = {
   clusterCreateTime: string;
   //命名空间类型public:工作空间中所有成员均可加入,private:工作空间成员私有命名空间,命名空间管理员可以邀请工作空间用户加入
   //默认值: true
-  isPublic: boolean;
-} ; 
+  isPublic?: boolean;
+}; 
 // ClusterNamespaceDetailList 集群Namespace列表响应
 export type ClusterNamespaceDetailList = { 
   //当前页数据
   data?: ClusterNamespaceDetail[];
   //数据库满足条件的数据总数
   total?: number;
-} ; 
+}; 
 // ClusterNamespaceUpdate 集群命名空间信息修改
 // 记录了集群里面的命名空间，以及命名空间所属的工作空间，以及是不是webide部署的namespace，若为webide部署，则需标识该namespace的管理员，即开发者，支持多个管理员
 export type ClusterNamespaceUpdate = { 
@@ -83,4 +83,4 @@ export type ClusterNamespaceUpdate = {
   description?: string;
   //命名空间状态
   status?: string;
-} ; 
+}; 

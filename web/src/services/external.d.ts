@@ -24,22 +24,3 @@ export type APIResource = {
 export type Verbs = {
 
 }
-export type LicenseData = {
-    product: string;
-    github: string;
-    issuer: string;
-    issuerEmail: string;
-    issuerPhone: string;
-    website: string;
-    company: string;
-    email: string;
-    type: string;
-    issuedAt: string;
-    expiresAt: string;
-    serialNumber: string;
-    maxClusters: number;
-    maxUsers: number;
-    currentUsers: number;
-    currentClusters: number;
-    message: string;
-}

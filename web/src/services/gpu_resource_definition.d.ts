@@ -9,7 +9,7 @@ export type GpuResourceDefinitionCreate = {
   name: string;
   //参数
   parameters: GpuResourceParamDefinitions;
-} ; 
+}; 
 // GpuResourceDefinitionDetail GPU资源定义详情
 export type GpuResourceDefinitionDetail = { 
   //主键
@@ -35,14 +35,14 @@ export type GpuResourceDefinitionDetail = {
   name: string;
   //参数
   parameters: GpuResourceParamDefinitions;
-} ; 
+}; 
 // GpuResourceDefinitionDetailList  GPU资源定义列表响应
 export type GpuResourceDefinitionDetailList = { 
   //当前页数据
   data?: GpuResourceDefinitionDetail[];
   //数据库满足条件的数据总数
   total: number;
-} ; 
+}; 
 // GpuResourceDefinitionUpdate GPU资源定义更新
 export type GpuResourceDefinitionUpdate = { 
   //主键
@@ -53,4 +53,4 @@ export type GpuResourceDefinitionUpdate = {
   name: string;
   //参数
   parameters: GpuResourceParamDefinitions;
-} ; 
+}; 

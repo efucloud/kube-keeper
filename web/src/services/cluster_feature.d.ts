@@ -9,11 +9,11 @@ export type ClusterFeatureDetail = {
   name: string;
   //检查资源
   checkResource?: GroupVersionResources;
-} ; 
+}; 
 // ClusterFeatureDetailList 集群特性表响应
 export type ClusterFeatureDetailList = { 
   //当前页数据
   data?: ClusterFeatureDetail[];
   //数据库满足条件的数据总数
   total?: number;
-} ; 
+}; 

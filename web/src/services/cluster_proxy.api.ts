@@ -10,8 +10,8 @@ import { KubernetesResource } from './common.d';
 //参数名: cluster 参数类型: string 参数位置: path 是否必须: true  参数说明: 集群编码
 export async function clusterDeleteProxy(
   params: {
-    cluster: string;// 集群编码
     address: string;// 集群地址,https://192.168.64.15:8443/{address:*}
+    cluster: string;// 集群编码
   },
   options?: { [key: string]: any }) {
   const { address, cluster, ...rest } = params;
@@ -32,8 +32,8 @@ export async function clusterDeleteProxy(
 //参数名: cluster 参数类型: string 参数位置: path 是否必须: true  参数说明: 集群编码
 export async function clusterGetProxy(
   params: {
-    cluster: string;// 集群编码
     address: string;// 集群地址,https://192.168.64.15:8443/{address:*}
+    cluster: string;// 集群编码
   },
   options?: { [key: string]: any }) {
   const { address, cluster, ...rest } = params;
@@ -54,8 +54,8 @@ export async function clusterGetProxy(
 //参数名: cluster 参数类型: string 参数位置: path 是否必须: true  参数说明: 集群编码
 export async function clusterPatchProxy(
   params: {
-    cluster: string;// 集群编码
     address: string;// 集群地址,https://192.168.64.15:8443/{address:*}
+    cluster: string;// 集群编码
   },
   data: any,   options?: { [key: string]: any }) {
   const { address, cluster, ...rest } = params;
@@ -77,8 +77,8 @@ export async function clusterPatchProxy(
 //参数名: cluster 参数类型: string 参数位置: path 是否必须: true  参数说明: 集群编码
 export async function clusterPostProxy(
   params: {
-    cluster: string;// 集群编码
     address: string;// 集群地址,https://192.168.64.15:8443/{address:*}
+    cluster: string;// 集群编码
   },
   data: KubernetesResource,   options?: { [key: string]: any }) {
   const { address, cluster, ...rest } = params;

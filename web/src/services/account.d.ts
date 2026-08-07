@@ -16,7 +16,7 @@ export type AccountCreate = {
   role: string;
   //是否有效
   //默认值: true
-  enable: boolean;
+  enable?: boolean;
   //邮箱
   //最大长度: 255
   email: string;
@@ -27,7 +27,7 @@ export type AccountCreate = {
   //默认值: zh
   //最大长度: 255
   language: string;
-} ; 
+}; 
 // AccountDetail 账户详情
 export type AccountDetail = { 
   //主键
@@ -60,7 +60,7 @@ export type AccountDetail = {
   role: string;
   //是否有效
   //默认值: true
-  enable: boolean;
+  enable?: boolean;
   //邮箱
   //最大长度: 255
   email: string;
@@ -73,14 +73,14 @@ export type AccountDetail = {
   //头像
   //最大长度: 1000
   avatar?: string;
-} ; 
+}; 
 // AccountDetailList  账户列表响应
 export type AccountDetailList = { 
   //当前页数据
   data?: AccountDetail[];
   //数据库满足条件的数据总数
   total: number;
-} ; 
+}; 
 // AccountResetPassword 账户修改密码
 export type AccountResetPassword = { 
   //主键
@@ -88,7 +88,7 @@ export type AccountResetPassword = {
   id: string;
   //密码
   newPassword: string;
-} ; 
+}; 
 // AccountRole 账户系统角色设置
 // 设置账户在系统中的角色
 export type AccountRole = { 
@@ -98,7 +98,7 @@ export type AccountRole = {
   //默认值: none
   //最大长度: 255
   role: string;
-} ; 
+}; 
 // AccountStatus 账户信息禁用/启用
 // 账户禁用后，用户将不能登陆该系统
 export type AccountStatus = { 
@@ -106,8 +106,8 @@ export type AccountStatus = {
   ids: string[];
   //是否有效
   //默认值: true
-  enable: boolean;
-} ; 
+  enable?: boolean;
+}; 
 // AccountUpdate 账户信息更新
 // 更新账户信息，未来只能在eauth中更新
 export type AccountUpdate = { 
@@ -130,7 +130,7 @@ export type AccountUpdate = {
   //默认值: zh
   //最大长度: 255
   language: string;
-} ; 
+}; 
 //数据库满足条件的数据总数
 export type SimpleAccountDetail = { 
   //主键
@@ -151,7 +151,7 @@ export type SimpleAccountDetail = {
   role: string;
   //是否有效
   //默认值: true
-  enable: boolean;
+  enable?: boolean;
   //账户类型，企业用户时role才可以不为none
   //最大长度: 255
   category: string;
@@ -167,4 +167,4 @@ export type SimpleAccountDetail = {
   //头像
   //最大长度: 1000
   avatar?: string;
-} ; 
+}; 

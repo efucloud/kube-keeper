@@ -6,7 +6,7 @@ export type AccessTokenResponse = {
   refresh_token: string;
   id_token: string;
   timestamp: number;
-} ; 
+}; 
 // AnyJsonData 任意json数据
 export type AnyJsonData = Record<string, unknown>;
 export type ApplicationInfo = { 
@@ -17,7 +17,7 @@ export type ApplicationInfo = {
   os?: string;
   arch?: string;
   cpuCores?: number;
-} ; 
+}; 
 // AuditLogConfig 审计日志配置
 export type AuditLogConfig = { 
   //服务地址
@@ -26,7 +26,7 @@ export type AuditLogConfig = {
   apiKey?: string;
   //API Secret
   apiSecret?: string;
-} ; 
+}; 
 // AuditLogSearchOption 审计日志es搜索
 export type AuditLogSearchOption = { 
   //集群编码
@@ -48,12 +48,12 @@ export type AuditLogSearchOption = {
   //页码大小
   size?: number;
   //字段排序，只是上面的字段，sort: {'username':'desc or asc'}
-  sort?: {[key: string]: string};
+  sort?: Record<string, string>;
   //开始时间 2023-07-23
   startTime?: string;
   //结束时间，2023-07-23
   endTime?: string;
-} ; 
+}; 
 // AuthedUserInfo 用户信息
 export type AuthedUserInfo = { 
   //主键
@@ -67,7 +67,7 @@ export type AuthedUserInfo = {
   //系统角色
   role: string;
   //是否有效
-  enable: boolean;
+  enable?: boolean;
   //邮箱
   email: string;
   //手机号码
@@ -78,21 +78,21 @@ export type AuthedUserInfo = {
   avatar: string;
   //远程地址
   remoteAddress: string;
-} ; 
+}; 
 // BatchOperationIds 需要删除的列表,根据数据库id
 export type BatchOperationIds = { 
   //需要删key 可以为数据库的id
   ids: string[];
-} ; 
+}; 
 // BatchOperationKeys 需要删除的列表，根据表唯一字符型字段
 export type BatchOperationKeys = { 
   //需要删key 可以为数据库的id
   ids: string[];
-} ; 
+}; 
 // ByIds 根据id列表获取信息
 export type ByIds = { 
   ids?: string[];
-} ; 
+}; 
 // ClientInformation 获取浏览器等客户端信息
 export type ClientInformation = { 
   //平台 如"MacIntel"、"Win32"、"Linux x86_64"、"Linux armv81"
@@ -111,23 +111,23 @@ export type ClientInformation = {
   platformDetail?: string;
   //内存大小(G)
   deviceMemory?: number;
-} ; 
+}; 
 export type ClusterAdmin = { 
   accountId: string;
-} ; 
+}; 
 // ClusterExtendConfig 集群扩展信息
 export type ClusterExtendConfig = { 
   //审计日志服务配置
   //AuditLogConfig *AuditLogConfig `json:"auditLogConfig" description:"审计日志服务配置"`
   //prometheus配置
   monitorPrometheusConfig?: MonitorPrometheusConfig;
-} ; 
+}; 
 // ClusterTablePagination 集群资源对象分页
 export type ClusterTablePagination = { 
   continue?: string;
   remainingItemCount?: number;
   resourceVersion?: string;
-} ; 
+}; 
 export type ClusterVersionInfo = { 
   major?: string;
   minor?: string;
@@ -138,16 +138,12 @@ export type ClusterVersionInfo = {
   goVersion?: string;
   compiler?: string;
   platform?: string;
-} ; 
-export type DecryptClientInformation = { 
-} ; 
-export type DecryptClientUserId = { 
-} ; 
+}; 
 // ByIds 根据id列表获取信息
 export type DutyTime = { 
   startTime?: string;
   endTime?: string;
-} ; 
+}; 
 // EsQuery ES查请求封装结构
 export type EsQuery = { 
   //查询请求数据
@@ -158,26 +154,26 @@ export type EsQuery = {
   size?: number;
   //查询排序
   sort?: any[];
-} ; 
+}; 
 // EsQueryBody 查询请求
 export type EsQueryBody = { 
-  bool?: any;//todo 可能需要手动完善结构;
-} ; 
+  bool?: { must?: any[]; filter?: Filter; };
+}; 
 // QueryMust 匹配规则
 export type Filter = { 
-  range?: any;//todo 可能需要手动完善结构;
+  range?: { requestReceivedTimestamp?: { gte?: string; lte?: string; }; };
   //正则匹配
-  regexp?: {[key: string]: any};
-} ; 
+  regexp?: Record<string, any>;
+}; 
 export type I18N = { 
   zh?: string;
   en?: string;
-} ; 
+}; 
 // I18NInfo 国际化
 export type I18NInfo = { 
   zh?: string;
   en?: string;
-} ; 
+}; 
 //路径所指向的结构体
 export type KubernetesResource = {
   apiVersion?: string;
@@ -200,15 +196,16 @@ export interface WatchEvent<T extends KubernetesResource = KubernetesResource> {
 }
 //路径所指向的结构体
 export type KubernetesResourceList = { 
+  metadata?: ListMeta;
   items?: KubernetesResource[];
-} ; 
+} & TypeMeta; 
 // LoginByOIDC OIDC登录
 export type LoginByOIDC = { 
   code?: string;
   redirectUri?: string;
   //客户端信息 加密数据
   client?: string;
-} ; 
+}; 
 // MonitorPrometheusConfig 监控配置
 // 配置集群或者应用系统基于prometheus的监控配置信息
 export type MonitorPrometheusConfig = { 
@@ -216,12 +213,12 @@ export type MonitorPrometheusConfig = {
   cluster?: string;
   //prometheus地址
   address?: string;
-} ; 
+}; 
 //远程地址
 export type OidcConfig = { 
   issuer: string;
   clientId: string;
-} ; 
+}; 
 // OidcRequestToken oidc认证获取token请求结构
 export type OidcRequestToken = { 
   //客户端ID
@@ -236,7 +233,7 @@ export type OidcRequestToken = {
   redirect_uri?: string;
   //客户端信息 加密数据
   client?: string;
-} ; 
+}; 
 // PatchSubsetValue 差异更新
 export type PatchSubsetValue = { 
   //操作, 例如: add、remove、replace、
@@ -244,17 +241,17 @@ export type PatchSubsetValue = {
   //到什么路径，列如下面的: /spec/subset 从 / 下开始这里的位置就是根据具体的配置
   path: string;
   //路径所指向的结构体
-  value: any;//todo 可能需要手动完善结构;
-} ; 
+  value: any;
+}; 
 // QueryMust 匹配规则
 export type QueryExist = { 
-  exists?: {[key: string]: any};
-} ; 
+  exists?: Record<string, any>;
+}; 
 // QueryMust 匹配规则
 export type QueryMust = { 
-  match_phrase?: {[key: string]: any};
-  match?: {[key: string]: any};
-} ; 
+  match_phrase?: Record<string, any>;
+  match?: Record<string, any>;
+}; 
 export type QueryParam = { 
   time?: number;
   view: string;
@@ -267,11 +264,11 @@ export type QueryParam = {
   start?: number;
   end?: number;
   step?: string;
-} ; 
+}; 
 // QueryMust 匹配规则
 export type QueryWildcard = { 
-  wildcard?: {[key: string]: any};
-} ; 
+  wildcard?: Record<string, any>;
+}; 
 // RequestParameter 请求参数
 // 在部署时用户提交的参数，提交的是某个操作模版中使用ParameterDefinition定义的参数，
 export type RequestParameter = { 
@@ -279,7 +276,7 @@ export type RequestParameter = {
   key?: string;
   //变量值
   val?: string;
-} ; 
+}; 
 // ResponseError 错误响应
 export type ResponseError = { 
   //错误英文编码
@@ -290,7 +287,7 @@ export type ResponseError = {
   alert?: string;
   //当前请求地址
   requestUri?: string;
-} ; 
+}; 
 // S3StorageConfig 对象存储配置
 export type S3StorageConfig = { 
   //地址
@@ -302,18 +299,18 @@ export type S3StorageConfig = {
   //token
   token?: string;
   //insecure
-  insecure: boolean;
+  insecure?: boolean;
   //region
   region?: string;
-} ; 
+}; 
 // Status 修改记录状态
 export type Status = { 
   //主键
   ids: string[];
   //是否有效
   //默认值: true
-  enable: boolean;
-} ; 
+  enable?: boolean;
+}; 
 // TableListPagination 分页信息
 export type TableListPagination = { 
   //总数
@@ -328,7 +325,7 @@ export type TableListPagination = {
   code?: string;
   //搜索
   search?: string;
-} ; 
+}; 
 // UserAgentInformation 获取浏览器等客户端信息
 export type UserAgentInformation = { 
   //平台 如"MacIntel"、"Win32"、"Linux x86_64"、"Linux armv81"
@@ -347,7 +344,7 @@ export type UserAgentInformation = {
   platformDetail?: string;
   //内存大小(G)
   deviceMemory?: number;
-} ; 
+}; 
 //客户端信息 加密数据
 export type UserClaims = { 
   //组织用户ID
@@ -362,14 +359,14 @@ export type UserClaims = {
   nonce?: string;
   email?: string;
   phone?: string;
-} ; 
+} & RegisteredClaims; 
 // 系统角色
 export type WebsocketUserInfo = { 
   userId?: string;
   timeStamp?: string;
-} ; 
+}; 
 // AnyJsonData 任意json数据
 export type WorkspaceBatchOperationIds = { 
   workspaceId?: string;
   ids: string[];
-} ; 
+}; 

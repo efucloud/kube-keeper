@@ -29,8 +29,8 @@ export type ClusterAccountCreate = {
   //最大长度: 255
   description?: string;
   //超级管理员
-  isSupper: boolean;
-} ; 
+  isSupper?: boolean;
+}; 
 // ClusterAccountDetail 集群的用户信息
 export type ClusterAccountDetail = { 
   //主键
@@ -73,18 +73,18 @@ export type ClusterAccountDetail = {
   //最大长度: 255
   description?: string;
   //超级管理员
-  isSupper: boolean;
+  isSupper?: boolean;
   //是否有效
   //默认值: true
-  enable: boolean;
-} ; 
+  enable?: boolean;
+}; 
 // ClusterAccountDetailList 集群列用户表响应
 export type ClusterAccountDetailList = { 
   //当前页数据
   data?: ClusterAccountDetail[];
   //数据库满足条件的数据总数
   total?: number;
-} ; 
+}; 
 // ClusterAccountUpdate 用户在集群的csr
 // 创建用户在集群的csr，针对没有对接eauth的集群
 export type ClusterAccountUpdate = { 
@@ -105,4 +105,4 @@ export type ClusterAccountUpdate = {
   state?: string;
   //原因:失败时的原因
   reason?: string;
-} ; 
+}; 

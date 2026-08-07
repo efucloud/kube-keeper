@@ -17,13 +17,13 @@ export type ClusterDashboard = {
   pvc?: number;
   storageClass?: number;
   crd?: number;
-} ; 
+}; 
 // DashboardData 看板数据
-export type DashboardData = { 
+export type DashboardData<T = any> = { 
   name: string;
   intlName?: string;
   value: T;
-} ; 
+}; 
 // NamespaceDashboard 命名克难攻坚面板
 export type NamespaceDashboard = { 
   pods?: number;
@@ -38,4 +38,4 @@ export type NamespaceDashboard = {
   service?: number;
   ingress?: number;
   pvc?: number;
-} ; 
+}; 

@@ -1,6 +1,6 @@
 import { request } from '@umijs/max';
 
-import { PodFileList, PodFilePath, PodFileCreate, PodFileContent, PodFileRename, PodFileUploadInfo } from './pod.d';
+import { PodFileContent, PodFileCreate, PodFileList, PodFilePath, PodFileRename, PodFileUploadInfo } from './pod.d';
 
 //获取pod目录下的文件和文件夹列表
 //通过 query 参数 path 获取 pod 当前目录的直接条目，未传时默认为根目录 /。返回值同时包含文件和文件夹，并标识文本/二进制与是否可编辑
@@ -14,9 +14,9 @@ import { PodFileList, PodFilePath, PodFileCreate, PodFileContent, PodFileRename,
 export async function listClusterPodFiles<PodFileList>(
   params: {
     cluster: string;// 集群编码
+    container: string;// Container
     namespace: string;// Namespace
     pod: string;// Pod
-    container: string;// Container
     path?: string;// 路径，默认为/
   },
   options?: { [key: string]: any }) {
@@ -46,14 +46,14 @@ export async function listClusterPodFiles<PodFileList>(
 export async function clusterPodContainerLog(
   params: {
     cluster: string;// 集群编码
+    container: string;// Container
     namespace: string;// Namespace
     pod: string;// Pod
-    container: string;// Container
     previous?: boolean;// Previous
     sinceSeconds?: number;// 当前时间往前多少秒
     sinceTime?: string;// 从什么时候开始的日志
-    timestamps?: boolean;// 显示时间戳
     tailLines?: number;// 最后多少行
+    timestamps?: boolean;// 显示时间戳
   },
   options?: { [key: string]: any }) {
   const { cluster, container, namespace, pod, ...rest } = params;
@@ -78,9 +78,9 @@ export async function clusterPodContainerLog(
 export async function clusterPodContainerTerminal(
   params: {
     cluster: string;// 集群编码
+    container: string;// Container
     namespace: string;// Namespace
     pod: string;// Pod
-    container: string;// Container
     command?: string;// 终端命令
   },
   options?: { [key: string]: any }) {
@@ -105,9 +105,9 @@ export async function clusterPodContainerTerminal(
 export async function createFileToContainer<PodFilePath>(
   params: {
     cluster: string;// 集群编码
+    container: string;// Container
     namespace: string;// Namespace
     pod: string;// Pod
-    container: string;// Container
   },
   data: PodFileCreate,   options?: { [key: string]: any }) {
   const { cluster, container, namespace, pod, ...rest } = params;
@@ -131,8 +131,8 @@ export async function createFileToContainer<PodFilePath>(
 //参数名: pod 参数类型: string 参数位置: path 是否必须: true  参数说明: Pod
 export async function deleteFileFromContainer<PodFilePath>(
   params: {
-    container: string;// Container
     cluster: string;// 集群编码
+    container: string;// Container
     namespace: string;// Namespace
     pod: string;// Pod
   },
@@ -159,9 +159,9 @@ export async function deleteFileFromContainer<PodFilePath>(
 export async function downloadFileFromContainer(
   params: {
     cluster: string;// 集群编码
+    container: string;// Container
     namespace: string;// Namespace
     pod: string;// Pod
-    container: string;// Container
   },
   data: PodFilePath,   options?: { [key: string]: any }) {
   const { cluster, container, namespace, pod, ...rest } = params;
@@ -185,8 +185,8 @@ export async function downloadFileFromContainer(
 //参数名: pod 参数类型: string 参数位置: path 是否必须: true  参数说明: Pod
 export async function readFileContentFromContainer<PodFileContent>(
   params: {
-    container: string;// Container
     cluster: string;// 集群编码
+    container: string;// Container
     namespace: string;// Namespace
     pod: string;// Pod
   },
@@ -213,9 +213,9 @@ export async function readFileContentFromContainer<PodFileContent>(
 export async function renameFileInContainer<PodFilePath>(
   params: {
     cluster: string;// 集群编码
+    container: string;// Container
     namespace: string;// Namespace
     pod: string;// Pod
-    container: string;// Container
   },
   data: PodFileRename,   options?: { [key: string]: any }) {
   const { cluster, container, namespace, pod, ...rest } = params;
@@ -239,8 +239,8 @@ export async function renameFileInContainer<PodFilePath>(
 //参数名: pod 参数类型: string 参数位置: path 是否必须: true  参数说明: Pod
 export async function saveFileContentToContainer<PodFileContent>(
   params: {
-    container: string;// Container
     cluster: string;// 集群编码
+    container: string;// Container
     namespace: string;// Namespace
     pod: string;// Pod
   },
@@ -267,9 +267,9 @@ export async function saveFileContentToContainer<PodFileContent>(
 export async function uploadBigFileToContainer(
   params: {
     cluster: string;// 集群编码
+    container: string;// Container
     namespace: string;// Namespace
     pod: string;// Pod
-    container: string;// Container
   },
   data: PodFileUploadInfo,   options?: { [key: string]: any }) {
   const { cluster, container, namespace, pod, ...rest } = params;
@@ -294,9 +294,9 @@ export async function uploadBigFileToContainer(
 export async function uploadFileToContainer(
   params: {
     cluster: string;// 集群编码
+    container: string;// Container
     namespace: string;// Namespace
     pod: string;// Pod
-    container: string;// Container
   },
   data: PodFileUploadInfo,   options?: { [key: string]: any }) {
   const { cluster, container, namespace, pod, ...rest } = params;

@@ -1,7 +1,7 @@
 import { request } from '@umijs/max';
 
+import { AccountCreate, AccountDetail, AccountDetailList, AccountRole, AccountStatus, AccountUpdate } from './account.d';
 import { BatchOperationIds } from './common.d';
-import { AccountDetailList, AccountDetail, AccountCreate, AccountRole, AccountStatus, AccountUpdate } from './account.d';
 
 //删除用户
 //删除用户信息详情
@@ -34,17 +34,17 @@ export async function deleteAccount(  data: BatchOperationIds,   options?: { [ke
 //参数名: username 参数类型: string 参数位置: query 是否必须: false  参数说明: 账户名英文
 export async function listAccount<AccountDetailList>(
   params: {
-    pageSize?: number;// 每页大小
-    order?: string;// 排序
-    username?: string;// 账户名英文
-    nickname?: string;// 昵称
-    jobNumber?: string;// 工号
-    search?: string;// 搜索
-    ids?: string;// 数据库记录ID数组,逗号分隔
     current?: number;// 页码
-    role?: string;// 系统角色
-    phone?: string;// 电话号码
     email?: string;// 邮箱
+    ids?: string;// 数据库记录ID数组,逗号分隔
+    jobNumber?: string;// 工号
+    nickname?: string;// 昵称
+    order?: string;// 排序
+    pageSize?: number;// 每页大小
+    phone?: string;// 电话号码
+    role?: string;// 系统角色
+    search?: string;// 搜索
+    username?: string;// 账户名英文
   },
   options?: { [key: string]: any }) {
   return request<AccountDetailList>(`/api/v1/account`, {

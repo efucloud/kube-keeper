@@ -1,5 +1,6 @@
 import { request } from '@umijs/max';
 
+import { ChatRequest } from './ai_copilot.d';
 
 //AI助手
 //
@@ -10,13 +11,14 @@ export async function postaiChat(
   params: {
     cluster: string;// 集群编码
   },
-  options?: { [key: string]: any }) {
+  data: ChatRequest,   options?: { [key: string]: any }) {
   const { cluster, ...rest } = params;
   return request(`/api/stream/cluster/${cluster}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
+    data,
     params: { ...rest },
     ...(options || {}),
   });

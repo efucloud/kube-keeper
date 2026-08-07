@@ -1,7 +1,7 @@
 import { request } from '@umijs/max';
 
+import { ClusterNamespaceAccountRoleCreate, ClusterNamespaceAccountRoleDetail, ClusterNamespaceAccountRoleDetailList } from './cluster_namespace_account_role.d';
 import { BatchOperationIds } from './common.d';
-import { ClusterNamespaceAccountRoleDetailList, ClusterNamespaceAccountRoleDetail, ClusterNamespaceAccountRoleCreate } from './cluster_namespace_account_role.d';
 
 //删除集群用户命名空间角色
 //删除集群用户命名空间角色信息详情
@@ -43,13 +43,13 @@ export async function listClusterNamespaceAccountRole<ClusterNamespaceAccountRol
   params: {
     cluster: string;// 集群编码
     accountId?: string;// 用户Id
-    namespace?: string;// 命名空间
     bindingName?: string;// 绑定角色
-    roleName?: string;// 角色名称
     isTemp?: boolean;// 是否临时
-    page?: number;// 页码
-    size?: number;// 每页大小
+    namespace?: string;// 命名空间
     order?: string;// 排序
+    page?: number;// 页码
+    roleName?: string;// 角色名称
+    size?: number;// 每页大小
   },
   options?: { [key: string]: any }) {
   const { cluster, ...rest } = params;
@@ -72,8 +72,8 @@ export async function listClusterNamespaceAccountRole<ClusterNamespaceAccountRol
 export async function getClusterNamespaceAccountRole<ClusterNamespaceAccountRoleDetail>(
   params: {
     cluster: string;// 集群编码
-    namespace: string;// 命名空间
     id: string;// ID
+    namespace: string;// 命名空间
   },
   options?: { [key: string]: any }) {
   const { cluster, id, namespace, ...rest } = params;

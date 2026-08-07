@@ -17,15 +17,15 @@ export type ClusterNamespaceAccountRoleCreate = {
   //最大长度: 50
   bindingName: string;
   //临时权限
-  isTemp: boolean;
+  isTemp?: boolean;
   //开始时间
   startTime: string;
   //结束时间
   endTime: string;
   //是否有效
   //默认值: false
-  enable: boolean;
-} ; 
+  enable?: boolean;
+}; 
 // ClusterNamespaceAccountRoleDetail 集群命名空间用户
 export type ClusterNamespaceAccountRoleDetail = { 
   //主键
@@ -61,22 +61,22 @@ export type ClusterNamespaceAccountRoleDetail = {
   //最大长度: 50
   bindingName?: string;
   //临时权限
-  isTemp: boolean;
+  isTemp?: boolean;
   //开始时间
   startTime: string;
   //结束时间
   endTime: string;
   //是否有效
   //默认值: false
-  enable: boolean;
-} ; 
+  enable?: boolean;
+}; 
 // ClusterNamespaceAccountRoleDetailList 集群命名空间用户列表响应
 export type ClusterNamespaceAccountRoleDetailList = { 
   //当前页数据
   data?: ClusterNamespaceAccountRoleDetail[];
   //数据库满足条件的数据总数
   total?: number;
-} ; 
+}; 
 // ClusterNamespaceAccountRoleUpdate 集群命名空间用户修改
 export type ClusterNamespaceAccountRoleUpdate = { 
   //主键
@@ -85,4 +85,4 @@ export type ClusterNamespaceAccountRoleUpdate = {
   //所属用户: 关联ID
   //最大长度: 50
   accountId: string;
-} ; 
+}; 

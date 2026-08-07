@@ -25,10 +25,10 @@ export type TerminalAuditLogCreate = {
   //最大长度: 255
   container?: string;
   //终端命令和输出记录
-  content?: datatypes;
+  content?: LongText;
   //输入命令记录
-  commands?: datatypes2;
-} ; 
+  commands?: JSONMap;
+}; 
 // TerminalAuditLogDetail 集群终端审计日志
 // 通过web terminal操作日志记录
 export type TerminalAuditLogDetail = { 
@@ -64,14 +64,14 @@ export type TerminalAuditLogDetail = {
   //最大长度: 255
   container?: string;
   //终端命令和输出记录
-  content?: datatypes;
+  content?: LongText;
   //输入命令记录
-  commands?: datatypes2;
-} ; 
+  commands?: JSONMap;
+}; 
 // TerminalAuditLogDetailList 审计日志列表响应
 export type TerminalAuditLogDetailList = { 
   //当前页数据
   data?: TerminalAuditLogDetail[];
   //数据库满足条件的数据总数
   total?: number;
-} ; 
+}; 
