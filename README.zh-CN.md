@@ -29,7 +29,7 @@
 
 部署清单当前使用以下镜像：
 
-- `registry.cn-shenzhen.aliyuncs.com/efucloud-public/kube-keeper:latest`
+- `ghcr.io/efucloud/kube-keeper:latest`
 - `registry.cn-shenzhen.aliyuncs.com/efucloud-public/mysql:9.5.0`
 - `registry.cn-shenzhen.aliyuncs.com/efucloud-public/redis:7.2-alpine`
 

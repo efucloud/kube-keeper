@@ -14,9 +14,7 @@ import (
 	restfulspec "github.com/emicklei/go-restful-openapi/v2"
 	"github.com/emicklei/go-restful/v3"
 	promodel "github.com/prometheus/common/model"
-	authv1 "k8s.io/api/authorization/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/restmapper"
 	"net/http"
 	"strings"
 )
@@ -52,51 +50,6 @@ func (r ClusterResource) AddWebService(ws *restful.WebService) {
 		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
 		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
 		Metadata(config.FrontApiTag, "getClusterInfo"))
-	ws.Route(ws.POST(config.ClusterAPIPrefix+apiExtend+"/self-subject-access-reviews").
-		Doc("判断用户是否具有某个资源的权限").
-		Notes("判断用户是否具有某个资源的权限，使用用户自己的信息请求集群,使用场景示例：获取namespace列表之前请求判断用户是否有list ns的权限，判断用户是否有ns创建的权限").
-		Param(ws.HeaderParameter(config.AuthHeader, "请求Token")).
-		Param(ws.PathParameter("cluster", "集群编码")).
-		To(r.selfSubjectAccessReviews).
-		Reads(authv1.ResourceAttributes{}).
-		Returns(http.StatusOK, "成功", authv1.SubjectAccessReviewStatus{}).
-		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
-		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
-		Metadata(config.FrontApiTag, "clusterSelfSubjectAccessReviews"))
-	ws.Route(ws.GET(config.ClusterAPIPrefix+apiExtend+"/api-group-resources").
-		Doc("获取集群APIGroupResources信息").
-		Notes("获取集群APIGroupResources信息").
-		Param(ws.HeaderParameter(config.AuthHeader, "请求Token")).
-		Param(ws.PathParameter("cluster", "集群编码")).
-		To(r.apiGroupResources).
-		Returns(http.StatusOK, "成功", []*restmapper.APIGroupResources{}).
-		Returns(http.StatusUnauthorized, "用户需要先登录", common.AuthRedirectInfo{}).
-		Returns(http.StatusBadRequest, "请求数据无法处理", common.ResponseError{}).
-		Returns(http.StatusForbidden, "用户没有权限", common.ResponseError{}).
-		Returns(http.StatusInternalServerError, "内部处理逻辑错误", common.ResponseError{}).
-		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
-		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
-		Metadata(config.FrontApiTag, "clusterApiGroupResources"))
-	ws.Route(ws.GET(config.ClusterAPIPrefix+apiExtend+"/role/rbac").
-		Doc("获取用户在集群中的权限信息").
-		Notes("获取用户在集群中的权限信息").
-		Param(ws.HeaderParameter(config.AuthHeader, "请求Token")).
-		Param(ws.PathParameter("cluster", "集群编码")).
-		Param(ws.QueryParameter("name", "用户名或Group名或ServiceAccount")).
-		Param(ws.QueryParameter("namespace", "Namespace，在name为ServiceAccount时有效")).
-		Param(ws.QueryParameter("kind", "角色类型").
-			AllowableValues(map[string]string{
-				"User":           "用户",
-				"Group":          "群组",
-				"ServiceAccount": "账户"})).
-		To(r.roleRbac).
-		Returns(http.StatusUnauthorized, "用户需要先登录", common.AuthRedirectInfo{}).
-		Returns(http.StatusBadRequest, "请求数据无法处理", common.ResponseError{}).
-		Returns(http.StatusForbidden, "用户没有权限", common.ResponseError{}).
-		Returns(http.StatusInternalServerError, "内部处理逻辑错误", common.ResponseError{}).
-		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
-		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
-		Metadata(config.FrontApiTag, "getClusterRoleRbac"))
 	ws.Route(ws.GET(config.ClusterAPIPrefix+apiExtend+"/resource/dashboard").
 		Doc("集群资源总览").
 		Notes("集群资源总览").
@@ -111,48 +64,6 @@ func (r ClusterResource) AddWebService(ws *restful.WebService) {
 		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
 		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
 		Metadata(config.FrontApiTag, "getClusterResourceDashboard"))
-	ws.Route(ws.GET(config.ClusterAPIPrefix+apiExtend+"/serverPreferredNamespacedResources").
-		Doc("serverPreferredNamespacedResources").
-		Notes("serverPreferredNamespacedResources").
-		Param(ws.HeaderParameter(config.AuthHeader, "请求Token")).
-		Param(ws.PathParameter("cluster", "集群编码")).
-		To(r.serverPreferredNamespacedResources).
-		Returns(http.StatusOK, "", []metav1.APIResourceList{}).
-		Returns(http.StatusUnauthorized, "用户需要先登录", common.AuthRedirectInfo{}).
-		Returns(http.StatusBadRequest, "请求数据无法处理", common.ResponseError{}).
-		Returns(http.StatusForbidden, "用户没有权限", common.ResponseError{}).
-		Returns(http.StatusInternalServerError, "内部处理逻辑错误", common.ResponseError{}).
-		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
-		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
-		Metadata(config.FrontApiTag, "serverPreferredNamespacedResources"))
-	ws.Route(ws.GET(config.ClusterAPIPrefix+apiExtend+"/serverResources").
-		Doc("serverResources").
-		Notes("serverResources").
-		Param(ws.HeaderParameter(config.AuthHeader, "请求Token")).
-		Param(ws.PathParameter("cluster", "集群编码")).
-		To(r.serverResources).
-		Returns(http.StatusOK, "", []metav1.APIResourceList{}).
-		Returns(http.StatusUnauthorized, "用户需要先登录", common.AuthRedirectInfo{}).
-		Returns(http.StatusBadRequest, "请求数据无法处理", common.ResponseError{}).
-		Returns(http.StatusForbidden, "用户没有权限", common.ResponseError{}).
-		Returns(http.StatusInternalServerError, "内部处理逻辑错误", common.ResponseError{}).
-		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
-		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
-		Metadata(config.FrontApiTag, "serverResources"))
-	ws.Route(ws.GET(config.ClusterAPIPrefix+apiExtend+"/serverGroups").
-		Doc("serverGroups").
-		Notes("serverGroups").
-		Param(ws.HeaderParameter(config.AuthHeader, "请求Token")).
-		Param(ws.PathParameter("cluster", "集群编码")).
-		To(r.serverGroups).
-		Returns(http.StatusOK, "", []metav1.APIResourceList{}).
-		Returns(http.StatusUnauthorized, "用户需要先登录", common.AuthRedirectInfo{}).
-		Returns(http.StatusBadRequest, "请求数据无法处理", common.ResponseError{}).
-		Returns(http.StatusForbidden, "用户没有权限", common.ResponseError{}).
-		Returns(http.StatusInternalServerError, "内部处理逻辑错误", common.ResponseError{}).
-		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
-		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
-		Metadata(config.FrontApiTag, "serverGroups"))
 	ws.Route(ws.GET(config.ClusterAPIPrefix+apiExtend+"/csg").
 		Doc("csg").
 		Notes("csg").
@@ -182,21 +93,6 @@ func (r ClusterResource) AddWebService(ws *restful.WebService) {
 		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
 		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
 		Metadata(config.FrontApiTag, "clusterServerGroupsCheck"))
-	ws.Route(ws.GET(config.ClusterAPIPrefix+apiExtend+"/apiResources").
-		Doc("apiResources").
-		Notes("apiResources").
-		Param(ws.HeaderParameter(config.AuthHeader, "请求Token")).
-		Param(ws.PathParameter("cluster", "集群编码")).
-		Param(ws.PathParameter("category", "角色类型").AllowableValues(map[string]string{"Role": "集群", "ClusterRole": "命名空间"})).
-		To(r.apiResources).
-		Returns(http.StatusOK, "", map[string][]metav1.APIResource{}).
-		Returns(http.StatusUnauthorized, "用户需要先登录", common.AuthRedirectInfo{}).
-		Returns(http.StatusBadRequest, "请求数据无法处理", common.ResponseError{}).
-		Returns(http.StatusForbidden, "用户没有权限", common.ResponseError{}).
-		Returns(http.StatusInternalServerError, "内部处理逻辑错误", common.ResponseError{}).
-		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
-		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
-		Metadata(config.FrontApiTag, "clusterApiResources"))
 	ws.Route(ws.POST(config.ClusterAPIPrefix+apiExtend+"/monitor/query").
 		Doc("集群Prometheus指标获取").
 		Notes("集群Prometheus指标获取").
@@ -241,26 +137,10 @@ func (r ClusterResource) AddWebService(ws *restful.WebService) {
 		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
 		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
 		Metadata(config.FrontApiTag, "clusterConnectCheck"))
-
-	ws.Route(ws.GET(config.APIPrefix+apiExtend+"/storage-class/{cluster}").
-		Doc("获取集群的存储类").
-		Notes("获取集群的存储类").
-		To(r.getClusterStorageClass).
-		Returns(http.StatusOK, "", dtos2.ArrayString{}).
-		Param(ws.HeaderParameter(config.AuthHeader, "请求Token")).
-		Param(ws.PathParameter("cluster", "集群编码").Required(true)).
-		Returns(http.StatusOK, "成功", "").
-		Returns(http.StatusUnauthorized, "用户需要先登录", common.ResponseError{}).
-		Returns(http.StatusBadRequest, "请求数据无法处理", common.ResponseError{}).
-		Returns(http.StatusForbidden, "用户没有权限", common.ResponseError{}).
-		Returns(http.StatusInternalServerError, "内部处理逻辑错误", common.ResponseError{}).
-		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
-		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
-		Metadata(config.FrontApiTag, "getClusterStorageClass"))
 	ws.Route(ws.GET(config.APIPrefix+apiExtend+"/ingress-class/{cluster}").
 		Doc("获取集群的入站规则类").
 		Notes("获取集群的入站规则类").
-		To(r.getClusterStorageClass).
+		To(r.getClusterIngressClass).
 		Returns(http.StatusOK, "", dtos2.ArrayString{}).
 		Param(ws.HeaderParameter(config.AuthHeader, "请求Token")).
 		Param(ws.PathParameter("cluster", "集群编码").Required(true)).
@@ -272,34 +152,6 @@ func (r ClusterResource) AddWebService(ws *restful.WebService) {
 		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
 		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
 		Metadata(config.FrontApiTag, "getClusterIngressClass"))
-	ws.Route(ws.GET(config.APIPrefix+apiExtend+"/gateway-class/{cluster}").
-		Doc("获取集群的GatewayClass").
-		Notes("获取集群的GatewayClass").
-		To(r.getClusterGatewayClass).
-		Returns(http.StatusOK, "", dtos2.ArrayString{}).
-		Param(ws.HeaderParameter(config.AuthHeader, "请求Token")).
-		Param(ws.PathParameter("cluster", "集群编码").Required(true)).
-		Returns(http.StatusOK, "成功", "").
-		Returns(http.StatusUnauthorized, "用户需要先登录", common.ResponseError{}).
-		Returns(http.StatusBadRequest, "请求数据无法处理", common.ResponseError{}).
-		Returns(http.StatusForbidden, "用户没有权限", common.ResponseError{}).
-		Returns(http.StatusInternalServerError, "内部处理逻辑错误", common.ResponseError{}).
-		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
-		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
-		Metadata(config.FrontApiTag, "getClusterGatewayClass"))
-
-}
-func (r ClusterResource) getClusterGatewayClass(req *restful.Request, resp *restful.Response) {
-	var (
-		requestInfo structs.RequestInfo
-	)
-	lang := common.GetLanguageFromReq(req, config.RequestLanguage)
-	ctx := context.WithValue(context.Background(), config.RequestLanguage, lang)
-	if reqCtx := req.Attribute(config.RequestContext); reqCtx != nil {
-		ctx = reqCtx.(context.Context)
-	}
-	requestInfo = k8scluster2.GetRequestInfo(req)
-	common.ResponseSuccess(resp, r.Svc.GetClusterGatewayClasses(ctx, requestInfo))
 }
 func (r ClusterResource) getClusterIngressClass(req *restful.Request, resp *restful.Response) {
 	var (
@@ -312,18 +164,6 @@ func (r ClusterResource) getClusterIngressClass(req *restful.Request, resp *rest
 	}
 	requestInfo = k8scluster2.GetRequestInfo(req)
 	common.ResponseSuccess(resp, r.Svc.GetClusterIngressClasses(ctx, requestInfo))
-}
-func (r ClusterResource) getClusterStorageClass(req *restful.Request, resp *restful.Response) {
-	var (
-		requestInfo structs.RequestInfo
-	)
-	lang := common.GetLanguageFromReq(req, config.RequestLanguage)
-	ctx := context.WithValue(context.Background(), config.RequestLanguage, lang)
-	if reqCtx := req.Attribute(config.RequestContext); reqCtx != nil {
-		ctx = reqCtx.(context.Context)
-	}
-	requestInfo = k8scluster2.GetRequestInfo(req)
-	common.ResponseSuccess(resp, r.Svc.GetClusterStorageClasses(ctx, requestInfo))
 }
 func (r ClusterResource) clusterConnectCheck(req *restful.Request, resp *restful.Response) {
 	var (
@@ -393,81 +233,6 @@ func (r ClusterResource) clusterMetricsQuery(req *restful.Request, resp *restful
 	}
 	common.ResponseSuccess(resp, result)
 }
-func (r ClusterResource) serverResources(req *restful.Request, resp *restful.Response) {
-	var (
-		errorData   common.ErrorData
-		requestInfo structs.RequestInfo
-		results     []*metav1.APIResourceList
-	)
-	lang := common.GetLanguageFromReq(req, config.RequestLanguage)
-	ctx := context.WithValue(context.Background(), config.RequestLanguage, lang)
-	if reqCtx := req.Attribute(config.RequestContext); reqCtx != nil {
-		ctx = reqCtx.(context.Context)
-	}
-	requestInfo = k8scluster2.GetRequestInfo(req)
-	_, results, errorData = r.Svc.ServerGroupsAndResources(ctx, requestInfo)
-	if errorData.IsNotNil() {
-		errorData.Lang = lang
-		common.ResponseErrorMessage(ctx, req, resp, config.Bundle, errorData)
-		return
-	}
-	common.ResponseSuccess(resp, results)
-}
-func (r ClusterResource) apiResources(req *restful.Request, resp *restful.Response) {
-	var (
-		errorData   common.ErrorData
-		requestInfo structs.RequestInfo
-		groups      []*metav1.APIGroup
-		resources   []*metav1.APIResourceList
-		results     map[string][]metav1.APIResource
-	)
-	results = make(map[string][]metav1.APIResource)
-	preferredVersions := make(map[string]string)
-	lang := common.GetLanguageFromReq(req, config.RequestLanguage)
-	ctx := context.WithValue(context.Background(), config.RequestLanguage, lang)
-	if reqCtx := req.Attribute(config.RequestContext); reqCtx != nil {
-		ctx = reqCtx.(context.Context)
-	}
-	requestInfo = k8scluster2.GetRequestInfo(req)
-	groups, resources, errorData = r.Svc.ServerGroupsAndResources(ctx, requestInfo)
-	if errorData.IsNotNil() {
-		config.Logger.Error(errorData.String())
-		common.ResponseSuccess(resp, results)
-		return
-	}
-	category := req.QueryParameter("category")
-	for _, group := range groups {
-		preferredVersions[group.PreferredVersion.GroupVersion] = group.PreferredVersion.GroupVersion
-	}
-	for _, resource := range resources {
-		var filterData []metav1.APIResource
-		for _, item := range resource.APIResources {
-			if category == "Role" {
-				if item.Namespaced {
-					filterData = append(filterData, item)
-
-				}
-			} else {
-				filterData = append(filterData, item)
-			}
-			resource.APIResources = filterData
-		}
-		if groupVersion, ok := preferredVersions[resource.GroupVersion]; ok {
-			add := false
-			for _, re := range resource.APIResources {
-				if len(re.Verbs) > 0 {
-					add = true
-					break
-				}
-			}
-			if add {
-				results[groupVersion] = resource.APIResources
-			}
-		}
-	}
-	common.ResponseSuccess(resp, results)
-}
-
 func (r ClusterResource) csgCheck(req *restful.Request, resp *restful.Response) {
 	var (
 		errorData   common.ErrorData
@@ -582,46 +347,6 @@ func (r ClusterResource) csg(req *restful.Request, resp *restful.Response) {
 	const secretKey = "asdfS2324A><:.."
 	common.ResponseSuccess(resp, config.AesSimpleEncrypt(string(data), secretKey))
 }
-func (r ClusterResource) serverGroups(req *restful.Request, resp *restful.Response) {
-	var (
-		errorData   common.ErrorData
-		requestInfo structs.RequestInfo
-		results     []*metav1.APIGroup
-	)
-	lang := common.GetLanguageFromReq(req, config.RequestLanguage)
-	ctx := context.WithValue(context.Background(), config.RequestLanguage, lang)
-	if reqCtx := req.Attribute(config.RequestContext); reqCtx != nil {
-		ctx = reqCtx.(context.Context)
-	}
-	requestInfo = k8scluster2.GetRequestInfo(req)
-	results, _, errorData = r.Svc.ServerGroupsAndResources(ctx, requestInfo)
-	if errorData.IsNotNil() {
-		errorData.Lang = lang
-		common.ResponseErrorMessage(ctx, req, resp, config.Bundle, errorData)
-		return
-	}
-	common.ResponseSuccess(resp, results)
-}
-func (r ClusterResource) serverPreferredNamespacedResources(req *restful.Request, resp *restful.Response) {
-	var (
-		errorData   common.ErrorData
-		requestInfo structs.RequestInfo
-		results     []*metav1.APIResourceList
-	)
-	lang := common.GetLanguageFromReq(req, config.RequestLanguage)
-	ctx := context.WithValue(context.Background(), config.RequestLanguage, lang)
-	if reqCtx := req.Attribute(config.RequestContext); reqCtx != nil {
-		ctx = reqCtx.(context.Context)
-	}
-	requestInfo = k8scluster2.GetRequestInfo(req)
-	results, errorData = r.Svc.ServerPreferredNamespacedResources(ctx, requestInfo)
-	if errorData.IsNotNil() {
-		errorData.Lang = lang
-		common.ResponseErrorMessage(ctx, req, resp, config.Bundle, errorData)
-		return
-	}
-	common.ResponseSuccess(resp, results)
-}
 
 func (r ClusterResource) resourceDashboard(req *restful.Request, resp *restful.Response) {
 	var (
@@ -643,29 +368,6 @@ func (r ClusterResource) resourceDashboard(req *restful.Request, resp *restful.R
 	}
 	common.ResponseSuccess(resp, dashboard)
 }
-func (r ClusterResource) selfSubjectAccessReviews(req *restful.Request, resp *restful.Response) {
-	var (
-		errorData   common.ErrorData
-		requestInfo structs.RequestInfo
-		model       authv1.ResourceAttributes
-		result      authv1.SubjectAccessReviewStatus
-	)
-	lang := common.GetLanguageFromReq(req, config.RequestLanguage)
-	ctx := context.WithValue(context.Background(), config.RequestLanguage, lang)
-	if reqCtx := req.Attribute(config.RequestContext); reqCtx != nil {
-		ctx = reqCtx.(context.Context)
-	}
-	requestInfo = k8scluster2.GetRequestInfo(req)
-	errorData.Err = req.ReadEntity(&model)
-	if errorData.IsNotNil() {
-		common.ResponseSuccess(resp, result)
-		return
-	}
-	result, _ = r.Svc.SelfSubjectAccessReview(ctx, requestInfo, model)
-	common.ResponseSuccess(resp, result)
-}
-func (r ClusterResource) roleRbac(req *restful.Request, resp *restful.Response) {
-}
 func (r ClusterResource) info(req *restful.Request, resp *restful.Response) {
 	var (
 		errorData   common.ErrorData
@@ -686,25 +388,4 @@ func (r ClusterResource) info(req *restful.Request, resp *restful.Response) {
 		return
 	}
 	common.ResponseSuccess(resp, cluster)
-}
-
-func (r ClusterResource) apiGroupResources(req *restful.Request, resp *restful.Response) {
-	var (
-		errorData   common.ErrorData
-		requestInfo structs.RequestInfo
-		grs         []*restmapper.APIGroupResources
-	)
-	lang := common.GetLanguageFromReq(req, config.RequestLanguage)
-	ctx := context.WithValue(context.Background(), config.RequestLanguage, lang)
-	if reqCtx := req.Attribute(config.RequestContext); reqCtx != nil {
-		ctx = reqCtx.(context.Context)
-	}
-	requestInfo = k8scluster2.GetRequestInfo(req)
-	grs, _, errorData = r.Svc.GetAPIGroupResourcesAndRestMapper(ctx, requestInfo)
-	if errorData.IsNotNil() {
-		errorData.Lang = lang
-		common.ResponseErrorMessage(ctx, req, resp, config.Bundle, errorData)
-		return
-	}
-	common.ResponseSuccess(resp, grs)
 }

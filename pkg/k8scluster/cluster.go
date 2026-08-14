@@ -11,92 +11,18 @@ import (
 	"github.com/efucloud/kube-keeper/pkg/metrics"
 	dtos2 "github.com/efucloud/kube-keeper/pkg/models/dtos"
 	"github.com/efucloud/kube-keeper/pkg/structs"
-	"github.com/efucloud/kube-keeper/pkg/utils"
 	"github.com/prometheus/common/model"
 	authv1 "k8s.io/api/authorization/v1"
 	corev1 "k8s.io/api/core/v1"
 	networkingv1 "k8s.io/api/networking/v1"
-	storagev1 "k8s.io/api/storage/v1"
-	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/version"
-	"k8s.io/client-go/restmapper"
 	"time"
 )
 
 type ClusterService struct {
 }
 
-func (svc *ClusterService) GetClusterGatewayClasses(ctx context.Context, requestInfo structs.RequestInfo) (results []string) {
-	var (
-		cluster   dtos2.ClusterDetail
-		clientSet *ClusterClientSet
-		errorData common.ErrorData
-		gwcList   *unstructured.UnstructuredList
-	)
-	clusterSvc := database2.ClusterService{}
-	if len(requestInfo.ClusterCode) > 0 {
-		cluster, errorData = clusterSvc.GetClusterByCode(ctx, requestInfo.ClusterCode)
-	} else {
-		cluster, errorData = clusterSvc.GetClusterByID(ctx, requestInfo.ClusterId)
-	}
-	if errorData.IsNotNil() {
-		config.Logger.Error(errorData.Err)
-		return
-	}
-	clientSet, errorData = NewAdminClientSetForConfigByCluster(cluster)
-	if errorData.IsNotNil() {
-		config.Logger.Error(errorData.Err)
-		return
-	}
-	gatewayClassGVR := schema.GroupVersionResource{
-		Group:    "gateway.networking.k8s.io",
-		Version:  "v1",
-		Resource: "gatewayclasses",
-	}
-	gwcList, errorData.Err = clientSet.DynamicClient.Resource(gatewayClassGVR).List(context.TODO(), metav1.ListOptions{})
-	for _, gwc := range gwcList.Items {
-		if ctlName, ok := utils.SafeNestedString(gwc.Object, "spec", "controllerName"); ok {
-			status, _ := utils.SafeNestedString(gwc.Object, "status", "conditions", "0", "status")
-			if status == "True" {
-				results = append(results, ctlName)
-			}
-		}
-	}
-	return
-}
-func (svc *ClusterService) GetClusterStorageClasses(ctx context.Context, requestInfo structs.RequestInfo) (results []string) {
-	var (
-		cluster      dtos2.ClusterDetail
-		clientSet    *ClusterClientSet
-		errorData    common.ErrorData
-		storageClass *storagev1.StorageClassList
-	)
-	clusterSvc := database2.ClusterService{}
-	if len(requestInfo.ClusterCode) > 0 {
-		cluster, errorData = clusterSvc.GetClusterByCode(ctx, requestInfo.ClusterCode)
-	} else {
-		cluster, errorData = clusterSvc.GetClusterByID(ctx, requestInfo.ClusterId)
-	}
-	if errorData.IsNotNil() {
-		config.Logger.Error(errorData.Err)
-		return
-	}
-	clientSet, errorData = NewAdminClientSetForConfigByCluster(cluster)
-	if errorData.IsNotNil() {
-		config.Logger.Error(errorData.Err)
-		return
-	}
-	storageClass, errorData.Err = clientSet.K8sClientSet.StorageV1().StorageClasses().List(ctx, metav1.ListOptions{})
-	if storageClass != nil {
-		for _, item := range storageClass.Items {
-			results = append(results, item.Name)
-		}
-	}
-	return
-}
 func (svc *ClusterService) GetClusterIngressClasses(ctx context.Context, requestInfo structs.RequestInfo) (results []string) {
 	var (
 		cluster      dtos2.ClusterDetail
@@ -167,29 +93,6 @@ func (svc *ClusterService) ClusterConnectCheck(ctx context.Context, requestInfo 
 		Compiler:     ver.Compiler,
 		Platform:     ver.Platform,
 	}
-}
-func (svc *ClusterService) ServerPreferredNamespacedResources(ctx context.Context, requestInfo structs.RequestInfo) (results []*metav1.APIResourceList, errorData common.ErrorData) {
-	var (
-		cluster   dtos2.ClusterDetail
-		clientSet *ClusterClientSet
-	)
-	clusterSvc := database2.ClusterService{}
-	if len(requestInfo.ClusterCode) > 0 {
-		cluster, errorData = clusterSvc.GetClusterByCode(ctx, requestInfo.ClusterCode)
-	} else {
-		cluster, errorData = clusterSvc.GetClusterByID(ctx, requestInfo.ClusterId)
-	}
-	if errorData.IsNotNil() {
-		config.Logger.Error(errorData.Err)
-		return
-	}
-	clientSet, errorData = NewAdminClientSetForConfigByCluster(cluster)
-	if errorData.IsNotNil() {
-		config.Logger.Error(errorData.Err)
-		return
-	}
-	results, errorData.Err = clientSet.DiscoveryClient.ServerPreferredNamespacedResources()
-	return
 }
 
 func (svc *ClusterService) ServerGroupsAndResources(ctx context.Context, requestInfo structs.RequestInfo) (groups []*metav1.APIGroup, results []*metav1.APIResourceList, errorData common.ErrorData) {
@@ -491,27 +394,6 @@ func (svc *ClusterService) ClusterInfo(ctx context.Context, requestInfo structs.
 
 	return
 }
-func (svc *ClusterService) GetAPIGroupResourcesAndRestMapper(ctx context.Context, requestInfo structs.RequestInfo) (grs []*restmapper.APIGroupResources, restMapper meta.RESTMapper, errorData common.ErrorData) {
-	var (
-		cluster   dtos2.ClusterDetail
-		clientSet *ClusterClientSet
-	)
-	clusterSvc := database2.ClusterService{}
-	cluster, errorData = clusterSvc.GetClusterByID(ctx, requestInfo.ClusterId)
-	clientSet, errorData = NewAdminClientSetForConfigByCluster(cluster)
-	if errorData.IsNotNil() {
-		config.Logger.Error(errorData.Err)
-		return
-	}
-	grs, errorData.Err = restmapper.GetAPIGroupResources(clientSet.K8sExClient.DiscoveryClient)
-	if errorData.IsNotNil() {
-		config.Logger.Errorf("get cluster: %s APIGroupResources failed, err: %s", requestInfo.ClusterId, errorData.Err.Error())
-
-	} else {
-		restMapper = restmapper.NewDiscoveryRESTMapper(grs)
-	}
-	return
-}
 
 func (svc *ClusterService) SubjectAccessReviews(ctx context.Context, requestInfo structs.RequestInfo, model authv1.SubjectAccessReview) (result *authv1.SubjectAccessReview, errorData common.ErrorData) {
 	var (
@@ -528,30 +410,6 @@ func (svc *ClusterService) SubjectAccessReviews(ctx context.Context, requestInfo
 	result, errorData.Err = clientSet.K8sClientSet.AuthorizationV1().SubjectAccessReviews().Create(ctx, &model, metav1.CreateOptions{})
 
 	return
-}
-func (svc *ClusterService) SelfSubjectAccessReview(ctx context.Context, requestInfo structs.RequestInfo, resAttribute authv1.ResourceAttributes) (result authv1.SubjectAccessReviewStatus, errorData common.ErrorData) {
-	defer func() {
-		if err := recover(); err != nil {
-			config.Logger.Error(err)
-		}
-	}()
-	var (
-		clientSet *ClusterClientSet
-		ssar      *authv1.SelfSubjectAccessReview
-	)
-	sar := &authv1.SelfSubjectAccessReview{
-		Spec: authv1.SelfSubjectAccessReviewSpec{
-			ResourceAttributes: &resAttribute,
-		},
-	}
-	_, clientSet, errorData = GetClusterAndUserClientSet(ctx, requestInfo)
-	if errorData.IsNotNil() {
-		config.Logger.Error(errorData.Err)
-		result.Allowed = false
-		return
-	}
-	ssar, errorData.Err = clientSet.K8sClientSet.AuthorizationV1().SelfSubjectAccessReviews().Create(ctx, sar, metav1.CreateOptions{})
-	return ssar.Status, errorData
 }
 func (svc *ClusterService) PrometheusQuery(ctx context.Context, requestInfo structs.RequestInfo, queryParams dtos2.QueryParam) (result model.Vector, errorData common.ErrorData) {
 	var (
