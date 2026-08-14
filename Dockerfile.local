@@ -1,27 +1,22 @@
-FROM golang:1.26.4-alpine AS builder
+FROM registry.cn-shenzhen.aliyuncs.com/efucloud-public/tektoncd-golang:1.26.4 AS builder
 
 ARG TARGETOS=linux
-ARG TARGETARCH
+ARG TARGETARCH=amd64
 ARG GIT_COMMIT=unknown
 ARG BUILD_DATE=unknown
 
 WORKDIR /workspace
 
-RUN apk add --no-cache ca-certificates tzdata
-
-COPY go.mod go.sum ./
-RUN go mod download
-
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -mod=mod \
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -mod=vendor \
     -ldflags="-s -w \
-      -X 'github.com/efucloud/kube-keeper/pkg/config.GoVersion=$(go version | awk '{print $3}')' \
+      -X 'github.com/efucloud/kube-keeper/pkg/config.GoVersion=$(go env GOVERSION)' \
       -X 'github.com/efucloud/kube-keeper/pkg/config.Commit=${GIT_COMMIT}' \
       -X 'github.com/efucloud/kube-keeper/pkg/config.BuildDate=${BUILD_DATE}'" \
     -o /workspace/output/kube-keeper ./cmd/start.go
 
-FROM alpine:3.22
+FROM registry.cn-shenzhen.aliyuncs.com/efucloud-public/alpine:3.23.0
 
 ARG GIT_COMMIT=unknown
 ARG BUILD_DATE=unknown
