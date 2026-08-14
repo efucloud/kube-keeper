@@ -37,7 +37,11 @@ jobs:
 
       - name: Check formatting
         run: |
-          unformatted=$(gofmt -l cmd config generate pkg)
+          mapfile -d '' files < <(git ls-files -z -- '*.go' ':!:vendor/**')
+          unformatted=""
+          if [ "${#files[@]}" -gt 0 ]; then
+            unformatted=$(gofmt -l "${files[@]}")
+          fi
           if [ -n "$unformatted" ]; then
             echo "The following files need gofmt:"
             echo "$unformatted"
