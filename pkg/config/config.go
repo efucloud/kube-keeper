@@ -35,7 +35,6 @@ var (
 	configOnce        sync.Once
 	DBConnect         *gorm.DB
 	AuthProvider      *oidc.Provider
-	SystemVerifier    *oidc.IDTokenVerifier
 	Bundle            *i18n.Bundle
 	TenantAuth        *tenantAuth
 	Logger            *zap.SugaredLogger

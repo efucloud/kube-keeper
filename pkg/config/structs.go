@@ -9,6 +9,7 @@ type Config struct {
 	Redis             *RedisConfig `json:"redis" yaml:"redis"`
 	LogConfig         *LogConfig   `json:"logConfig" yaml:"logConfig"`
 	OidcConfig        OidcConfig   `json:"oidcConfig" yaml:"oidcConfig" description:"认证配置"`
+	TokenConfig       TokenConfig  `json:"tokenConfig" yaml:"tokenConfig" description:"系统Token配置"`
 	ChatConfig        ChatConfig   `json:"chatConfig" yaml:"chatConfig" description:"大模型配置"`
 	AdminEmails       []string     `json:"adminEmails" yaml:"adminEmails" description:"管理员邮箱列表"`
 	TerminalContainer string       `json:"terminalContainer" yaml:"terminalContainer" description:"终端容器"`
@@ -37,6 +38,12 @@ type OidcConfig struct {
 	ClientId     string `json:"clientId" yaml:"clientId" description:"客户端ID"`
 	ClientSecret string `json:"clientSecret" yaml:"clientSecret" description:"客户端密钥"`
 	Issuer       string `json:"issuer" yaml:"issuer" description:"发行者"`
+}
+
+type TokenConfig struct {
+	Secret        string `json:"secret" yaml:"secret" description:"系统Token签名密钥"`
+	Issuer        string `json:"issuer" yaml:"issuer" description:"系统Token签发者"`
+	ExpireSeconds int64  `json:"expireSeconds" yaml:"expireSeconds" description:"系统Token有效期（秒）"`
 }
 type LogConfig struct {
 	Level string `json:"level" yaml:"level" description:"日志级别"`

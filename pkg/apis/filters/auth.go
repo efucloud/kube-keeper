@@ -4,12 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/efucloud/kube-keeper/pkg/config"
-	"github.com/efucloud/kube-keeper/pkg/models/dtos"
 	"github.com/efucloud/kube-keeper/pkg/services"
 	"net/http"
 	"strings"
 
-	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/efucloud/common"
 	restful "github.com/emicklei/go-restful/v3"
 )
@@ -44,17 +42,12 @@ func GetAccountIdFromToken(req *restful.Request) (accountId string) {
 		token = req.QueryParameter("access_token")
 	}
 	if len(token) > 0 {
-		var (
-			err     error
-			idToken *oidc.IDToken
-			claims  dtos.UserClaims
-		)
-		idToken, errorData.Err = config.SystemVerifier.Verify(ctx, token)
-		if errorData.IsNotNil() {
-			return
-		}
-		err = idToken.Claims(&claims)
+		tokenSvc := services.SystemTokenService{}
+		claims, err := tokenSvc.ParseAccessToken(ctx, token)
 		if err != nil {
+			errorData.Err = err
+		}
+		if errorData.IsNotNil() {
 			return
 		}
 		accountId = claims.ID
@@ -84,7 +77,16 @@ func Auth(req *restful.Request, resp *restful.Response, chain *restful.FilterCha
 		return
 	}
 	userSvc := services.AccountService{}
-	user, _ := userSvc.GetAccountByID(ctx, accountId)
+	user, errorData := userSvc.GetAccountByID(ctx, accountId)
+	if errorData.IsNotNil() || user.ID == "" || !user.Enable {
+		errorData.Lang = lang
+		if errorData.Err == nil {
+			errorData.Err = fmt.Errorf("用户不存在或已禁用")
+		}
+		errorData.ResponseCode = http.StatusUnauthorized
+		common.ResponseErrorMessage(ctx, req, resp, config.Bundle, errorData)
+		return
+	}
 	req.SetAttribute(config.RequestContext, context.WithValue(ctx, config.RequestUserId, user.ID))
 	req.SetAttribute(config.RequestUserId, user.ID)
 	chain.ProcessFilter(req, resp)

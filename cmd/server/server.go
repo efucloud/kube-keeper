@@ -57,10 +57,6 @@ func run(o *options.ServerRunOptions, stopCh <-chan struct{}) (err error) {
 	if err != nil {
 		config2.Logger.Fatalf("get oidc config from: %s failed, err: %s", config2.ApplicationConfig.OidcConfig.Issuer, err)
 	}
-	if config2.AuthProvider != nil {
-		oidcCfg := oidc.Config{ClientID: config2.ApplicationConfig.OidcConfig.ClientId}
-		config2.SystemVerifier = config2.AuthProvider.Verifier(&oidcCfg)
-	}
 
 	go mcp.CleanupExpiredSessions()
 

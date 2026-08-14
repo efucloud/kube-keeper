@@ -24,9 +24,9 @@ func (svc *OAuthService) Userinfo(ctx context.Context, userId string) (userinfo 
 
 func (svc *OAuthService) LoginByOIDC(ctx context.Context, loginParam dtos2.LoginByOIDC) (response dtos2.AccessTokenResponse, errorData common.ErrorData) {
 	var (
-		token      *oauth2.Token
-		userInfo   *oidc.UserInfo
-		systemUser dtos2.AuthedUserInfo
+		token    *oauth2.Token
+		userInfo *oidc.UserInfo
+		account  dtos2.AccountDetail
 	)
 	oauthCfg := &oauth2.Config{
 		ClientID:     config.ApplicationConfig.OidcConfig.ClientId,
@@ -52,20 +52,18 @@ func (svc *OAuthService) LoginByOIDC(ctx context.Context, loginParam dtos2.Login
 		if common.StringInArray(create.Email, config.ApplicationConfig.AdminEmails) {
 			create.Role = "admin"
 		}
-		accSvc.CreateOrUpdateAccount(ctx, create)
+		_, errorData = accSvc.CreateOrUpdateAccount(ctx, create)
 		if errorData.IsNotNil() {
 			config.Logger.Error(errorData.Err)
 			return
 		}
-		errorData.Err = userInfo.Claims(&systemUser)
+		account, errorData = accSvc.GetAccountByID(ctx, create.ID)
 		if errorData.IsNotNil() {
 			config.Logger.Error(errorData.Err)
 			return
 		}
 	}
-
-	response.AccessToken = token.AccessToken
-	response.RefreshToken = token.RefreshToken
-	response.ExpiresIn = token.Expiry.Unix()
+	tokenSvc := SystemTokenService{}
+	response, errorData = tokenSvc.IssueAccessToken(ctx, account)
 	return
 }

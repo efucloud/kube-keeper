@@ -41,6 +41,11 @@ func TestConfig(t *testing.T) {
 			ClientId:     "umtsnwb4nvehzfmwaimi5knql",
 			ClientSecret: "boowj4iujtvqinyw5grtmqzvpblcc6v7jhpxke5zhiktxn6zw3u",
 		},
+		TokenConfig: TokenConfig{
+			Secret:        "kube-keeper-change-me",
+			Issuer:        "kube-keeper",
+			ExpireSeconds: 86400,
+		},
 		Mysql: &MysqlConfig{
 			Host:                      "localhost:3306",
 			User:                      "root",

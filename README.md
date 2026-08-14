@@ -59,7 +59,9 @@ The service listens on port `9002` inside the cluster.
 
 `kube-keeper` supports OIDC authentication through the `oidcConfig` section in the runtime configuration.
 
-For `eauth` setup and OIDC provider details, see:
+You can use [efucloud/eauth](https://github.com/efucloud/eauth) as the OIDC authentication provider for `kube-keeper`.
+
+For `eauth` deployment and OIDC provider setup details, see:
 
 - [efucloud/eauth](https://github.com/efucloud/eauth)
 

@@ -59,6 +59,8 @@ kubectl apply -f docs/kube-keeper.yaml
 
 `kube-keeper` 通过运行时配置中的 `oidcConfig` 启用 OIDC 认证。
 
+`kube-keeper` 可以使用 [efucloud/eauth](https://github.com/efucloud/eauth) 作为 OIDC 认证提供商。
+
 `eauth` 的部署和 OIDC 提供方配置可参考：
 
 - [efucloud/eauth](https://github.com/efucloud/eauth)
