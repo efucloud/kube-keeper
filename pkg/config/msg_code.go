@@ -1,0 +1,27 @@
+package config
+
+const (
+	MsgCodeUserInfoIsEmpty               = "userInfoIsEmpty"
+	MsgCodeApplicationUnExceptPanicError = "applicationUnExceptPanicError"
+	MsgCodeClusterNotFound               = "clusterNotFound"
+	MsgCodeJsonDecodeFailed              = "jsonDecodeFailed"
+	MsgCodeGetRecordFailed               = "getRecordFailed"
+	MsgCodeCreateRecordFailed            = "createRecordFailed"
+	MsgCodeUpdateRecordFailed            = "updateRecordFailed"
+	MsgCodeDeleteRecordFailed            = "deleteRecordFailed"
+	MsgCodeRecordNotExist                = "recordNotExist"
+	MsgCodeRequestDataInvalid            = "requestDataInvalid"
+	MsgCodeCurrentActionIsForbidden      = "currentActionIsForbidden"
+	MsgCodeGetClusterFailed              = "getClusterFailed"
+	MsgCodeCreateClusterClientSetFailed  = "createClusterClientSetFailed"
+	MsgCodeClusterIsNotFoundOrDisable    = "clusterIsNotFoundOrDisable"
+	MsgCodeClusterSetBuildFailed         = "clusterSetBuildFailed"
+	MsgCodeClusterContainerExecFailed    = "clusterContainerExecFailed"
+	MsgCodeWorkspaceBindingConflict      = "workspaceBindingConflict"
+	MsgCodeK8sListFailed                 = "k8sListFailed"
+	MsgCodeK8sWatchFailed                = "k8sWatchFailed"
+	MsgCodeK8sPodLogStreamFailed         = "k8sPodLogStreamFailed"
+	MsgCodeLicenseExpired                = "licenseExpired"
+	MsgCodeLicenseClusterLimitExceeded   = "licenseClusterLimitExceeded"
+	MsgCodeLicenseUserLimitExceeded      = "licenseUserLimitExceeded"
+)
