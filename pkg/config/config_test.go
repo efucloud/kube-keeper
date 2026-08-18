@@ -42,7 +42,6 @@ func TestConfig(t *testing.T) {
 			ClientSecret: "boowj4iujtvqinyw5grtmqzvpblcc6v7jhpxke5zhiktxn6zw3u",
 		},
 		TokenConfig: TokenConfig{
-			Secret:        "kube-keeper-change-me",
 			Issuer:        "kube-keeper",
 			ExpireSeconds: 86400,
 		},

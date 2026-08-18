@@ -17,6 +17,7 @@ limitations under the LicenseCode.
 package config
 
 import (
+	"crypto/rsa"
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/nicksnyder/go-i18n/v2/i18n"
 	redis "github.com/redis/go-redis/v9"
@@ -31,15 +32,17 @@ var (
 	BuildDate string
 )
 var (
-	ApplicationConfig *Config
-	configOnce        sync.Once
-	DBConnect         *gorm.DB
-	AuthProvider      *oidc.Provider
-	Bundle            *i18n.Bundle
-	TenantAuth        *tenantAuth
-	Logger            *zap.SugaredLogger
-	RedisClient       redis.UniversalClient
-	ContextDBTx       ContextDatabaseTx
+	ApplicationConfig   *Config
+	configOnce          sync.Once
+	DBConnect           *gorm.DB
+	AuthProvider        *oidc.Provider
+	SystemRSAPrivateKey *rsa.PrivateKey
+	SystemRSAPublicKey  *rsa.PublicKey
+	Bundle              *i18n.Bundle
+	TenantAuth          *tenantAuth
+	Logger              *zap.SugaredLogger
+	RedisClient         redis.UniversalClient
+	ContextDBTx         ContextDatabaseTx
 )
 
 type ContextDatabaseTx string

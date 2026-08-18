@@ -33,7 +33,11 @@ func (svc *SystemTokenService) IssueAccessToken(ctx context.Context, account dto
 			ExpiresAt: jwt.NewNumericDate(expiresAt),
 		},
 	}
-	signedToken, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(config.ApplicationConfig.TokenConfig.Secret))
+	if config.SystemRSAPrivateKey == nil {
+		errorData.Err = fmt.Errorf("system token private key is not loaded")
+		return
+	}
+	signedToken, err := jwt.NewWithClaims(jwt.SigningMethodRS256, claims).SignedString(config.SystemRSAPrivateKey)
 	if err != nil {
 		errorData.Err = err
 		return
@@ -52,11 +56,14 @@ func (svc *SystemTokenService) ParseAccessToken(ctx context.Context, token strin
 	if token == "" {
 		return claims, fmt.Errorf("token is empty")
 	}
+	if config.SystemRSAPublicKey == nil {
+		return claims, fmt.Errorf("system token public key is not loaded")
+	}
 	parsedToken, err := jwt.ParseWithClaims(token, &claims, func(parsedToken *jwt.Token) (interface{}, error) {
-		if parsedToken.Method == nil || parsedToken.Method.Alg() != jwt.SigningMethodHS256.Alg() {
+		if parsedToken.Method == nil || parsedToken.Method.Alg() != jwt.SigningMethodRS256.Alg() {
 			return nil, fmt.Errorf("unexpected signing method: %v", parsedToken.Header["alg"])
 		}
-		return []byte(config.ApplicationConfig.TokenConfig.Secret), nil
+		return config.SystemRSAPublicKey, nil
 	}, jwt.WithIssuer(config.ApplicationConfig.TokenConfig.Issuer))
 	if err != nil {
 		return claims, err

@@ -25,7 +25,6 @@ oidcConfig:
   clientSecret: boowj4iujtvqinyw5grtmqzvpblcc6v7jhpxke5zhiktxn6zw3u
   issuer: https://eauth.efucloud.com
 tokenConfig:
-  secret: kube-keeper-change-me
   issuer: kube-keeper
   expireSeconds: 86400
 chatConfig:

@@ -40,6 +40,8 @@ Update the values in [docs/kube-keeper.yaml](/Users/cloudy/Documents/efucloud/ku
 - `oidcConfig.clientId`
 - `oidcConfig.clientSecret`
 - `oidcConfig.issuer`
+- `tokenConfig.issuer`
+- `tokenConfig.expireSeconds`
 - `chatConfig.address`
 - `chatConfig.apiKey`
 - `chatConfig.model`
@@ -58,6 +60,8 @@ The service listens on port `9002` inside the cluster.
 ## OIDC Authentication
 
 `kube-keeper` supports OIDC authentication through the `oidcConfig` section in the runtime configuration.
+
+System access tokens are signed with an embedded RSA key pair under `pkg/embeds/token`.
 
 You can use [efucloud/eauth](https://github.com/efucloud/eauth) as the OIDC authentication provider for `kube-keeper`.
 

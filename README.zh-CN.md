@@ -40,6 +40,8 @@
 - `oidcConfig.clientId`
 - `oidcConfig.clientSecret`
 - `oidcConfig.issuer`
+- `tokenConfig.issuer`
+- `tokenConfig.expireSeconds`
 - `chatConfig.address`
 - `chatConfig.apiKey`
 - `chatConfig.model`
@@ -58,6 +60,8 @@ kubectl apply -f docs/kube-keeper.yaml
 ## OIDC 认证对接
 
 `kube-keeper` 通过运行时配置中的 `oidcConfig` 启用 OIDC 认证。
+
+系统访问 Token 默认使用 `pkg/embeds/token` 下内置的 RSA 密钥对进行签名。
 
 `kube-keeper` 可以使用 [efucloud/eauth](https://github.com/efucloud/eauth) 作为 OIDC 认证提供商。
 

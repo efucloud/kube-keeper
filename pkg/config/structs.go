@@ -41,7 +41,6 @@ type OidcConfig struct {
 }
 
 type TokenConfig struct {
-	Secret        string `json:"secret" yaml:"secret" description:"系统Token签名密钥"`
 	Issuer        string `json:"issuer" yaml:"issuer" description:"系统Token签发者"`
 	ExpireSeconds int64  `json:"expireSeconds" yaml:"expireSeconds" description:"系统Token有效期（秒）"`
 }

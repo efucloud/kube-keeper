@@ -12,10 +12,12 @@ import (
 func TestSystemTokenServiceIssueAndParseAccessToken(t *testing.T) {
 	config.ApplicationConfig = &config.Config{
 		TokenConfig: config.TokenConfig{
-			Secret:        "unit-test-secret",
 			Issuer:        "unit-test-issuer",
 			ExpireSeconds: 3600,
 		},
+	}
+	if err := config.LoadSystemTokenKeys(); err != nil {
+		t.Fatalf("load system token keys: %v", err)
 	}
 
 	svc := SystemTokenService{}

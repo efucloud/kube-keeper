@@ -126,12 +126,8 @@ func (c *Config) Init() {
 	if c.TokenConfig.ExpireSeconds <= 0 {
 		c.TokenConfig.ExpireSeconds = 24 * 3600
 	}
-	if c.TokenConfig.Secret == "" && c.OidcConfig.ClientSecret != "" {
-		c.TokenConfig.Secret = c.OidcConfig.ClientSecret
-		Logger.Warn("tokenConfig.secret is empty, fallback to oidcConfig.clientSecret for system token signing")
-	}
-	if c.TokenConfig.Secret == "" {
-		Logger.Fatal("tokenConfig.secret is required")
+	if err := LoadSystemTokenKeys(); err != nil {
+		Logger.Fatalf("load embedded system token keys failed, err: %s", err.Error())
 	}
 	if err := createDBConnection(); err != nil {
 		Logger.Fatalf("create database connect failed, err: %s", err.Error())
