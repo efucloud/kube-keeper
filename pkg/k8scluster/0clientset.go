@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
 	"github.com/efucloud/common"
 	config2 "github.com/efucloud/kube-keeper/pkg/config"
@@ -251,15 +252,17 @@ func newUserClientSetForConfigByCluster(cluster dtos2.ClusterDetail, csr dtos2.C
 }
 
 func BuildKubeConfigFromCluster(cluster dtos2.ClusterDetail, user string) ([]byte, error) {
-	var caBase64, clientKeyBase64, clientCertBase64 string
-	if len(cluster.CertificateAuthority) > 0 {
-		caBase64 = base64.StdEncoding.EncodeToString([]byte(cluster.CertificateAuthority))
+	caBase64, err := encodeKubeConfigPEM(cluster.CertificateAuthority, "certificate authority")
+	if err != nil {
+		return nil, err
 	}
-	if len(cluster.ClientKey) > 0 {
-		clientKeyBase64 = base64.StdEncoding.EncodeToString([]byte(cluster.ClientKey))
+	clientKeyBase64, err := encodeKubeConfigPEM(cluster.ClientKey, "client key")
+	if err != nil {
+		return nil, err
 	}
-	if len(cluster.ClientCertificate) > 0 {
-		clientCertBase64 = base64.StdEncoding.EncodeToString([]byte(cluster.ClientCertificate))
+	clientCertBase64, err := encodeKubeConfigPEM(cluster.ClientCertificate, "client certificate")
+	if err != nil {
+		return nil, err
 	}
 	cluster.Default(context.Background())
 	kc := &KubeConfig{
@@ -300,13 +303,25 @@ func BuildKubeConfigFromCluster(cluster dtos2.ClusterDetail, user string) ([]byt
 }
 
 func buildKubeConfigFromAccountCsr(cluster dtos2.ClusterDetail, csr dtos2.ClusterAccountDetail, user, namespace string) ([]byte, error) {
+	caBase64, err := encodeKubeConfigPEM(cluster.CertificateAuthority, "certificate authority")
+	if err != nil {
+		return nil, err
+	}
+	clientCertBase64, err := encodeKubeConfigPEM(csr.ClientCertificate, "client certificate")
+	if err != nil {
+		return nil, err
+	}
+	clientKeyBase64, err := encodeKubeConfigPEM(csr.ClientKey, "client key")
+	if err != nil {
+		return nil, err
+	}
 
 	kc := &KubeConfig{
 		APIVersion: "v1",
 		Clusters: Clusters{
 			0: {
 				Cluster{
-					CertificateAuthorityData: base64.StdEncoding.EncodeToString([]byte(cluster.CertificateAuthority)),
+					CertificateAuthorityData: caBase64,
 					Server:                   cluster.ApiServer,
 					InsecureSkipTlsVerify:    cluster.CertificateAuthority == "",
 				},
@@ -328,8 +343,8 @@ func buildKubeConfigFromAccountCsr(cluster dtos2.ClusterDetail, csr dtos2.Cluste
 		Users: Users{
 			0: {
 				User{
-					ClientCertificateData: base64.StdEncoding.EncodeToString([]byte(csr.ClientCertificate)),
-					ClientKeyData:         base64.StdEncoding.EncodeToString([]byte(csr.ClientKey)),
+					ClientCertificateData: clientCertBase64,
+					ClientKeyData:         clientKeyBase64,
 				},
 				user,
 			},
@@ -337,6 +352,32 @@ func buildKubeConfigFromAccountCsr(cluster dtos2.ClusterDetail, csr dtos2.Cluste
 	}
 
 	return yaml.Marshal(kc)
+}
+
+// encodeKubeConfigPEM accepts the raw PEM used by imported clusters and the
+// base64-encoded PEM used by generated cluster accounts. Kubeconfig itself
+// requires these values to be base64 encoded, so normalize before encoding to
+// avoid double-encoding generated client certificates and keys.
+func encodeKubeConfigPEM(value, field string) (string, error) {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return "", nil
+	}
+
+	pemData := []byte(value)
+	if block, _ := pem.Decode(pemData); block == nil {
+		encoded := strings.Join(strings.Fields(value), "")
+		decoded, err := base64.StdEncoding.DecodeString(encoded)
+		if err != nil {
+			return "", fmt.Errorf("%s must be PEM or base64-encoded PEM: %w", field, err)
+		}
+		pemData = []byte(strings.TrimSpace(string(decoded)))
+		if block, _ = pem.Decode(pemData); block == nil {
+			return "", fmt.Errorf("%s must contain valid PEM data", field)
+		}
+	}
+
+	return base64.StdEncoding.EncodeToString(pemData), nil
 }
 
 // Cluster holds the cluster data

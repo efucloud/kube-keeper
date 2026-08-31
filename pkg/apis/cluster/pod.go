@@ -64,10 +64,11 @@ func (r PodResource) AddWebService(ws *restful.WebService) {
 		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
 		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
 		Metadata(config2.FrontApiTag, "clusterPodContainerTerminal"))
-	ws.Route(ws.GET(config2.ClusterNamespaceAPIPrefix+apiExtend+"/{container}/log").
+	ws.Route(ws.GET(config2.ClusterNamespaceWebsocketAPIPrefix+apiExtend+"/{container}/log").
 		Doc("Pod容器日志").
-		Notes("Pod容器日志").
+		Notes("通过 WebSocket 实时获取 Pod 容器日志").
 		Param(ws.HeaderParameter(config2.AuthHeader, "请求Token")).
+		Param(ws.QueryParameter("access_token", "浏览器 WebSocket 请求Token")).
 		Param(ws.PathParameter("cluster", "集群编码")).
 		Param(ws.PathParameter("namespace", "Namespace")).
 		Param(ws.PathParameter("pod", "Pod")).
@@ -78,7 +79,7 @@ func (r PodResource) AddWebService(ws *restful.WebService) {
 		Param(ws.QueryParameter("timestamps", "显示时间戳").DataType("boolean")).
 		Param(ws.QueryParameter("tailLines", "最后多少行").DataType("number")).
 		To(r.log).
-		Returns(http.StatusOK, "成功", []string{}).
+		Returns(http.StatusSwitchingProtocols, "WebSocket 连接成功", []string{}).
 		Returns(http.StatusUnauthorized, "用户需要先登录", common.AuthRedirectInfo{}).
 		Returns(http.StatusBadRequest, "请求数据无法处理", common.ResponseError{}).
 		Returns(http.StatusForbidden, "用户没有权限", common.ResponseError{}).

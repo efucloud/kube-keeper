@@ -20,7 +20,6 @@ const (
 	MsgCodeWorkspaceBindingConflict      = "workspaceBindingConflict"
 	MsgCodeK8sListFailed                 = "k8sListFailed"
 	MsgCodeK8sWatchFailed                = "k8sWatchFailed"
-	MsgCodeK8sPodLogStreamFailed         = "k8sPodLogStreamFailed"
 	MsgCodeLicenseExpired                = "licenseExpired"
 	MsgCodeLicenseClusterLimitExceeded   = "licenseClusterLimitExceeded"
 	MsgCodeLicenseUserLimitExceeded      = "licenseUserLimitExceeded"

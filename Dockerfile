@@ -28,7 +28,7 @@ ARG BUILD_DATE=unknown
 
 RUN apk add --no-cache ca-certificates tzdata
 
-WORKDIR /app
+WORKDIR /efucloud
 
 COPY --from=builder /workspace/output/kube-keeper /usr/local/bin/kube-keeper
 COPY config/config.yaml /efucloud/config/config.yaml

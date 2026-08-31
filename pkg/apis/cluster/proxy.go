@@ -62,7 +62,7 @@ func (cp ProxyResource) AddWebService(ws *restful.WebService) {
 		Param(ws.PathParameter("address", "集群地址,https://192.168.64.15:8443/{address:*}").Required(true)).
 		To(cp.proxy).
 		Consumes(restful.MIME_JSON).
-		Produces(restful.MIME_JSON, "text/event-stream").
+		Produces(restful.MIME_JSON).
 		Reads(dtos2.KubernetesResource{}).
 		Doc("集群POST请求代理").
 		Notes("集群POST请求代理，本应用做认证后获取用户信息，并根据用户信息使用对应的kubeconfig连接集群").

@@ -28,7 +28,6 @@ const (
 	ServerPort      = 9002
 	RequestForm     = "application/x-www-form-urlencoded"
 	FrontApiTag     = "FrontApiTag"
-	SerialNumber    = "SerialNumber"
 )
 
 const (

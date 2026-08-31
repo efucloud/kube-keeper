@@ -40,7 +40,6 @@ func GetWebServices(container *restful.Container) *restful.WebService {
 	cluster.HelmResource{Svc: k8scluster2.HelmService{}}.AddWebService(ws)
 	cluster.ServerResource{}.AddWebService(ws)
 	cluster.ProxyResource{}.AddWebService(ws)
-	cluster.StreamResource{}.AddWebService(ws)
 	cluster.ClusterNamespaceResource{Svc: k8scluster2.NamespaceService{}}.AddWebService(ws)
 	cluster.PodResource{Svc: k8scluster2.PodService{}}.AddWebService(ws)
 	cluster.TerminalResource{Svc: k8scluster2.PodService{}}.AddWebService(ws)

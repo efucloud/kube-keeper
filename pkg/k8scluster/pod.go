@@ -403,6 +403,8 @@ func (svc *PodService) PodContainerLog(req *restful.Request, resp *restful.Respo
 	if reqCtx := req.Attribute(config2.RequestContext); reqCtx != nil {
 		ctx = reqCtx.(context.Context)
 	}
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	requestInfo = GetRequestInfo(req)
 	conn, err := upgrader.Upgrade(resp.ResponseWriter, req.Request, nil)
 	if err != nil {
@@ -410,6 +412,14 @@ func (svc *PodService) PodContainerLog(req *restful.Request, resp *restful.Respo
 		return
 	}
 	defer conn.Close()
+	go func() {
+		for {
+			if _, _, readErr := conn.NextReader(); readErr != nil {
+				cancel()
+				return
+			}
+		}
+	}()
 
 	accSvc := database2.AccountService{}
 	account, _ = accSvc.GetAccountByID(ctx, requestInfo.AccountId)
@@ -447,7 +457,7 @@ func (svc *PodService) PodContainerLog(req *restful.Request, resp *restful.Respo
 	sinceTime := req.QueryParameter("sinceTime")
 	if len(sinceTime) > 0 {
 		if t, e := time.Parse(time.RFC3339, sinceTime); e == nil {
-			*options.SinceTime = metav1.Time{Time: t}
+			options.SinceTime = &metav1.Time{Time: t}
 		}
 	}
 	stream, err := clientSet.K8sClientSet.CoreV1().Pods(requestInfo.Namespace).GetLogs(pod, &options).Stream(ctx)
@@ -478,20 +488,17 @@ func (svc *PodService) PodContainerLog(req *restful.Request, resp *restful.Respo
 		}
 
 		if err := conn.WriteMessage(websocket.TextMessage, buf[:n]); err != nil {
-			if err := conn.WriteMessage(websocket.TextMessage, buf[:n]); err != nil {
-				// 判断是否为客户端正常/非恶意断开
-				if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) ||
-					strings.Contains(err.Error(), "broken pipe") ||
-					strings.Contains(err.Error(), "connection reset") ||
-					errors.Is(err, syscall.EPIPE) ||
-					errors.Is(err, net.ErrClosed) {
-					config2.Logger.Infof("Client disconnected during log streaming: %v", err)
-				} else {
-					config2.Logger.Errorf("Unexpected error writing to websocket: %v", err)
-				}
-				break // 退出读写循环
+			// 判断是否为客户端正常/非恶意断开
+			if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) ||
+				strings.Contains(err.Error(), "broken pipe") ||
+				strings.Contains(err.Error(), "connection reset") ||
+				errors.Is(err, syscall.EPIPE) ||
+				errors.Is(err, net.ErrClosed) {
+				config2.Logger.Infof("Client disconnected during log streaming: %v", err)
+			} else {
+				config2.Logger.Errorf("Unexpected error writing to websocket: %v", err)
 			}
-			break
+			break // 退出读写循环
 		}
 	}
 }
