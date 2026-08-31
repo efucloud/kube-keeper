@@ -1,0 +1,113 @@
+# kube-keeper 部署清单
+# 注意：
+# 1. 请将本文件中的 mysql.password 与 docs/mysql.yaml 中的 MYSQL_ROOT_PASSWORD 保持一致。
+# 2. 请按实际环境替换镜像地址、OIDC 与大模型配置。
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: kube-keeper-config
+type: Opaque
+stringData:
+  config.yaml: |
+    mysql:
+      host: mysql:3306
+      user: root
+      password: "efucloud@Pwd!"
+      dbname: kube_keeper
+      charset: utf8mb4
+    redis:
+      mode: standalone
+      addresses:
+        - redis:6379
+      username: ""
+      password: "efucloud@Pwd!"
+      masterName: ""
+    logConfig:
+      level: info
+      filename: ""
+      maxsize: 10
+      maxage: 30
+      maxbackups: 10
+      localtime: true
+      compress: false
+      production: true
+    oidcConfig:
+      clientId: c32cnfdlkjhiii73iezdj2kur
+      clientSecret: ket6osfnnmk37bgcszbcc4x7pzjuk5uzlgfulxwqr7u4zwyjhwe
+      issuer: https://eauth-demo.efucloud.com
+    tokenConfig:
+      issuer: kube-keeper
+      expireSeconds: 86400
+    chatConfig:
+      useTool: true
+      provider: openai
+      address: https://api.openai.com/v1
+      apiKey: replace-with-api-key
+      model: gpt-5
+    adminEmails:
+      - admin@efucloud.com
+    terminalContainer: registry.cn-shenzhen.aliyuncs.com/efucloud-public/k8s-tools:v1.0.0.03132013
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-keeper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kube-keeper
+  template:
+    metadata:
+      labels:
+        app: kube-keeper
+    spec:
+      containers:
+        - name: kube-keeper
+          image: ghcr.io/efucloud/kube-keeper:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 9002
+          volumeMounts:
+            - name: config
+              mountPath: /efucloud/config/config.yaml
+              subPath: config.yaml
+              readOnly: true
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+      volumes:
+        - name: config
+          secret:
+            secretName: kube-keeper-config
+            items:
+              - key: config.yaml
+                path: config.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-keeper
+spec:
+  selector:
+    app: kube-keeper
+  ports:
+    - name: http
+      port: 9002
+      targetPort: http
