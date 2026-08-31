@@ -4,12 +4,6 @@ mysql:
   password: EfuCloud
   dbname: kube_keeper
   charset: utf8mb4
-  loc: ""
-  defaultStringSize: 0
-  disableDatetimePrecision: false
-  dontSupportRenameIndex: false
-  dontSupportRenameColumn: false
-  skipInitializeWithVersion: false
 redis: null
 logConfig:
   level: debug

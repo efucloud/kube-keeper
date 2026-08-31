@@ -98,29 +98,11 @@ type MysqlConfig struct {
 	Dbname   string `json:"dbname" yaml:"dbname"`
 	//utf8
 	Charset string `json:"charset" yaml:"charset"`
-	//Local
-	Loc string `json:"loc" yaml:"loc"`
-	//string 类型字段的默认长度
-	DefaultStringSize uint `json:"defaultStringSize" yaml:"defaultStringSize"`
-	//禁用 datetime 精度，MySQL 5.6 之前的数据库不支持
-	DisableDatetimePrecision bool `json:"disableDatetimePrecision" yaml:"disableDatetimePrecision"`
-	//重命名索引时采用删除并新建的方式，MySQL 5.7 之前的数据库和 MariaDB 不支持重命名索引
-	DontSupportRenameIndex bool `json:"dontSupportRenameIndex" yaml:"dontSupportRenameIndex"`
-	//用 `change` 重命名列，MySQL 8 之前的数据库和 MariaDB 不支持重命名列
-	DontSupportRenameColumn bool `json:"dontSupportRenameColumn" yaml:"dontSupportRenameColumn"`
-	//根据当前 MySQL 版本自动配置
-	SkipInitializeWithVersion bool `json:"skipInitializeWithVersion" yaml:"skipInitializeWithVersion"`
 }
 
 func (m *MysqlConfig) Default(ctx context.Context) {
 	if len(m.Charset) == 0 {
 		m.Charset = "utf8mb4"
-	}
-	if len(m.Loc) == 0 {
-		m.Loc = "Local"
-	}
-	if m.DefaultStringSize == 0 {
-		m.DefaultStringSize = 255
 	}
 }
 
