@@ -78,19 +78,6 @@ type LogConfig struct {
 	Production bool `json:"production" yaml:"production"`
 }
 
-type RabbitMQConfig struct {
-	Address string `json:"address" yaml:"address" description:"地址"`
-}
-type RocketMQConfig struct {
-	Address []string `json:"address" yaml:"address" description:"地址"`
-}
-type KafkaConfig struct {
-	Address []string `json:"address" yaml:"address" description:"地址"`
-}
-type PulsarConfig struct {
-	Address []string `json:"address" yaml:"address" description:"地址"`
-}
-
 type MysqlConfig struct {
 	Host     string `json:"host" yaml:"host"`
 	User     string `json:"user" yaml:"user"`

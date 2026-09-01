@@ -27,7 +27,7 @@ type ResourceContext struct {
 	ApiVersion string `json:"apiVersion,omitempty" description:"资源接口版本"`
 }
 
-// StreamEvent 定义向前端发送的 NDJSON envelope 结构。
+// StreamEvent 定义向前端发送的 WebSocket JSON envelope 结构。
 type StreamEvent struct {
 	RequestId string      `json:"requestId,omitempty" description:"请求ID"`
 	SessionId string      `json:"sessionId,omitempty" description:"对话session id"`

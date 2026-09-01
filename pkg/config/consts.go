@@ -20,6 +20,7 @@ const (
 	APIPrefix                          = "/api/v1"
 	ClusterAPIPrefix                   = "/api/v1/cluster/{cluster}"
 	ClusterNamespaceAPIPrefix          = "/api/v1/cluster/{cluster}/namespace/{namespace}"
+	ClusterWebsocketAPIPrefix          = "/api/ws/cluster/{cluster}"
 	ClusterNamespaceWebsocketAPIPrefix = "/api/ws/cluster/{cluster}/namespace/{namespace}"
 	ClusterProxyAPIPrefix              = "/api/v1/proxy/{cluster}"
 	ClusterStreamAPIPrefix             = "/api/stream/cluster/{cluster}"

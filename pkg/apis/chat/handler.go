@@ -2,7 +2,6 @@ package chat
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -16,8 +15,20 @@ import (
 	"github.com/efucloud/kube-keeper/pkg/models/dtos"
 	restfulspec "github.com/emicklei/go-restful-openapi/v2"
 	"github.com/emicklei/go-restful/v3"
+	"github.com/gorilla/websocket"
 	"github.com/mark3labs/mcp-go/mcp"
 )
+
+const (
+	chatWebSocketReadLimit  = 1 << 20
+	chatWebSocketReadWait   = 10 * time.Second
+	chatWebSocketWriteWait  = 10 * time.Second
+	chatWebSocketPingPeriod = 30 * time.Second
+)
+
+var chatWebSocketUpgrader = websocket.Upgrader{
+	CheckOrigin: func(_ *http.Request) bool { return true },
+}
 
 type AiChatResource struct {
 	Router *Router
@@ -29,28 +40,30 @@ func (cp *AiChatResource) AddWebService(ws *restful.WebService) {
 		Description: "AI助手",
 	}
 	common.RegisterApiInfo(apiInfo)
-	ws.Route(ws.POST(config2.ClusterStreamAPIPrefix).
-		Consumes(restful.MIME_JSON).
-		Produces("application/x-ndjson").
+	ws.Route(ws.GET(config2.ClusterWebsocketAPIPrefix+"/chat").
 		Param(ws.HeaderParameter(config2.AuthHeader, "请求token")).
+		Param(ws.QueryParameter("access_token", "浏览器 WebSocket 请求Token")).
+		Param(ws.QueryParameter("lang", "回答语言")).
 		Param(ws.HeaderParameter(config2.ClusterAuthHeader, "集群token")).
 		Param(ws.PathParameter("cluster", "集群编码").Required(true)).
-		To(cp.aiChat).
-		Reads(dtos.ChatRequest{}).
-		Doc("AI助手").
+		To(cp.aiChatWebSocket).
+		Returns(http.StatusSwitchingProtocols, "WebSocket 连接成功", dtos.StreamEvent{}).
+		Doc("AI助手 WebSocket").
 		Filter(filters2.ClientInfo).
 		Filter(filters2.Log).
 		Filter(filters2.I18n).
 		Filter(filters2.Auth).
 		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()))
-	ws.Route(ws.POST(config2.ClusterStreamAPIPrefix+"/namespace/{namespace}").
-		Consumes(restful.MIME_JSON).
-		Produces("application/x-ndjson").
+	ws.Route(ws.GET(config2.ClusterNamespaceWebsocketAPIPrefix+"/chat").
 		Param(ws.HeaderParameter(config2.AuthHeader, "请求token")).
+		Param(ws.QueryParameter("access_token", "浏览器 WebSocket 请求Token")).
+		Param(ws.QueryParameter("lang", "回答语言")).
 		Param(ws.HeaderParameter(config2.ClusterAuthHeader, "集群token")).
 		Param(ws.PathParameter("cluster", "集群编码").Required(true)).
-		To(cp.aiChat).
-		Doc("AI助手").
+		Param(ws.PathParameter("namespace", "Namespace").Required(true)).
+		To(cp.aiChatWebSocket).
+		Returns(http.StatusSwitchingProtocols, "WebSocket 连接成功", dtos.StreamEvent{}).
+		Doc("AI助手 WebSocket").
 		Filter(filters2.ClientInfo).
 		Filter(filters2.Log).
 		Filter(filters2.I18n).
@@ -58,41 +71,92 @@ func (cp *AiChatResource) AddWebService(ws *restful.WebService) {
 		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()))
 }
 
-func (cp *AiChatResource) aiChat(req *restful.Request, resp *restful.Response) {
-	ctx := req.Request.Context()
-	lang := common.GetLanguageFromReq(req, config2.RequestLanguage)
-	ctx = context.WithValue(ctx, config2.RequestLanguage, lang)
-
-	payload, err := parsePayload(req)
+func (cp *AiChatResource) aiChatWebSocket(req *restful.Request, resp *restful.Response) {
+	conn, err := chatWebSocketUpgrader.Upgrade(resp.ResponseWriter, req.Request, nil)
 	if err != nil {
-		http.Error(resp.ResponseWriter, err.Error(), http.StatusBadRequest)
+		config2.Logger.Errorf("upgrade AI chat WebSocket failed: %v", err)
 		return
 	}
-	domainReq := buildDomainRequest(req, payload)
+	defer conn.Close()
+
+	conn.SetReadLimit(chatWebSocketReadLimit)
+	if err := conn.SetReadDeadline(time.Now().Add(chatWebSocketReadWait)); err != nil {
+		writeChatWebSocketClose(conn, websocket.CloseInternalServerErr, "failed to initialize connection")
+		return
+	}
+	var payload dtos.ChatHTTPPayload
+	if err := conn.ReadJSON(&payload); err != nil {
+		writeChatWebSocketClose(conn, websocket.CloseInvalidFramePayloadData, "invalid chat request")
+		return
+	}
+	if err := conn.SetReadDeadline(time.Time{}); err != nil {
+		writeChatWebSocketClose(conn, websocket.CloseInternalServerErr, "failed to initialize connection")
+		return
+	}
+	if strings.TrimSpace(payload.Message) == "" {
+		writeChatWebSocketClose(conn, websocket.ClosePolicyViolation, "message is required")
+		return
+	}
+
+	ctx, cancel := context.WithCancel(req.Request.Context())
+	defer cancel()
+	go watchChatWebSocketClose(cancel, conn)
+
+	lang := common.GetLanguageFromReq(req, config2.RequestLanguage)
+	ctx = context.WithValue(ctx, config2.RequestLanguage, lang)
+	domainReq := buildDomainRequest(req, &payload)
 	domainReq.Context.Language = normalizeChatLanguage(lang)
 	if config2.ApplicationConfig.ChatConfig.UseTool {
 		domainReq.AvailableTools = loadBuiltinMCPTools(ctx, domainReq)
 	}
 
 	stream := cp.Router.Route(ctx, domainReq)
-
-	resp.AddHeader("Content-Type", "application/x-ndjson")
-	resp.WriteHeader(http.StatusOK)
-
-	flusher, ok := resp.ResponseWriter.(http.Flusher)
-	if !ok {
-		http.Error(resp.ResponseWriter, "Streaming unsupported", http.StatusInternalServerError)
-		return
+	pingTicker := time.NewTicker(chatWebSocketPingPeriod)
+	defer pingTicker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case event, ok := <-stream:
+			if !ok {
+				writeChatWebSocketClose(conn, websocket.CloseNormalClosure, "chat complete")
+				return
+			}
+			if err := writeChatWebSocketJSON(conn, event); err != nil {
+				cancel()
+				return
+			}
+		case <-pingTicker.C:
+			if err := conn.WriteControl(websocket.PingMessage, nil, time.Now().Add(chatWebSocketWriteWait)); err != nil {
+				cancel()
+				return
+			}
+		}
 	}
+}
 
-	encoder := json.NewEncoder(resp.ResponseWriter)
-
-	for event := range stream {
-
-		encoder.Encode(event)
-
-		flusher.Flush()
+func watchChatWebSocketClose(cancel context.CancelFunc, conn *websocket.Conn) {
+	for {
+		if _, _, err := conn.ReadMessage(); err != nil {
+			cancel()
+			return
+		}
 	}
+}
+
+func writeChatWebSocketJSON(conn *websocket.Conn, value any) error {
+	if err := conn.SetWriteDeadline(time.Now().Add(chatWebSocketWriteWait)); err != nil {
+		return err
+	}
+	return conn.WriteJSON(value)
+}
+
+func writeChatWebSocketClose(conn *websocket.Conn, code int, reason string) {
+	_ = conn.WriteControl(
+		websocket.CloseMessage,
+		websocket.FormatCloseMessage(code, reason),
+		time.Now().Add(chatWebSocketWriteWait),
+	)
 }
 
 func isEnglishChatLanguage(language string) bool {
@@ -108,20 +172,6 @@ func normalizeChatLanguage(language string) string {
 		return "English"
 	}
 	return "中文"
-}
-
-func parsePayload(req *restful.Request) (*dtos.ChatHTTPPayload, error) {
-
-	var payload dtos.ChatHTTPPayload
-
-	if err := req.ReadEntity(&payload); err != nil {
-		return nil, fmt.Errorf("invalid json")
-	}
-	if strings.TrimSpace(payload.Message) == "" {
-		return nil, fmt.Errorf("message is required")
-	}
-
-	return &payload, nil
 }
 
 func buildDomainRequest(req *restful.Request, payload *dtos.ChatHTTPPayload) ChatRequest {
@@ -148,12 +198,17 @@ func buildDomainRequest(req *restful.Request, payload *dtos.ChatHTTPPayload) Cha
 		}
 	}
 
+	authToken := filters2.GetRequestToken(config2.AuthHeader, req)
+	if authToken == "" {
+		authToken = req.QueryParameter("access_token")
+	}
+
 	return ChatRequest{
 		Mode:      ParseMode(payload.Mode),
 		Question:  payload.Message,
 		SessionId: payload.SessionId,
 		RequestId: payload.RequestId,
-		AuthToken: filters2.GetRequestToken(config2.AuthHeader, req),
+		AuthToken: authToken,
 		Context:   ctxInfo,
 		Resource:  resource,
 		CNCFInfo:  cncfInfo,
