@@ -52,6 +52,13 @@ func TestConfig(t *testing.T) {
 			Dbname:   "kube_keeper",
 			Charset:  "utf8mb4",
 		},
+		Redis: &RedisConfig{
+			Mode:       "standalone",
+			Addresses:  []string{"localhost:6379"},
+			Username:   "",
+			Password:   "",
+			MasterName: "",
+		},
 		AdminEmails: []string{"admin@efucloud.cn", "admin@efucloud.com"},
 		ChatConfig: ChatConfig{
 			UseTool: true,

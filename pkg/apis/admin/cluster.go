@@ -278,6 +278,7 @@ func (r ClusterResource) listClusterUser(req *restful.Request, resp *restful.Res
 	cluster, _ := clusterSvc.GetClusterByCode(ctx, req.PathParameter("cluster"))
 	common.QueryEqual("cluster_id", cluster.ID, queryParam)
 	result, _ = clusterAccSvc.ListClusterAccount(ctx, page, size, order, queryParam.WhereQuery, queryParam.WhereArgs)
+	clearClusterAccountListCredentials(&result)
 	common.ResponseSuccess(resp, result)
 }
 func (r ClusterResource) createClusterSupperUser(req *restful.Request, resp *restful.Response) {
@@ -311,6 +312,7 @@ func (r ClusterResource) createClusterSupperUser(req *restful.Request, resp *res
 		common.ResponseErrorMessage(ctx, req, resp, config.Bundle, errorData)
 		return
 	}
+	clearClusterAccountCredentials(&result)
 	common.ResponseSuccess(resp, result)
 }
 
@@ -337,9 +339,7 @@ func (r ClusterResource) getById(req *restful.Request, resp *restful.Response) {
 		common.ResponseErrorMessage(ctx, req, resp, config.Bundle, errorData)
 		return
 	}
-	result.CertificateAuthority = ""
-	result.ClientKey = ""
-	result.ClientCertificate = ""
+	clearClusterCredentials(&result)
 	common.ResponseSuccess(resp, result)
 }
 func (r ClusterResource) getByCode(req *restful.Request, resp *restful.Response) {
@@ -367,9 +367,7 @@ func (r ClusterResource) getByCode(req *restful.Request, resp *restful.Response)
 		common.ResponseErrorMessage(ctx, req, resp, config.Bundle, errorData)
 		return
 	}
-	result.CertificateAuthority = ""
-	result.ClientKey = ""
-	result.ClientCertificate = ""
+	clearClusterCredentials(&result)
 	common.ResponseSuccess(resp, result)
 }
 func (r ClusterResource) delete(req *restful.Request, resp *restful.Response) {
@@ -442,6 +440,7 @@ func (r ClusterResource) create(req *restful.Request, resp *restful.Response) {
 		common.ResponseErrorMessage(ctx, req, resp, config.Bundle, errorData)
 		return
 	}
+	clearClusterCredentials(&result)
 	common.ResponseSuccess(resp, result)
 }
 
@@ -481,9 +480,7 @@ func (r ClusterResource) update(req *restful.Request, resp *restful.Response) {
 		common.ResponseErrorMessage(ctx, req, resp, config.Bundle, errorData)
 		return
 	}
-	result.CertificateAuthority = ""
-	result.ClientKey = ""
-	result.ClientCertificate = ""
+	clearClusterCredentials(&result)
 	common.ResponseSuccess(resp, result)
 }
 
@@ -511,10 +508,6 @@ func (r ClusterResource) list(req *restful.Request, resp *restful.Response) {
 		common.ResponseErrorMessage(ctx, req, resp, config.Bundle, errorData)
 		return
 	}
-	for i := range results.Data {
-		results.Data[i].CertificateAuthority = ""
-		results.Data[i].ClientKey = ""
-		results.Data[i].ClientCertificate = ""
-	}
+	clearClusterListCredentials(&results)
 	common.ResponseSuccess(resp, results)
 }

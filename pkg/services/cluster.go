@@ -17,6 +17,37 @@ type ClusterService struct {
 	repo repositories.ClusterRepository
 }
 
+// clusterCacheEntry keeps credentials in the internal cache without changing
+// ClusterDetail's public JSON representation. The DTO deliberately hides these
+// fields from API responses with json:"-".
+type clusterCacheEntry struct {
+	Version              int                `json:"version"`
+	Detail               dtos.ClusterDetail `json:"detail"`
+	CertificateAuthority string             `json:"certificateAuthority"`
+	ClientCertificate    string             `json:"clientCertificate"`
+	ClientKey            string             `json:"clientKey"`
+}
+
+const clusterCacheVersion = 1
+
+func newClusterCacheEntry(model dtos.ClusterDetail) clusterCacheEntry {
+	return clusterCacheEntry{
+		Version:              clusterCacheVersion,
+		Detail:               model,
+		CertificateAuthority: model.CertificateAuthority,
+		ClientCertificate:    model.ClientCertificate,
+		ClientKey:            model.ClientKey,
+	}
+}
+
+func (entry clusterCacheEntry) clusterDetail() dtos.ClusterDetail {
+	model := entry.Detail
+	model.CertificateAuthority = entry.CertificateAuthority
+	model.ClientCertificate = entry.ClientCertificate
+	model.ClientKey = entry.ClientKey
+	return model
+}
+
 func (svc *ClusterService) cacheKeyByID(id string) string {
 	return config2.CacheKey("cache", "cluster", "id", id)
 }
@@ -30,8 +61,18 @@ func (svc *ClusterService) writeClusterCache(ctx context.Context, model dtos.Clu
 		return
 	}
 	ttl := config2.DefaultCacheTTL()
-	setJSONCache(ctx, svc.cacheKeyByID(model.ID), model, ttl)
-	setJSONCache(ctx, svc.cacheKeyByCode(model.Code), model, ttl)
+	entry := newClusterCacheEntry(model)
+	setJSONCache(ctx, svc.cacheKeyByID(model.ID), entry, ttl)
+	setJSONCache(ctx, svc.cacheKeyByCode(model.Code), entry, ttl)
+}
+
+func (svc *ClusterService) getClusterCache(ctx context.Context, key string, result *dtos.ClusterDetail) bool {
+	var entry clusterCacheEntry
+	if !getJSONCache(ctx, key, &entry) || entry.Version != clusterCacheVersion {
+		return false
+	}
+	*result = entry.clusterDetail()
+	return result.ID != ""
 }
 
 func (svc *ClusterService) invalidateClusterCache(ctx context.Context, id, code string) {
@@ -47,7 +88,7 @@ func (svc *ClusterService) invalidateClusterCache(ctx context.Context, id, code 
 
 func (svc *ClusterService) getClusterCodeForInvalidate(ctx context.Context, id string) string {
 	var cached dtos.ClusterDetail
-	if getJSONCache(ctx, svc.cacheKeyByID(id), &cached) && cached.Code != "" {
+	if svc.getClusterCache(ctx, svc.cacheKeyByID(id), &cached) && cached.Code != "" {
 		return cached.Code
 	}
 	result, errorData := svc.repo.GetClusterByID(ctx, id)
@@ -68,7 +109,7 @@ func (svc *ClusterService) init(ctx context.Context) {
 
 func (svc *ClusterService) GetClusterByID(ctx context.Context, id string) (result dtos.ClusterDetail, errorData common.ErrorData) {
 	svc.init(ctx)
-	if getJSONCache(ctx, svc.cacheKeyByID(id), &result) {
+	if svc.getClusterCache(ctx, svc.cacheKeyByID(id), &result) {
 		config2.Logger.Debugf("cluster cache hit by id, id=%s, code=%s", id, result.Code)
 		return result, errorData
 	}
@@ -119,7 +160,7 @@ func (svc *ClusterService) GetAllClusters(ctx context.Context) (results dtos.Clu
 
 func (svc *ClusterService) GetClusterByCode(ctx context.Context, cluster string) (result dtos.ClusterDetail, errorData common.ErrorData) {
 	svc.init(ctx)
-	if getJSONCache(ctx, svc.cacheKeyByCode(cluster), &result) {
+	if svc.getClusterCache(ctx, svc.cacheKeyByCode(cluster), &result) {
 		config2.Logger.Debugf("cluster cache hit by code, code=%s, id=%s", cluster, result.ID)
 		return result, errorData
 	}

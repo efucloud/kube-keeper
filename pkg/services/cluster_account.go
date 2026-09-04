@@ -16,6 +16,33 @@ type ClusterAccountService struct {
 	repo repositories.ClusterAccountRepository
 }
 
+// clusterAccountCacheEntry preserves credentials that ClusterAccountDetail
+// intentionally omits from its public JSON representation.
+type clusterAccountCacheEntry struct {
+	Version           int                       `json:"version"`
+	Detail            dtos.ClusterAccountDetail `json:"detail"`
+	ClientCertificate string                    `json:"clientCertificate"`
+	ClientKey         string                    `json:"clientKey"`
+}
+
+const clusterAccountCacheVersion = 1
+
+func newClusterAccountCacheEntry(model dtos.ClusterAccountDetail) clusterAccountCacheEntry {
+	return clusterAccountCacheEntry{
+		Version:           clusterAccountCacheVersion,
+		Detail:            model,
+		ClientCertificate: model.ClientCertificate,
+		ClientKey:         model.ClientKey,
+	}
+}
+
+func (entry clusterAccountCacheEntry) clusterAccountDetail() dtos.ClusterAccountDetail {
+	model := entry.Detail
+	model.ClientCertificate = entry.ClientCertificate
+	model.ClientKey = entry.ClientKey
+	return model
+}
+
 func (svc *ClusterAccountService) cacheKeyByID(id string) string {
 	return config2.CacheKey("cache", "cluster_account", "id", id)
 }
@@ -28,10 +55,20 @@ func (svc *ClusterAccountService) writeClusterAccountCache(ctx context.Context, 
 	if model.ID == "" {
 		return
 	}
-	setJSONCache(ctx, svc.cacheKeyByID(model.ID), model, config2.DefaultCacheTTL())
+	entry := newClusterAccountCacheEntry(model)
+	setJSONCache(ctx, svc.cacheKeyByID(model.ID), entry, config2.DefaultCacheTTL())
 	if model.ClusterId != "" && model.AccountId != "" {
-		setJSONCache(ctx, svc.cacheKeyByClusterAccount(model.ClusterId, model.AccountId), model, config2.DefaultCacheTTL())
+		setJSONCache(ctx, svc.cacheKeyByClusterAccount(model.ClusterId, model.AccountId), entry, config2.DefaultCacheTTL())
 	}
+}
+
+func (svc *ClusterAccountService) getClusterAccountCache(ctx context.Context, key string, result *dtos.ClusterAccountDetail) bool {
+	var entry clusterAccountCacheEntry
+	if !getJSONCache(ctx, key, &entry) || entry.Version != clusterAccountCacheVersion {
+		return false
+	}
+	*result = entry.clusterAccountDetail()
+	return result.ID != ""
 }
 
 func (svc *ClusterAccountService) invalidateClusterAccountCache(ctx context.Context, id, clusterId, accountId string) {
@@ -46,7 +83,7 @@ func (svc *ClusterAccountService) invalidateClusterAccountCache(ctx context.Cont
 }
 
 func (svc *ClusterAccountService) getClusterAccountForInvalidate(ctx context.Context, id string) (detail dtos.ClusterAccountDetail) {
-	_ = getJSONCache(ctx, svc.cacheKeyByID(id), &detail)
+	_ = svc.getClusterAccountCache(ctx, svc.cacheKeyByID(id), &detail)
 	if detail.ID != "" {
 		return detail
 	}
@@ -65,7 +102,7 @@ func (svc *ClusterAccountService) init(ctx context.Context) {
 
 func (svc *ClusterAccountService) GetClusterAccountByID(ctx context.Context, id string) (result dtos.ClusterAccountDetail, errorData common.ErrorData) {
 	svc.init(ctx)
-	if getJSONCache(ctx, svc.cacheKeyByID(id), &result) {
+	if svc.getClusterAccountCache(ctx, svc.cacheKeyByID(id), &result) {
 		config2.Logger.Debugf("clusterAccount cache hit by id, id=%s, clusterId=%s, accountId=%s", id, result.ClusterId, result.AccountId)
 		return result, errorData
 	}
@@ -81,7 +118,7 @@ func (svc *ClusterAccountService) GetClusterAccountByID(ctx context.Context, id 
 
 func (svc *ClusterAccountService) GetClusterAccountInfoByAccountID(ctx context.Context, requestInfo structs.RequestInfo, accountId string) (result dtos.ClusterAccountDetail, errorData common.ErrorData) {
 	svc.init(ctx)
-	if getJSONCache(ctx, svc.cacheKeyByClusterAccount(requestInfo.ClusterId, accountId), &result) {
+	if svc.getClusterAccountCache(ctx, svc.cacheKeyByClusterAccount(requestInfo.ClusterId, accountId), &result) {
 		config2.Logger.Debugf("clusterAccount cache hit by cluster+account, clusterId=%s, accountId=%s, id=%s", requestInfo.ClusterId, accountId, result.ID)
 		return result, errorData
 	}

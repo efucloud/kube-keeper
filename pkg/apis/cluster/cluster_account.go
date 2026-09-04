@@ -231,6 +231,7 @@ func (r ClusterAccountResource) get(req *restful.Request, resp *restful.Response
 		common.ResponseErrorMessage(ctx, req, resp, config2.Bundle, errorData)
 		return
 	}
+	clearClusterAccountCredentials(&result)
 	common.ResponseSuccess(resp, result)
 }
 func (r ClusterAccountResource) delete(req *restful.Request, resp *restful.Response) {
@@ -309,5 +310,6 @@ func (r ClusterAccountResource) list(req *restful.Request, resp *restful.Respons
 		common.ResponseErrorMessage(ctx, req, resp, config2.Bundle, errorData)
 		return
 	}
+	clearClusterAccountListCredentials(&results)
 	common.ResponseSuccess(resp, results)
 }

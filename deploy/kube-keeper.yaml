@@ -65,7 +65,7 @@ spec:
     spec:
       containers:
         - name: kube-keeper
-          image: ghcr.io/efucloud/kube-keeper:latest
+          image: registry.cn-shenzhen.aliyuncs.com/efucloud-public/kube-keeper:v1.0.0.202609011101
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

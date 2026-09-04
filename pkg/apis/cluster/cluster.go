@@ -387,5 +387,6 @@ func (r ClusterResource) info(req *restful.Request, resp *restful.Response) {
 		common.ResponseErrorMessage(ctx, req, resp, config.Bundle, errorData)
 		return
 	}
+	clearClusterCredentials(&cluster)
 	common.ResponseSuccess(resp, cluster)
 }

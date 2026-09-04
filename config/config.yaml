@@ -4,7 +4,13 @@ mysql:
   password: EfuCloud
   dbname: kube_keeper
   charset: utf8mb4
-redis: null
+redis:
+  mode: standalone
+  addresses:
+    - localhost:6379
+  username: ""
+  password: ""
+  masterName: ""
 logConfig:
   level: debug
   filename: ""
