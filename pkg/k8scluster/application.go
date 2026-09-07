@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"strings"
 	"text/template"
 
@@ -301,7 +300,7 @@ func prepareApplicationParams(definitions dtos.ParameterDefinitions, supplied dt
 	params := make(dtos.ApplicationRenderParams, len(definitions)+len(supplied)+2)
 	for _, definition := range definitions {
 		if definition.DefaultValue != nil {
-			params[definition.Name] = definition.DefaultValue
+			params[definition.Name] = *definition.DefaultValue
 		}
 	}
 	for key, value := range supplied {
@@ -312,100 +311,17 @@ func prepareApplicationParams(definitions dtos.ParameterDefinitions, supplied dt
 
 	for _, definition := range definitions {
 		value, exists := params[definition.Name]
-		if exists && value != nil {
-			normalized, err := normalizeApplicationParameter(definition.Type, value)
-			if err != nil {
-				return nil, fmt.Errorf("application parameter %s is invalid: %w", definition.Name, err)
-			}
-			params[definition.Name] = normalized
-			value = normalized
-		}
-		if definition.Required && applicationParameterIsEmpty(value, exists) {
+		if definition.Required && (!exists || strings.TrimSpace(value) == "") {
 			return nil, fmt.Errorf("required application parameter %s is missing", definition.Name)
 		}
-		if exists && value != nil && !applicationParameterAllowed(value, definition.AllowableValues) {
+		if exists && !applicationParameterAllowed(value, definition.AllowableValues) {
 			return nil, fmt.Errorf("application parameter %s is not an allowable value", definition.Name)
 		}
 	}
 	return params, nil
 }
 
-func normalizeApplicationParameter(parameterType string, value interface{}) (interface{}, error) {
-	switch parameterType {
-	case "stringArray":
-		if values, ok := value.([]string); ok {
-			return values, nil
-		}
-		if raw, ok := value.(string); ok {
-			var values []string
-			if strings.HasPrefix(strings.TrimSpace(raw), "[") && json.Unmarshal([]byte(raw), &values) == nil {
-				return values, nil
-			}
-			return []string{raw}, nil
-		}
-		encoded, _ := json.Marshal(value)
-		var rawValues []interface{}
-		if err := json.Unmarshal(encoded, &rawValues); err != nil {
-			return nil, fmt.Errorf("must be an array")
-		}
-		values := make([]string, 0, len(rawValues))
-		for _, item := range rawValues {
-			values = append(values, fmt.Sprint(item))
-		}
-		return values, nil
-	case "numberArray":
-		rawValues := make([]interface{}, 0)
-		if raw, ok := value.(string); ok {
-			if strings.HasPrefix(strings.TrimSpace(raw), "[") && json.Unmarshal([]byte(raw), &rawValues) == nil {
-				// Parsed below.
-			} else {
-				rawValues = append(rawValues, raw)
-			}
-		} else {
-			encoded, _ := json.Marshal(value)
-			if err := json.Unmarshal(encoded, &rawValues); err != nil {
-				rawValues = append(rawValues, value)
-			}
-		}
-		values := make([]float64, 0, len(rawValues))
-		for _, item := range rawValues {
-			number, err := strconv.ParseFloat(fmt.Sprint(item), 64)
-			if err != nil {
-				return nil, fmt.Errorf("%q is not a number", item)
-			}
-			values = append(values, number)
-		}
-		return values, nil
-	case "object":
-		if raw, ok := value.(string); ok {
-			var object interface{}
-			if err := json.Unmarshal([]byte(raw), &object); err != nil {
-				return nil, fmt.Errorf("must be valid JSON")
-			}
-			return object, nil
-		}
-	}
-	return value, nil
-}
-
-func applicationParameterIsEmpty(value interface{}, exists bool) bool {
-	if !exists || value == nil {
-		return true
-	}
-	switch typed := value.(type) {
-	case string:
-		return strings.TrimSpace(typed) == ""
-	case []string:
-		return len(typed) == 0
-	case []float64:
-		return len(typed) == 0
-	case []interface{}:
-		return len(typed) == 0
-	}
-	return false
-}
-
-func applicationParameterAllowed(value, allowed interface{}) bool {
+func applicationParameterAllowed(value string, allowed interface{}) bool {
 	if allowed == nil {
 		return true
 	}
@@ -417,35 +333,15 @@ func applicationParameterAllowed(value, allowed interface{}) bool {
 	if json.Unmarshal(encoded, &choices) != nil || len(choices) == 0 {
 		return true
 	}
-	values := []interface{}{value}
-	if array, ok := value.([]string); ok {
-		values = make([]interface{}, len(array))
-		for i := range array {
-			values[i] = array[i]
+	for _, choice := range choices {
+		if object, ok := choice.(map[string]interface{}); ok {
+			choice = object["value"]
+		}
+		if fmt.Sprint(choice) == value {
+			return true
 		}
 	}
-	if array, ok := value.([]float64); ok {
-		values = make([]interface{}, len(array))
-		for i := range array {
-			values[i] = array[i]
-		}
-	}
-	for _, candidate := range values {
-		matched := false
-		for _, choice := range choices {
-			if object, ok := choice.(map[string]interface{}); ok {
-				choice = object["value"]
-			}
-			if fmt.Sprint(choice) == fmt.Sprint(candidate) {
-				matched = true
-				break
-			}
-		}
-		if !matched {
-			return false
-		}
-	}
-	return true
+	return false
 }
 
 func applyApplicationResource(ctx context.Context, client *ClusterClientSet, namespace string, resource *dtos.ApplicationKubernetesResource, dryRun bool) {

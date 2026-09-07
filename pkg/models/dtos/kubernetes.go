@@ -370,7 +370,7 @@ func (m ApplicationKubernetesResources) Value() (driver.Value, error) {
 	return re, err
 }
 
-type ApplicationRenderParams map[string]any
+type ApplicationRenderParams map[string]string
 
 // GormDataType gorm common data type
 func (m ApplicationRenderParams) GormDataType() string {

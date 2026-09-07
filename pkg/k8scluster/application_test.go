@@ -1,7 +1,6 @@
 package k8scluster
 
 import (
-	"reflect"
 	"strings"
 	"testing"
 
@@ -20,36 +19,31 @@ func TestRenderApplicationTemplate(t *testing.T) {
 }
 
 func TestRenderApplicationTemplateFunctions(t *testing.T) {
-	content := "items:\n_{{_ toYaml .items | indent 2 _}}_"
-	result, err := renderApplicationTemplate(content, dtos.ApplicationRenderParams{"items": []string{"one", "two"}})
+	content := "value: |-\n_{{_ indent 2 .value _}}_"
+	result, err := renderApplicationTemplate(content, dtos.ApplicationRenderParams{"value": "one\ntwo"})
 	if err != nil {
 		t.Fatalf("renderApplicationTemplate() error = %v", err)
 	}
-	if !strings.Contains(result, "  - one") || !strings.Contains(result, "  - two") {
+	if !strings.Contains(result, "  one\n  two") {
 		t.Fatalf("unexpected rendered template:\n%s", result)
 	}
 }
 
 func TestPrepareApplicationParams(t *testing.T) {
 	definitions := dtos.ParameterDefinitions{
-		{Name: "images", Type: "stringArray", Required: true},
-		{Name: "ports", Type: "numberArray", AllowableValues: []interface{}{80, map[string]interface{}{"name": "HTTPS", "value": 443}}},
-		{Name: "config", Type: "object"},
+		{Name: "image", Required: true},
+		{Name: "tier", AllowableValues: []interface{}{"web", map[string]interface{}{"name": "Worker", "value": "worker"}}},
 	}
 	params, err := prepareApplicationParams(definitions, dtos.ApplicationRenderParams{
-		"images": "nginx:latest",
-		"ports":  []interface{}{80.0, 443.0},
-		"config": `{"enabled":true}`,
-		"name":   "must-not-win",
+		"image": "nginx:latest",
+		"tier":  "worker",
+		"name":  "must-not-win",
 	}, "demo", "default")
 	if err != nil {
 		t.Fatalf("prepareApplicationParams() error = %v", err)
 	}
-	if !reflect.DeepEqual(params["images"], []string{"nginx:latest"}) {
-		t.Fatalf("unexpected images: %#v", params["images"])
-	}
-	if !reflect.DeepEqual(params["ports"], []float64{80, 443}) {
-		t.Fatalf("unexpected ports: %#v", params["ports"])
+	if params["image"] != "nginx:latest" || params["tier"] != "worker" {
+		t.Fatalf("unexpected parameters: %#v", params)
 	}
 	if params["name"] != "demo" || params["namespace"] != "default" {
 		t.Fatalf("reserved parameters were not injected: %#v", params)
@@ -57,7 +51,7 @@ func TestPrepareApplicationParams(t *testing.T) {
 }
 
 func TestPrepareApplicationParamsRejectsInvalidValues(t *testing.T) {
-	definitions := dtos.ParameterDefinitions{{Name: "tier", Type: "string", Required: true, AllowableValues: []string{"web", "worker"}}}
+	definitions := dtos.ParameterDefinitions{{Name: "tier", Required: true, AllowableValues: []string{"web", "worker"}}}
 	if _, err := prepareApplicationParams(definitions, dtos.ApplicationRenderParams{"tier": "database"}, "demo", "default"); err == nil {
 		t.Fatal("prepareApplicationParams() expected an allowable-value error")
 	}
