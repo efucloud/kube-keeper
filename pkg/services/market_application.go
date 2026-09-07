@@ -40,6 +40,10 @@ func (svc *MarketApplicationService) Add(ctx context.Context, model dtos.MarketA
 		errorData.MsgCode = config.MsgCodeRequestDataInvalid
 		return
 	}
+	if errorData.Err = validateMarketApplicationDictionaryValues(ctx, model.Category, model.Tags); errorData.IsNotNil() {
+		errorData.MsgCode = config.MsgCodeRequestDataInvalid
+		return
+	}
 	return svc.repo.Add(ctx, model)
 }
 
@@ -50,7 +54,47 @@ func (svc *MarketApplicationService) Update(ctx context.Context, model dtos.Mark
 		errorData.MsgCode = config.MsgCodeRequestDataInvalid
 		return
 	}
+	if errorData.Err = validateMarketApplicationDictionaryValues(ctx, model.Category, model.Tags); errorData.IsNotNil() {
+		errorData.MsgCode = config.MsgCodeRequestDataInvalid
+		return
+	}
 	return svc.repo.Update(ctx, model)
+}
+
+func validateMarketApplicationDictionaryValues(ctx context.Context, category string, tags []string) error {
+	dictionaryService := DataDictionaryService{}
+	categoryDictionary, categoryError := dictionaryService.Get(ctx, dtos.ApplicationCategoryDictionaryCode)
+	if categoryError.IsNotNil() {
+		return fmt.Errorf("get application category dictionary: %w", categoryError.Err)
+	}
+	tagDictionary, tagError := dictionaryService.Get(ctx, dtos.ApplicationTagDictionaryCode)
+	if tagError.IsNotNil() {
+		return fmt.Errorf("get application tag dictionary: %w", tagError.Err)
+	}
+
+	allowedCategories := make(map[string]struct{}, len(categoryDictionary.Lines))
+	for _, line := range categoryDictionary.Lines {
+		allowedCategories[line.Value] = struct{}{}
+	}
+	if _, exists := allowedCategories[category]; !exists {
+		return fmt.Errorf("application category %q is not in data dictionary", category)
+	}
+
+	allowedTags := make(map[string]struct{}, len(tagDictionary.Lines))
+	for _, line := range tagDictionary.Lines {
+		allowedTags[line.Value] = struct{}{}
+	}
+	selectedTags := make(map[string]struct{}, len(tags))
+	for _, tag := range tags {
+		if _, exists := allowedTags[tag]; !exists {
+			return fmt.Errorf("application tag %q is not in data dictionary", tag)
+		}
+		if _, exists := selectedTags[tag]; exists {
+			return fmt.Errorf("application tag %q is duplicated", tag)
+		}
+		selectedTags[tag] = struct{}{}
+	}
+	return nil
 }
 
 func (svc *MarketApplicationService) UpdateState(ctx context.Context, model dtos.MarketApplicationState) common.ErrorData {

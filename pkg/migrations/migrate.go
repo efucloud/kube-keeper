@@ -31,6 +31,7 @@ func DatabaseMigrate() {
 		&daos2.TerminalAuditLog{},
 		&daos2.Application{},
 		&daos2.MarketApplication{},
+		&daos2.DataDictionary{},
 	}
 	err := config.DBConnect.Migrator().AutoMigrate(migs...)
 	if err != nil {

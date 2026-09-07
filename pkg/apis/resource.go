@@ -27,6 +27,7 @@ func GetWebServices(container *restful.Container) *restful.WebService {
 	cluster.ClusterAccountResource{Svc: services2.ClusterAccountService{}}.AddWebService(ws)
 	v2.BuiltinShellCommandResource{Svc: services2.BuiltinShellCommandService{}}.AddWebService(ws)
 	v2.InfoResource{}.AddWebService(ws)
+	v2.DataDictionaryResource{Svc: services2.DataDictionaryService{}}.AddWebService(ws)
 	v2.MarketApplicationResource{Svc: services2.MarketApplicationService{}}.AddWebService(ws)
 	v2.ApplicationResource{Svc: services2.ApplicationService{}}.AddWebService(ws)
 	v2.OAuthResource{}.AddWebService(ws)

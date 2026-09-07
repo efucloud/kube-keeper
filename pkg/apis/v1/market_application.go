@@ -22,7 +22,7 @@ type MarketApplicationResource struct {
 }
 
 func (r MarketApplicationResource) AddWebService(ws *restful.WebService) {
-	info := common.ApiInfo{Tag: "market-application", Description: "Base 应用市场"}
+	info := common.ApiInfo{Tag: "market-application", Description: "应用市场"}
 	common.RegisterApiInfo(info)
 	path := config.APIPrefix + "/market-application"
 	userFilters := []restful.FilterFunction{filters.ClientInfo, filters.I18n, filters.Log, filters.Auth}
@@ -48,10 +48,10 @@ func (r MarketApplicationResource) AddWebService(ws *restful.WebService) {
 		Param(ws.PathParameter("id", "应用ID")).To(r.get).
 		Returns(http.StatusOK, "成功", dtos.MarketApplicationDetail{}), userFilters).
 		Metadata(config.FrontApiTag, "getMarketApplication"))
-	ws.Route(addFilters(ws.POST(path).Doc("创建 Base 应用").Reads(dtos.MarketApplicationCreate{}).
+	ws.Route(addFilters(ws.POST(path).Doc("创建应用").Reads(dtos.MarketApplicationCreate{}).
 		To(r.create).Returns(http.StatusOK, "成功", dtos.MarketApplicationDetail{}), adminFilters).
 		Metadata(config.FrontApiTag, "createMarketApplication"))
-	ws.Route(addFilters(ws.PUT(path).Doc("更新 Base 应用").Reads(dtos.MarketApplicationUpdate{}).
+	ws.Route(addFilters(ws.PUT(path).Doc("更新应用").Reads(dtos.MarketApplicationUpdate{}).
 		To(r.update).Returns(http.StatusOK, "成功", dtos.MarketApplicationDetail{}), adminFilters).
 		Metadata(config.FrontApiTag, "updateMarketApplication"))
 	ws.Route(addFilters(ws.PUT(path+"/state").Doc("发布或下架应用").Reads(dtos.MarketApplicationState{}).
@@ -60,24 +60,24 @@ func (r MarketApplicationResource) AddWebService(ws *restful.WebService) {
 	ws.Route(addFilters(ws.DELETE(path).Doc("删除应用").Reads(dtos.BatchOperationIds{}).
 		To(r.delete).Returns(http.StatusOK, "成功", "success"), adminFilters).
 		Metadata(config.FrontApiTag, "deleteMarketApplication"))
-	ws.Route(addFilters(ws.POST(path+"/import").Doc("从 YAML 或 JSON 导入 Base 应用").
+	ws.Route(addFilters(ws.POST(path+"/import").Doc("从 YAML 或 JSON 导入应用").
 		To(r.importApplication).Returns(http.StatusOK, "成功", dtos.MarketApplicationDetail{}), adminFilters).
 		Metadata(config.FrontApiTag, "importMarketApplication"))
-	ws.Route(addFilters(ws.GET(path+"/{id}/export").Doc("导出 Base 应用").
+	ws.Route(addFilters(ws.GET(path+"/{id}/export").Doc("导出应用").
 		Param(ws.PathParameter("id", "应用ID")).To(r.exportApplication).
 		Returns(http.StatusOK, "成功", dtos.MarketApplicationExportImport{}), userFilters).
 		Metadata(config.FrontApiTag, "exportMarketApplication"))
 
 	deployPath := config.ClusterNamespaceAPIPrefix + "/market-application/{id}"
-	ws.Route(addFilters(ws.POST(deployPath+"/render").Doc("渲染 Base 应用资源").
+	ws.Route(addFilters(ws.POST(deployPath+"/render").Doc("渲染应用资源").
 		Reads(dtos.ApplicationDeployRequest{}).To(r.render).
 		Returns(http.StatusOK, "成功", dtos.ApplicationRenderResult{}), userFilters).
 		Metadata(config.FrontApiTag, "renderMarketApplication"))
-	ws.Route(addFilters(ws.POST(deployPath+"/validate").Doc("试部署校验 Base 应用资源").
+	ws.Route(addFilters(ws.POST(deployPath+"/validate").Doc("试部署校验应用资源").
 		Reads(dtos.ApplicationDeployRequest{}).To(r.validateDeploy).
 		Returns(http.StatusOK, "成功", dtos.ApplicationRenderResult{}), userFilters).
 		Metadata(config.FrontApiTag, "validateMarketApplication"))
-	ws.Route(addFilters(ws.POST(deployPath+"/deploy").Doc("部署 Base 应用").
+	ws.Route(addFilters(ws.POST(deployPath+"/deploy").Doc("部署应用").
 		Reads(dtos.ApplicationDeployRequest{}).To(r.deploy).
 		Returns(http.StatusOK, "成功", dtos.ApplicationDetail{}), userFilters).
 		Metadata(config.FrontApiTag, "deployMarketApplication"))

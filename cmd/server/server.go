@@ -13,6 +13,7 @@ import (
 	config2 "github.com/efucloud/kube-keeper/pkg/config"
 	"github.com/efucloud/kube-keeper/pkg/crons"
 	"github.com/efucloud/kube-keeper/pkg/embeds"
+	"github.com/efucloud/kube-keeper/pkg/inital"
 	"github.com/efucloud/kube-keeper/pkg/mcp"
 	"github.com/efucloud/kube-keeper/pkg/migrations"
 	"github.com/prometheus/client_golang/prometheus"
@@ -51,6 +52,7 @@ func run(o *options.ServerRunOptions, stopCh <-chan struct{}) (err error) {
 	ctx := context.TODO()
 
 	migrations.DatabaseMigrate()
+	inital.InitializeDataDictionaries()
 	apis.AddResources()
 
 	config2.AuthProvider, err = oidc.NewProvider(ctx, config2.ApplicationConfig.OidcConfig.Issuer)

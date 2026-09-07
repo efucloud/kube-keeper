@@ -8,8 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// MarketApplication is a self-contained Base application definition. There is
-// intentionally no separate application-version table in the community edition.
+// MarketApplication is a self-contained application definition.
 type MarketApplication struct {
 	ID            string                    `gorm:"type:varchar(50);primarykey;column:id" json:"-"`
 	CreatedAt     time.Time                 `gorm:"autoCreateTime;column:created_at;<-:create" json:"-"`
