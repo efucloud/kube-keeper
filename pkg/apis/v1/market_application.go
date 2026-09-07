@@ -3,16 +3,18 @@ package v1
 import (
 	"context"
 	"encoding/json"
+	"io"
+	"net/http"
+
 	"github.com/efucloud/common"
-	filters2 "github.com/efucloud/kube-keeper/pkg/apis/filters"
-	config2 "github.com/efucloud/kube-keeper/pkg/config"
+	filters "github.com/efucloud/kube-keeper/pkg/apis/filters"
+	"github.com/efucloud/kube-keeper/pkg/config"
+	"github.com/efucloud/kube-keeper/pkg/k8scluster"
 	"github.com/efucloud/kube-keeper/pkg/models/dtos"
 	"github.com/efucloud/kube-keeper/pkg/services"
 	restfulspec "github.com/emicklei/go-restful-openapi/v2"
-	"github.com/emicklei/go-restful/v3"
+	restful "github.com/emicklei/go-restful/v3"
 	"gopkg.in/yaml.v3"
-	"io"
-	"net/http"
 )
 
 type MarketApplicationResource struct {
@@ -20,283 +22,259 @@ type MarketApplicationResource struct {
 }
 
 func (r MarketApplicationResource) AddWebService(ws *restful.WebService) {
-	apiInfo := common.ApiInfo{}
-	apiInfo.Tag = "market-application"
-	apiInfo.Description = "应用商店应用"
-	common.RegisterApiInfo(apiInfo)
-	apiExtend := "/market-application"
-	ws.Route(ws.POST(config2.APIPrefix+apiExtend).
-		Doc("创建应用商店应用").
-		Notes("创建应用商店应用信息").
-		Param(ws.HeaderParameter(config2.AuthHeader, "请求Token")).
-		To(r.create).
-		Reads(dtos.MarketApplicationCreate{}).
-		Returns(http.StatusOK, "成功", dtos.MarketApplicationDetail{}).
-		Returns(http.StatusUnauthorized, "用户需要先登录", common.AuthRedirectInfo{}).
-		Returns(http.StatusBadRequest, "请求数据无法处理", common.ResponseError{}).
-		Returns(http.StatusForbidden, "用户没有权限", common.ResponseError{}).
-		Returns(http.StatusInternalServerError, "内部处理逻辑错误", common.ResponseError{}).
-		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
-		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
-		Metadata(config2.FrontApiTag, "createMarketApplication"))
-	ws.Route(ws.GET(config2.APIPrefix+apiExtend).
-		Doc("获取应用商店应用列表").
-		Notes("获取应用商店应用列表").
-		Param(ws.HeaderParameter(config2.AuthHeader, "请求Token")).
-		Param(ws.QueryParameter("page", "页码").DataType("integer")).
-		Param(ws.QueryParameter("size", "每页大小").DataType("integer")).
+	info := common.ApiInfo{Tag: "market-application", Description: "Base 应用市场"}
+	common.RegisterApiInfo(info)
+	path := config.APIPrefix + "/market-application"
+	userFilters := []restful.FilterFunction{filters.ClientInfo, filters.I18n, filters.Log, filters.Auth}
+	adminFilters := append(append([]restful.FilterFunction{}, userFilters...), filters.Permission([]string{config.SystemRoleAdmin}))
+	addFilters := func(route *restful.RouteBuilder, list []restful.FilterFunction) *restful.RouteBuilder {
+		for _, filter := range list {
+			route.Filter(filter)
+		}
+		return route.Metadata(restfulspec.KeyOpenAPITags, info.Tags())
+	}
+
+	ws.Route(addFilters(ws.GET(path).
+		Doc("获取应用市场列表").
+		Param(ws.QueryParameter("current", "页码").DataType("number")).
+		Param(ws.QueryParameter("pageSize", "每页大小").DataType("number")).
 		Param(ws.QueryParameter("order", "排序")).
-		Param(ws.QueryParameter("name", "名称").DataType("string")).
-		Param(ws.QueryParameter("search", "搜索").DataType("string")).
-		Param(ws.QueryParameter("category", "分类").DataType("string")).
-		Param(ws.QueryParameter("state", "状态").DataType("integer")).
-		To(r.list).
-		Returns(http.StatusOK, "成功", dtos.MarketApplicationDetailList{}).
-		Returns(http.StatusUnauthorized, "用户需要先登录", common.AuthRedirectInfo{}).
-		Returns(http.StatusBadRequest, "请求数据无法处理", common.ResponseError{}).
-		Returns(http.StatusForbidden, "用户没有权限", common.ResponseError{}).
-		Returns(http.StatusInternalServerError, "内部处理逻辑错误", common.ResponseError{}).
-		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
-		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
-		Metadata(config2.FrontApiTag, "listMarketApplication"))
-	ws.Route(ws.GET(config2.APIPrefix+apiExtend+"/{id}").
-		Doc("获取应用商店应用详情").
-		Notes("获取应用商店应用详情").
-		Param(ws.HeaderParameter(config2.AuthHeader, "请求Token")).
-		Param(ws.PathParameter("id", "记录ID").DataType("string")).
-		To(r.get).
-		Returns(http.StatusOK, "成功", dtos.MarketApplicationDetail{}).
-		Returns(http.StatusUnauthorized, "用户需要先登录", common.AuthRedirectInfo{}).
-		Returns(http.StatusBadRequest, "请求数据无法处理", common.ResponseError{}).
-		Returns(http.StatusForbidden, "用户没有权限", common.ResponseError{}).
-		Returns(http.StatusInternalServerError, "内部处理逻辑错误", common.ResponseError{}).
-		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
-		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
-		Metadata(config2.FrontApiTag, "getMarketApplication"))
-	ws.Route(ws.PUT(config2.APIPrefix+apiExtend).
-		Doc("更新应用商店应用").
-		Notes("更新应用商店应用信息").
-		Param(ws.HeaderParameter(config2.AuthHeader, "请求Token")).
-		To(r.update).
-		Reads(dtos.MarketApplicationUpdate{}).
-		Returns(http.StatusOK, "成功", dtos.MarketApplicationDetail{}).
-		Returns(http.StatusUnauthorized, "用户需要先登录", common.AuthRedirectInfo{}).
-		Returns(http.StatusBadRequest, "请求数据无法处理", common.ResponseError{}).
-		Returns(http.StatusForbidden, "用户没有权限", common.ResponseError{}).
-		Returns(http.StatusInternalServerError, "内部处理逻辑错误", common.ResponseError{}).
-		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
-		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
-		Metadata(config2.FrontApiTag, "updateMarketApplication"))
-	ws.Route(ws.PUT(config2.APIPrefix+apiExtend+"/state").
-		Doc("更新应用商店应用状态").
-		Notes("更新应用商店应用状态").
-		Param(ws.HeaderParameter(config2.AuthHeader, "请求Token")).
-		To(r.updateState).
-		Reads(dtos.ApplicationState{}).
-		Returns(http.StatusOK, "成功", dtos.MarketApplicationDetail{}).
-		Returns(http.StatusUnauthorized, "用户需要先登录", common.AuthRedirectInfo{}).
-		Returns(http.StatusBadRequest, "请求数据无法处理", common.ResponseError{}).
-		Returns(http.StatusForbidden, "用户没有权限", common.ResponseError{}).
-		Returns(http.StatusInternalServerError, "内部处理逻辑错误", common.ResponseError{}).
-		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
-		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
-		Metadata(config2.FrontApiTag, "updateMarketApplicationState"))
+		Param(ws.QueryParameter("search", "名称或描述")).
+		Param(ws.QueryParameter("category", "分类")).
+		Param(ws.QueryParameter("state", "状态").DataType("number")).
+		To(r.list).Returns(http.StatusOK, "成功", dtos.MarketApplicationDetailList{}), userFilters).
+		Metadata(config.FrontApiTag, "listMarketApplication"))
+	ws.Route(addFilters(ws.GET(path+"/{id}").Doc("获取应用市场详情").
+		Param(ws.PathParameter("id", "应用ID")).To(r.get).
+		Returns(http.StatusOK, "成功", dtos.MarketApplicationDetail{}), userFilters).
+		Metadata(config.FrontApiTag, "getMarketApplication"))
+	ws.Route(addFilters(ws.POST(path).Doc("创建 Base 应用").Reads(dtos.MarketApplicationCreate{}).
+		To(r.create).Returns(http.StatusOK, "成功", dtos.MarketApplicationDetail{}), adminFilters).
+		Metadata(config.FrontApiTag, "createMarketApplication"))
+	ws.Route(addFilters(ws.PUT(path).Doc("更新 Base 应用").Reads(dtos.MarketApplicationUpdate{}).
+		To(r.update).Returns(http.StatusOK, "成功", dtos.MarketApplicationDetail{}), adminFilters).
+		Metadata(config.FrontApiTag, "updateMarketApplication"))
+	ws.Route(addFilters(ws.PUT(path+"/state").Doc("发布或下架应用").Reads(dtos.MarketApplicationState{}).
+		To(r.updateState).Returns(http.StatusOK, "成功", "success"), adminFilters).
+		Metadata(config.FrontApiTag, "updateMarketApplicationState"))
+	ws.Route(addFilters(ws.DELETE(path).Doc("删除应用").Reads(dtos.BatchOperationIds{}).
+		To(r.delete).Returns(http.StatusOK, "成功", "success"), adminFilters).
+		Metadata(config.FrontApiTag, "deleteMarketApplication"))
+	ws.Route(addFilters(ws.POST(path+"/import").Doc("从 YAML 或 JSON 导入 Base 应用").
+		To(r.importApplication).Returns(http.StatusOK, "成功", dtos.MarketApplicationDetail{}), adminFilters).
+		Metadata(config.FrontApiTag, "importMarketApplication"))
+	ws.Route(addFilters(ws.GET(path+"/{id}/export").Doc("导出 Base 应用").
+		Param(ws.PathParameter("id", "应用ID")).To(r.exportApplication).
+		Returns(http.StatusOK, "成功", dtos.MarketApplicationExportImport{}), userFilters).
+		Metadata(config.FrontApiTag, "exportMarketApplication"))
 
-	ws.Route(ws.DELETE(config2.APIPrefix+apiExtend).
-		Doc("删除应用商店应用").
-		Notes("批量删除应用商店应用").
-		Param(ws.HeaderParameter(config2.AuthHeader, "请求Token")).
-		To(r.delete).
-		Reads(dtos.BatchOperationIds{}).
-		Returns(http.StatusOK, "成功", "成功").
-		Returns(http.StatusUnauthorized, "用户需要先登录", common.AuthRedirectInfo{}).
-		Returns(http.StatusBadRequest, "请求数据无法处理", common.ResponseError{}).
-		Returns(http.StatusForbidden, "用户没有权限", common.ResponseError{}).
-		Returns(http.StatusInternalServerError, "内部处理逻辑错误", common.ResponseError{}).
-		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
-		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
-		Metadata(config2.FrontApiTag, "deleteMarketApplication"))
-
-	ws.Route(ws.POST(config2.APIPrefix+apiExtend+"/import").
-		Doc("导入应用定义").
-		Notes("从 YAML 导入应用及版本").
-		Param(ws.HeaderParameter(config2.AuthHeader, "请求Token")).
-		To(r.importMarketApplication).
-		Reads(dtos.MarketApplicationExportImport{}).
-		Returns(http.StatusOK, "成功", dtos.MarketApplicationDetail{}).
-		Returns(http.StatusUnauthorized, "用户需要先登录", common.AuthRedirectInfo{}).
-		Returns(http.StatusBadRequest, "请求数据无法处理", common.ResponseError{}).
-		Returns(http.StatusForbidden, "用户没有权限", common.ResponseError{}).
-		Returns(http.StatusInternalServerError, "内部处理逻辑错误", common.ResponseError{}).
-		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
-		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
-		Metadata(config2.FrontApiTag, "importMarketApplication"))
+	deployPath := config.ClusterNamespaceAPIPrefix + "/market-application/{id}"
+	ws.Route(addFilters(ws.POST(deployPath+"/render").Doc("渲染 Base 应用资源").
+		Reads(dtos.ApplicationDeployRequest{}).To(r.render).
+		Returns(http.StatusOK, "成功", dtos.ApplicationRenderResult{}), userFilters).
+		Metadata(config.FrontApiTag, "renderMarketApplication"))
+	ws.Route(addFilters(ws.POST(deployPath+"/validate").Doc("试部署校验 Base 应用资源").
+		Reads(dtos.ApplicationDeployRequest{}).To(r.validateDeploy).
+		Returns(http.StatusOK, "成功", dtos.ApplicationRenderResult{}), userFilters).
+		Metadata(config.FrontApiTag, "validateMarketApplication"))
+	ws.Route(addFilters(ws.POST(deployPath+"/deploy").Doc("部署 Base 应用").
+		Reads(dtos.ApplicationDeployRequest{}).To(r.deploy).
+		Returns(http.StatusOK, "成功", dtos.ApplicationDetail{}), userFilters).
+		Metadata(config.FrontApiTag, "deployMarketApplication"))
 }
 
-func (r MarketApplicationResource) create(req *restful.Request, resp *restful.Response) {
-	var (
-		model     dtos.MarketApplicationCreate
-		result    dtos.MarketApplicationDetail
-		errorData common.ErrorData
-	)
-	ctx, lang := marketAppCtx(req)
-	errorData.Lang = lang
-	errorData.Err = req.ReadEntity(&model)
-	if errorData.IsNotNil() {
-		errorData.MsgCode = config2.MsgCodeJsonDecodeFailed
-		errorData.ResponseCode = http.StatusBadRequest
-		common.ResponseErrorMessage(ctx, req, resp, config2.Bundle, errorData)
-		return
+func marketContext(req *restful.Request) (context.Context, string) {
+	lang := common.GetLanguageFromReq(req, config.RequestLanguage)
+	ctx := context.WithValue(context.Background(), config.RequestLanguage, lang)
+	if value := req.Attribute(config.RequestContext); value != nil {
+		ctx = value.(context.Context)
 	}
-	result, errorData = r.Svc.AddMarketApplication(ctx, model)
-	if errorData.IsNotNil() {
-		common.ResponseErrorMessage(ctx, req, resp, config2.Bundle, errorData)
+	return ctx, lang
+}
+
+func respondMarketError(ctx context.Context, lang string, req *restful.Request, resp *restful.Response, errorData common.ErrorData) bool {
+	if errorData.IsNil() {
+		return false
+	}
+	errorData.Lang = lang
+	if errorData.ResponseCode == 0 {
+		errorData.ResponseCode = http.StatusBadRequest
+	}
+	common.ResponseErrorMessage(ctx, req, resp, config.Bundle, errorData)
+	return true
+}
+
+func marketRequestIsAdmin(ctx context.Context, req *restful.Request) bool {
+	value := req.Attribute(config.RequestUserId)
+	if value == nil {
+		return false
+	}
+	account, errorData := (&services.AccountService{}).GetAccountByID(ctx, value.(string))
+	return errorData.IsNil() && account.Role == config.SystemRoleAdmin
+}
+
+func (r MarketApplicationResource) list(req *restful.Request, resp *restful.Response) {
+	ctx, lang := marketContext(req)
+	current, pageSize, order := common.GetRequestPaginationInformation(req)
+	query := &common.QueryParam{}
+	common.RequestQuery("search:name;description", common.ParamTypeString, common.QueryTypeLike, req, query)
+	common.RequestQuery("category", common.ParamTypeString, common.QueryTypeEqual, req, query)
+	common.RequestQuery("state", common.ParamTypeString, common.QueryTypeEqual, req, query)
+	if !marketRequestIsAdmin(ctx, req) {
+		common.QueryEqual("state", 1, query)
+	}
+	result, errorData := r.Svc.List(ctx, current, pageSize, order, query.WhereQuery, query.WhereArgs)
+	if respondMarketError(ctx, lang, req, resp, errorData) {
 		return
 	}
 	common.ResponseSuccess(resp, result)
 }
 
-func (r MarketApplicationResource) list(req *restful.Request, resp *restful.Response) {
-	var (
-		results   dtos.MarketApplicationDetailList
-		errorData common.ErrorData
-	)
-	ctx, lang := marketAppCtx(req)
-	errorData.Lang = lang
-	page, size, order := common.GetRequestPaginationInformation(req)
-	queryParam := &common.QueryParam{}
-	common.RequestQuery("name", common.ParamTypeString, common.QueryTypeLike, req, queryParam)
-	common.RequestQuery("search", common.ParamTypeString, common.QueryTypeLike, req, queryParam)
-	common.RequestQuery("category", common.ParamTypeString, common.QueryTypeEqual, req, queryParam)
-	common.RequestQuery("state", common.ParamTypeString, common.QueryTypeEqual, req, queryParam)
-	results, errorData = r.Svc.ListMarketApplication(ctx, page, size, order, queryParam.WhereQuery, queryParam.WhereArgs)
-	if errorData.IsNotNil() {
-		common.ResponseErrorMessage(ctx, req, resp, config2.Bundle, errorData)
+func (r MarketApplicationResource) get(req *restful.Request, resp *restful.Response) {
+	ctx, lang := marketContext(req)
+	result, errorData := r.Svc.Get(ctx, req.PathParameter("id"))
+	if errorData.IsNil() && result.State != 1 && !marketRequestIsAdmin(ctx, req) {
+		errorData.Err = http.ErrMissingFile
+		errorData.ResponseCode = http.StatusNotFound
+	}
+	if respondMarketError(ctx, lang, req, resp, errorData) {
 		return
 	}
-	common.ResponseSuccess(resp, results)
+	common.ResponseSuccess(resp, result)
 }
 
-func (r MarketApplicationResource) get(req *restful.Request, resp *restful.Response) {
-	var (
-		result    dtos.MarketApplicationDetail
-		errorData common.ErrorData
-	)
-	ctx, lang := marketAppCtx(req)
-	errorData.Lang = lang
-	result, errorData = r.Svc.GetMarketApplicationById(ctx, req.PathParameter("id"))
-	if errorData.IsNotNil() {
-		common.ResponseErrorMessage(ctx, req, resp, config2.Bundle, errorData)
+func (r MarketApplicationResource) create(req *restful.Request, resp *restful.Response) {
+	ctx, lang := marketContext(req)
+	var model dtos.MarketApplicationCreate
+	var errorData common.ErrorData
+	if errorData.Err = req.ReadEntity(&model); respondMarketError(ctx, lang, req, resp, errorData) {
+		return
+	}
+	result, errorData := r.Svc.Add(ctx, model)
+	if respondMarketError(ctx, lang, req, resp, errorData) {
 		return
 	}
 	common.ResponseSuccess(resp, result)
 }
 
 func (r MarketApplicationResource) update(req *restful.Request, resp *restful.Response) {
-	var (
-		model     dtos.MarketApplicationUpdate
-		result    dtos.MarketApplicationDetail
-		errorData common.ErrorData
-	)
-	ctx, lang := marketAppCtx(req)
-	errorData.Lang = lang
-	errorData.Err = req.ReadEntity(&model)
-	if errorData.IsNotNil() {
-		errorData.MsgCode = config2.MsgCodeJsonDecodeFailed
-		errorData.ResponseCode = http.StatusBadRequest
-		common.ResponseErrorMessage(ctx, req, resp, config2.Bundle, errorData)
+	ctx, lang := marketContext(req)
+	var model dtos.MarketApplicationUpdate
+	var errorData common.ErrorData
+	if errorData.Err = req.ReadEntity(&model); respondMarketError(ctx, lang, req, resp, errorData) {
 		return
 	}
-	result, errorData = r.Svc.UpdateMarketApplication(ctx, model)
-	if errorData.IsNotNil() {
-		common.ResponseErrorMessage(ctx, req, resp, config2.Bundle, errorData)
+	result, errorData := r.Svc.Update(ctx, model)
+	if respondMarketError(ctx, lang, req, resp, errorData) {
 		return
 	}
 	common.ResponseSuccess(resp, result)
 }
 
 func (r MarketApplicationResource) updateState(req *restful.Request, resp *restful.Response) {
-	var (
-		model     dtos.ApplicationState
-		errorData common.ErrorData
-	)
-	ctx, lang := marketAppCtx(req)
-	errorData.Lang = lang
-	errorData.Err = req.ReadEntity(&model)
-	if errorData.IsNotNil() {
-		errorData.MsgCode = config2.MsgCodeJsonDecodeFailed
-		errorData.ResponseCode = http.StatusBadRequest
-		common.ResponseErrorMessage(ctx, req, resp, config2.Bundle, errorData)
+	ctx, lang := marketContext(req)
+	var model dtos.MarketApplicationState
+	var errorData common.ErrorData
+	if errorData.Err = req.ReadEntity(&model); respondMarketError(ctx, lang, req, resp, errorData) {
 		return
 	}
-	errorData = r.Svc.UpdateMarketApplicationState(ctx, model)
-	if errorData.IsNotNil() {
-		common.ResponseErrorMessage(ctx, req, resp, config2.Bundle, errorData)
+	errorData = r.Svc.UpdateState(ctx, model)
+	if respondMarketError(ctx, lang, req, resp, errorData) {
 		return
 	}
 	common.ResponseSuccess(resp, "success")
 }
 
 func (r MarketApplicationResource) delete(req *restful.Request, resp *restful.Response) {
-	var (
-		model     dtos.BatchOperationIds
-		errorData common.ErrorData
-	)
-	ctx, lang := marketAppCtx(req)
-	errorData.Lang = lang
-	errorData.Err = req.ReadEntity(&model)
-	if errorData.IsNotNil() {
-		errorData.MsgCode = config2.MsgCodeJsonDecodeFailed
-		errorData.ResponseCode = http.StatusBadRequest
-		common.ResponseErrorMessage(ctx, req, resp, config2.Bundle, errorData)
+	ctx, lang := marketContext(req)
+	var model dtos.BatchOperationIds
+	var errorData common.ErrorData
+	if errorData.Err = req.ReadEntity(&model); respondMarketError(ctx, lang, req, resp, errorData) {
 		return
 	}
-	errorData = r.Svc.DeleteMarketApplication(ctx, model.Ids)
-	if errorData.IsNotNil() {
-		common.ResponseErrorMessage(ctx, req, resp, config2.Bundle, errorData)
+	errorData = r.Svc.Delete(ctx, model.Ids)
+	if respondMarketError(ctx, lang, req, resp, errorData) {
 		return
 	}
 	common.ResponseSuccess(resp, "success")
 }
 
-func (r MarketApplicationResource) importMarketApplication(req *restful.Request, resp *restful.Response) {
-	var (
-		model     dtos.MarketApplicationExportImport
-		result    dtos.MarketApplicationDetail
-		errorData common.ErrorData
-	)
-	ctx, lang := marketAppCtx(req)
-	errorData.Lang = lang
-	body, readErr := io.ReadAll(req.Request.Body)
-	if readErr != nil {
-		errorData.Err = readErr
-		errorData.MsgCode = config2.MsgCodeJsonDecodeFailed
-		errorData.ResponseCode = http.StatusBadRequest
-		common.ResponseErrorMessage(ctx, req, resp, config2.Bundle, errorData)
+func (r MarketApplicationResource) importApplication(req *restful.Request, resp *restful.Response) {
+	ctx, lang := marketContext(req)
+	var model dtos.MarketApplicationExportImport
+	var errorData common.ErrorData
+	body, err := io.ReadAll(req.Request.Body)
+	if err == nil {
+		err = json.Unmarshal(body, &model)
+	}
+	if err != nil {
+		err = yaml.Unmarshal(body, &model)
+	}
+	errorData.Err = err
+	if respondMarketError(ctx, lang, req, resp, errorData) {
 		return
 	}
-	if err := json.Unmarshal(body, &model); err != nil {
-		if yamlErr := yaml.Unmarshal(body, &model); yamlErr != nil {
-			errorData.Err = yamlErr
-			errorData.MsgCode = config2.MsgCodeJsonDecodeFailed
-			errorData.ResponseCode = http.StatusBadRequest
-			common.ResponseErrorMessage(ctx, req, resp, config2.Bundle, errorData)
-			return
-		}
-	}
-	result, errorData = r.Svc.ImportMarketApplication(ctx, model)
-	if errorData.IsNotNil() {
-		common.ResponseErrorMessage(ctx, req, resp, config2.Bundle, errorData)
+	result, errorData := r.Svc.Import(ctx, model)
+	if respondMarketError(ctx, lang, req, resp, errorData) {
 		return
 	}
 	common.ResponseSuccess(resp, result)
 }
 
-func marketAppCtx(req *restful.Request) (context.Context, string) {
-	lang := common.GetLanguageFromReq(req, config2.RequestLanguage)
-	ctx := context.WithValue(context.Background(), config2.RequestLanguage, lang)
-	if reqCtx := req.Attribute(config2.RequestContext); reqCtx != nil {
-		ctx = reqCtx.(context.Context)
+func (r MarketApplicationResource) exportApplication(req *restful.Request, resp *restful.Response) {
+	ctx, lang := marketContext(req)
+	result, errorData := r.Svc.Export(ctx, req.PathParameter("id"))
+	if errorData.IsNil() && result.State != 1 && !marketRequestIsAdmin(ctx, req) {
+		errorData.Err = http.ErrMissingFile
+		errorData.ResponseCode = http.StatusNotFound
 	}
-	return ctx, lang
+	if respondMarketError(ctx, lang, req, resp, errorData) {
+		return
+	}
+	common.ResponseSuccess(resp, result)
+}
+
+func (r MarketApplicationResource) render(req *restful.Request, resp *restful.Response) {
+	ctx, lang := marketContext(req)
+	var model dtos.ApplicationDeployRequest
+	var errorData common.ErrorData
+	if errorData.Err = req.ReadEntity(&model); respondMarketError(ctx, lang, req, resp, errorData) {
+		return
+	}
+	runtime := k8scluster.MarketApplicationRuntimeService{}
+	result, errorData := runtime.Render(ctx, k8scluster.GetRequestInfo(req), req.PathParameter("id"), model)
+	if respondMarketError(ctx, lang, req, resp, errorData) {
+		return
+	}
+	common.ResponseSuccess(resp, result)
+}
+
+func (r MarketApplicationResource) deploy(req *restful.Request, resp *restful.Response) {
+	ctx, lang := marketContext(req)
+	var model dtos.ApplicationDeployRequest
+	var errorData common.ErrorData
+	if errorData.Err = req.ReadEntity(&model); respondMarketError(ctx, lang, req, resp, errorData) {
+		return
+	}
+	runtime := k8scluster.MarketApplicationRuntimeService{}
+	result, errorData := runtime.Deploy(ctx, k8scluster.GetRequestInfo(req), req.PathParameter("id"), model)
+	if respondMarketError(ctx, lang, req, resp, errorData) {
+		return
+	}
+	common.ResponseSuccess(resp, result)
+}
+
+func (r MarketApplicationResource) validateDeploy(req *restful.Request, resp *restful.Response) {
+	ctx, lang := marketContext(req)
+	var model dtos.ApplicationDeployRequest
+	var errorData common.ErrorData
+	if errorData.Err = req.ReadEntity(&model); respondMarketError(ctx, lang, req, resp, errorData) {
+		return
+	}
+	runtime := k8scluster.MarketApplicationRuntimeService{}
+	result, errorData := runtime.Validate(ctx, k8scluster.GetRequestInfo(req), req.PathParameter("id"), model)
+	if respondMarketError(ctx, lang, req, resp, errorData) {
+		return
+	}
+	common.ResponseSuccess(resp, result)
 }

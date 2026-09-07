@@ -2,211 +2,83 @@ package dtos
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"time"
+
 	"github.com/efucloud/kube-keeper/pkg/config"
 	"github.com/efucloud/kube-keeper/pkg/models"
 	"github.com/efucloud/kube-keeper/pkg/utils"
-	"strings"
-	"time"
-
-	"github.com/efucloud/common"
-	"github.com/go-playground/validator/v10"
+	"k8s.io/apimachinery/pkg/util/validation"
 )
 
 type ApplicationDetailList struct {
-	//当前页数据
-	Data []*ApplicationDetail `json:"data"`
-	//数据库满足条件的数据总数
-	Total int64 `json:"total"`
+	Data  []*ApplicationDetail `json:"data"`
+	Total int64                `json:"total"`
 }
 
-// ApplicationDetail 模版应用
 type ApplicationDetail struct {
-	//主键
-	ID string `gorm:"type:varchar(50);primarykey;column:id" json:"id" description:"记录ID"`
-	//创建时间
-	CreatedAt time.Time `gorm:"autoCreateTime;column:created_at;<-:create" json:"-" description:"创建时间"`
-	//创建者
-	CreatorId string `gorm:"type:varchar(50);column:creator_id;<-:create" validate:"required" json:"creatorId" description:"创建者"`
-	//状态 0:Draft 1::Released 2:Archived
-	State uint `gorm:"column:state;default:0" json:"state" yaml:"state" validate:"oneof=0 1 2" enum:"0|1|2" description:"状态"`
-	//显示名称
-	Name string `gorm:"type:varchar(255);column:name" json:"name"  description:"显示名称"`
-	//版本描述
-	Description string `gorm:"type:text;column:description" json:"description" validate:"required" yaml:"description" description:"版本描述"`
-	//模版内容,yaml格式，支持多个，若为helm部署，则为values.yaml内容
-	Templates ArrayString `gorm:"column:templates" json:"templates" yaml:"templates" validate:"required_if=Type base" description:"模版内容"`
-	//模版资源索引
-	ResourceIndex ResourceIndex `gorm:"type:varchar(255);column:resource_index" json:"resourceIndex" validate:"required_if=DeployMethod yaml" description:"模版资源索引"`
-	//有CRD资源
-	HasCRD bool `gorm:"column:has_crd" json:"hasCrd" yaml:"hasCrd" description:"有CRD资源"`
-	// 应用参数
-	Parameters ParameterDefinitions `gorm:"type:json;column:parameters" json:"parameters"  yaml:"parameters" description:"模版参数"`
-	//版本
-	Version string `gorm:"type:varchar(50);column:version" json:"version" yaml:"version" validate:"-" description:"版本"`
+	ID                  string                         `gorm:"column:id" json:"id"`
+	CreatedAt           time.Time                      `gorm:"column:created_at" json:"createdAt"`
+	UpdatedAt           time.Time                      `gorm:"column:updated_at" json:"updatedAt,omitempty"`
+	CreatorId           string                         `gorm:"column:creator_id" json:"creatorId"`
+	UpdaterId           string                         `gorm:"column:updater_id" json:"updaterId"`
+	MarketApplicationId string                         `gorm:"column:market_application_id" json:"marketApplicationId"`
+	ApplicationName     string                         `gorm:"column:application_name" json:"applicationName"`
+	ClusterId           string                         `gorm:"column:cluster_id" json:"clusterId"`
+	ClusterCode         string                         `gorm:"column:cluster_code" json:"clusterCode"`
+	Namespace           string                         `gorm:"column:namespace" json:"namespace"`
+	ReleaseName         string                         `gorm:"column:release_name" json:"releaseName"`
+	Description         string                         `gorm:"column:deploy_description" json:"description"`
+	Params              ApplicationRenderParams        `gorm:"column:params" json:"params"`
+	Resources           ApplicationKubernetesResources `gorm:"column:resources" json:"resources"`
+	Result              string                         `gorm:"column:result" json:"result"`
+	Status              string                         `gorm:"column:status" json:"status"`
 }
 
-func (t *ApplicationDetail) TableName() string {
-	return models.ApplicationTableName
-}
+func (ApplicationDetail) TableName() string { return models.ApplicationTableName }
 
-// ApplicationCreate 应用部署模版创建
 type ApplicationCreate struct {
-	//主键
-	ID string `gorm:"type:varchar(50);primarykey;column:id" json:"-" description:"记录ID"`
-	//创建时间
-	CreatedAt time.Time `gorm:"autoCreateTime;column:created_at;<-:create" json:"-" description:"创建时间"`
-	//创建者
-	CreatorId string `gorm:"type:varchar(50);column:creator_id;<-:create" validate:"required" json:"creatorId" description:"创建者"`
-	//状态 0:Draft 1::Released 2:Archived
-	State uint `gorm:"column:state;default:0" json:"state" yaml:"state" validate:"oneof=0 1 2" enum:"0|1|2" description:"状态"`
-	//显示名称
-	Name string `gorm:"type:varchar(255);column:name" json:"name"  description:"显示名称"`
-	//版本描述
-	Description string `gorm:"type:text;column:description" json:"description" validate:"required" yaml:"description" description:"版本描述"`
-	//模版内容,yaml格式，支持多个，若为helm部署，则为values.yaml内容
-	Templates ArrayString `gorm:"column:templates" json:"templates" yaml:"templates" validate:"required_if=Type base" description:"模版内容"`
-	//模版资源索引
-	ResourceIndex ResourceIndex `gorm:"type:varchar(255);column:resource_index" json:"resourceIndex" validate:"required_if=DeployMethod yaml" description:"模版资源索引"`
-	//有CRD资源
-	HasCRD bool `gorm:"column:has_crd" json:"hasCrd" yaml:"hasCrd" description:"有CRD资源"`
-	// 应用参数
-	Parameters ParameterDefinitions `gorm:"type:json;column:parameters" json:"parameters"  yaml:"parameters" description:"模版参数"`
-	//版本
-	Version string `gorm:"type:varchar(50);column:version" json:"version" yaml:"version" validate:"-" description:"版本"`
+	ID                  string                         `gorm:"column:id"`
+	CreatedAt           time.Time                      `gorm:"column:created_at"`
+	CreatorId           string                         `gorm:"column:creator_id"`
+	MarketApplicationId string                         `gorm:"column:market_application_id"`
+	ApplicationName     string                         `gorm:"column:application_name"`
+	ClusterId           string                         `gorm:"column:cluster_id"`
+	ClusterCode         string                         `gorm:"column:cluster_code"`
+	Namespace           string                         `gorm:"column:namespace"`
+	ReleaseName         string                         `gorm:"column:release_name"`
+	DelFlag             string                         `gorm:"column:del_flag"`
+	Description         string                         `gorm:"column:deploy_description"`
+	Params              ApplicationRenderParams        `gorm:"column:params"`
+	Resources           ApplicationKubernetesResources `gorm:"column:resources"`
+	Result              string                         `gorm:"column:result"`
+	Status              string                         `gorm:"column:status"`
 }
 
 func (md *ApplicationCreate) Default(ctx context.Context) {
-	md.CreatorId = config.GetOperatorFromCtx(ctx)
-	if len(md.ID) == 0 {
+	if md.ID == "" {
 		md.ID = utils.GenerateDatabaseId()
 	}
+	md.CreatorId = config.GetOperatorFromCtx(ctx)
 	md.CreatedAt = time.Now()
-	md.State = 0
-	md.ResourceIndex, md.HasCRD = getTemplateIndex(md.Templates)
-
+	md.DelFlag = "active"
 }
-func (md *ApplicationCreate) Validate(ctx context.Context) (err error) {
-	validate := validator.New()
-	lang := common.GetLangFromCtx(ctx, "")
-	validate.RegisterTagNameFunc(common.TagNameI18N(lang))
-	trans := common.LoadValidateTranslator(lang, validate)
-	err = validate.Struct(md)
-	if err != nil {
-		var lines []string
-		var errs validator.ValidationErrors
-		errors.As(err, &errs)
-		for _, v := range errs.Translate(trans) {
-			lines = append(lines, v)
-		}
-		if len(lines) > 0 {
-			err = errors.New(strings.Join(lines, "\n"))
-		}
+
+type ApplicationDeployRequest struct {
+	ReleaseName string                  `json:"releaseName"`
+	Description string                  `json:"description"`
+	Params      ApplicationRenderParams `json:"params"`
+}
+
+func (md *ApplicationDeployRequest) Validate() error {
+	if md.ReleaseName == "" {
+		return fmt.Errorf("releaseName is required")
 	}
-	return
-}
-
-// ApplicationUpdate 应用部署模版更新
-type ApplicationUpdate struct {
-	//主键
-	ID string `gorm:"type:varchar(50);primarykey;column:id" json:"id" description:"记录ID"`
-	//修改时间
-	UpdatedAt time.Time `gorm:"autoUpdateTime;column:updated_at;<-:update" json:"updatedAt,omitempty" description:"更新时间"`
-	//更新者
-	UpdaterId string `gorm:"type:varchar(50);column:updater_id;<-:update" json:"updaterId" validate:"required" description:"更新者"`
-	//状态 0:Draft 1::Released 2:Archived
-	State uint `gorm:"column:state;default:0" json:"state" yaml:"state" validate:"oneof=0 1 2" enum:"0|1|2" description:"状态"`
-	//显示名称
-	Name string `gorm:"type:varchar(255);column:name" json:"name"  description:"显示名称"`
-	//版本描述
-	Description string `gorm:"type:text;column:description" json:"description" validate:"required" yaml:"description" description:"版本描述"`
-	//模版内容,yaml格式，支持多个，若为helm部署，则为values.yaml内容
-	Templates ArrayString `gorm:"column:templates" json:"templates" yaml:"templates" validate:"required_if=Type base" description:"模版内容"`
-	//模版资源索引
-	ResourceIndex ResourceIndex `gorm:"type:varchar(255);column:resource_index" json:"resourceIndex" validate:"required_if=DeployMethod yaml" description:"模版资源索引"`
-	//有CRD资源
-	HasCRD bool `gorm:"column:has_crd" json:"hasCrd" yaml:"hasCrd" description:"有CRD资源"`
-	// 应用参数
-	Parameters ParameterDefinitions `gorm:"type:json;column:parameters" json:"parameters"  yaml:"parameters" description:"模版参数"`
-	//版本
-	Version string `gorm:"type:varchar(50);column:version" json:"version" yaml:"version" validate:"-" description:"版本"`
-}
-
-func (md *ApplicationUpdate) Default(ctx context.Context) {
-	md.UpdaterId = config.GetOperatorFromCtx(ctx)
-	md.UpdatedAt = time.Now()
-	md.ResourceIndex, md.HasCRD = getTemplateIndex(md.Templates)
-
-}
-func (md *ApplicationUpdate) Validate(ctx context.Context) (err error) {
-	validate := validator.New()
-	lang := common.GetLangFromCtx(ctx, "")
-	validate.RegisterTagNameFunc(common.TagNameI18N(lang))
-	trans := common.LoadValidateTranslator(lang, validate)
-	err = validate.Struct(md)
-	if err != nil {
-		var lines []string
-		var errs validator.ValidationErrors
-		errors.As(err, &errs)
-		for _, v := range errs.Translate(trans) {
-			lines = append(lines, v)
-		}
-		if len(lines) > 0 {
-			err = errors.New(strings.Join(lines, "\n"))
-		}
+	if problems := validation.IsDNS1123Label(md.ReleaseName); len(problems) > 0 {
+		return fmt.Errorf("releaseName is invalid: %s", problems[0])
 	}
-	return
-}
-
-func getTemplateIndex(templates []string) (indies ResourceIndex, hasCrd bool) {
-	indies = make(ResourceIndex)
-	for i := 0; i < len(templates); i++ {
-		template := templates[i]
-		var (
-			kind       string
-			apiVersion string
-			name       string
-		)
-		lines := strings.Split(template, "\n")
-		for _, line := range lines {
-			if strings.HasPrefix(line, "kind: ") {
-				kind = strings.TrimSpace(strings.TrimPrefix(line, "kind: "))
-				if kind == "CustomResourceDefinition" {
-					hasCrd = true
-				}
-			} else if strings.HasPrefix(line, "apiVersion: ") {
-				apiVersion = strings.TrimSpace(strings.TrimPrefix(line, "apiVersion: "))
-			} else if strings.HasPrefix(line, "  name: ") {
-				name = strings.TrimSpace(strings.TrimPrefix(line, "  name: "))
-			}
-			if len(kind) > 0 && len(apiVersion) > 0 && len(name) > 0 {
-				indies[fmt.Sprintf("%s|%s|%s", kind, apiVersion, name)] = i
-			}
-		}
+	if md.Params == nil {
+		md.Params = make(ApplicationRenderParams)
 	}
-	return indies, hasCrd
-}
-
-// ApplicationExportImport 应用版本导入导出
-type ApplicationExportImport struct {
-	//显示名称
-	Name string `gorm:"type:varchar(255);column:name" json:"name"  description:"显示名称"`
-	//版本描述
-	Description string `gorm:"type:text;column:description" json:"description" validate:"required" yaml:"description" description:"版本描述"`
-	//模版内容,yaml格式，支持多个，若为helm部署，则为values.yaml内容
-	Templates ArrayString `gorm:"column:templates" json:"templates" yaml:"templates" validate:"required_if=Type base" description:"模版内容"`
-	//模版资源索引
-	ResourceIndex ResourceIndex `gorm:"type:varchar(255);column:resource_index" json:"resourceIndex" validate:"required_if=DeployMethod yaml" description:"模版资源索引"`
-	//有CRD资源
-	HasCRD bool `gorm:"column:has_crd" json:"hasCrd" yaml:"hasCrd" description:"有CRD资源"`
-	// 应用参数
-	Parameters ParameterDefinitions `gorm:"type:json;column:parameters" json:"parameters"  yaml:"parameters" description:"模版参数"`
-	//版本
-	Version string `gorm:"type:varchar(50);column:version" json:"version" yaml:"version" validate:"-" description:"版本"`
-}
-
-func (t *ApplicationExportImport) TableName() string {
-	return models.ApplicationTableName
-
+	return nil
 }

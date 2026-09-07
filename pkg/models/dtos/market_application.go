@@ -2,9 +2,10 @@ package dtos
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
+	"reflect"
+	"regexp"
 	"strings"
 	"time"
 
@@ -22,272 +23,183 @@ type MarketApplicationDetailList struct {
 }
 
 type MarketApplicationDetail struct {
-	ID            string                       `gorm:"type:varchar(50);primarykey;column:id" json:"id"`
-	CreatedAt     time.Time                    `gorm:"autoCreateTime;column:created_at;<-:create" json:"createdAt"`
-	UpdatedAt     time.Time                    `gorm:"column:updated_at" json:"updatedAt,omitempty"`
-	CreatorId     string                       `gorm:"type:varchar(50);column:creator_id;<-:create" validate:"required" json:"creatorId"`
-	UpdaterId     string                       `gorm:"type:varchar(50);column:updater_id;<-:update" json:"updaterId" validate:"required"`
-	DeletedAt     gorm.DeletedAt               `gorm:"column:deleted_at" json:"deletedAt,omitempty"`
-	DelFlag       string                       `gorm:"type:varchar(50);column:del_flag;default:active" json:"-"`
-	State         uint                         `gorm:"column:state;default:0" json:"state" yaml:"state" validate:"oneof=0 1 2 3 4 5 6" enum:"0|1|2|3|4|5|6"`
-	ApplicationId string                       `gorm:"type:varchar(50);column:application_id" json:"applicationId" validate:"required"`
-	Description   string                       `gorm:"type:text;column:description" json:"description" validate:"required" yaml:"description"`
-	Templates     ArrayString                  `gorm:"column:templates" json:"templates,omitempty" yaml:"templates"`
-	ResourceIndex ResourceIndex                `gorm:"type:varchar(255);column:resource_index" json:"resourceIndex"`
-	HasCRD        bool                         `gorm:"column:has_crd" json:"hasCrd" yaml:"hasCrd"`
-	Parameters    ParameterDefinitions         `gorm:"type:json;column:parameters" json:"parameters,omitempty" yaml:"parameters"`
-	Outputs       ApplicationOutputDefinitions `gorm:"type:json;column:outputs" json:"outputs,omitempty" yaml:"outputs"`
-	Mappings      ParametersMappings           `gorm:"type:json;column:mappings" json:"mappings,omitempty" yaml:"mappings"`
-	Version       string                       `gorm:"type:varchar(50);column:version" json:"version" yaml:"version"`
-	Type          string                       `gorm:"type:varchar(50);column:type;default:base" json:"type" validate:"oneof=base" enum:"base"`
-	Nodes         ApplicationNodes             `gorm:"type:json;column:nodes" json:"nodes,omitempty" yaml:"nodes"`
-	Edges         ApplicationEdges             `gorm:"type:json;column:edges" json:"edges,omitempty" yaml:"edges"`
-	Hash          string                       `gorm:"type:varchar(255);column:hash" json:"hash"`
-	HandleProps   ArrayString                  `gorm:"column:handle_props" json:"handleProps" yaml:"handleProps"`
+	ID            string               `gorm:"column:id" json:"id" yaml:"id"`
+	CreatedAt     time.Time            `gorm:"column:created_at" json:"createdAt" yaml:"-"`
+	UpdatedAt     time.Time            `gorm:"column:updated_at" json:"updatedAt,omitempty" yaml:"-"`
+	DeletedAt     gorm.DeletedAt       `gorm:"column:deleted_at" json:"-" yaml:"-"`
+	DelFlag       string               `gorm:"column:del_flag" json:"-" yaml:"-"`
+	CreatorId     string               `gorm:"column:creator_id" json:"creatorId" yaml:"-"`
+	UpdaterId     string               `gorm:"column:updater_id" json:"updaterId" yaml:"-"`
+	State         uint                 `gorm:"column:state" json:"state" yaml:"state"`
+	Name          string               `gorm:"column:name" json:"name" yaml:"name"`
+	Description   string               `gorm:"column:description" json:"description" yaml:"description"`
+	Logo          string               `gorm:"column:logo" json:"logo" yaml:"logo"`
+	Home          string               `gorm:"column:home" json:"home" yaml:"home"`
+	Category      string               `gorm:"column:category" json:"category" yaml:"category"`
+	Tags          ArrayString          `gorm:"column:tags" json:"tags" yaml:"tags"`
+	Templates     ArrayString          `gorm:"column:templates" json:"templates" yaml:"templates"`
+	ResourceIndex ResourceIndex        `gorm:"column:resource_index" json:"resourceIndex" yaml:"resourceIndex"`
+	HasCRD        bool                 `gorm:"column:has_crd" json:"hasCrd" yaml:"hasCrd"`
+	Parameters    ParameterDefinitions `gorm:"column:parameters" json:"parameters" yaml:"parameters"`
 }
 
-func (t *MarketApplicationDetail) TableName() string {
-	return models.MarketApplicationTableName
-}
+func (MarketApplicationDetail) TableName() string { return models.MarketApplicationTableName }
 
 type MarketApplicationCreate struct {
-	ID            string                       `gorm:"primarykey;column:id;type:varchar(50)" json:"-"`
-	CreatedAt     time.Time                    `gorm:"autoCreateTime;column:created_at;<-:create" json:"-"`
-	CreatorId     string                       `gorm:"type:varchar(50);column:creator_id;<-:create" validate:"required" json:"-"`
-	State         uint                         `gorm:"column:state;default:0" json:"state" yaml:"state" validate:"oneof=0 1 2 3 4 5 6"`
-	ApplicationId string                       `gorm:"type:varchar(50);column:application_id" json:"applicationId" validate:"required"`
-	Description   string                       `gorm:"type:text;column:description" json:"description" validate:"required" yaml:"description"`
-	Templates     ArrayString                  `gorm:"column:templates" json:"templates" yaml:"templates"`
-	ResourceIndex ResourceIndex                `gorm:"type:varchar(255);column:resource_index" json:"-"`
-	HasCRD        bool                         `gorm:"column:has_crd" json:"hasCrd" yaml:"hasCrd"`
-	Parameters    ParameterDefinitions         `gorm:"type:json;column:parameters" json:"parameters" yaml:"parameters"`
-	Outputs       ApplicationOutputDefinitions `gorm:"type:json;column:outputs" json:"outputs" yaml:"outputs"`
-	Mappings      ParametersMappings           `gorm:"type:json;column:mappings" json:"mappings" yaml:"mappings"`
-	Version       string                       `gorm:"type:varchar(50);column:version" json:"version" yaml:"version" validate:"required"`
-	Type          string                       `gorm:"type:varchar(50);column:type;default:base" json:"type" validate:"oneof=base"`
-	Nodes         ApplicationNodes             `gorm:"type:json;column:nodes" json:"nodes" yaml:"nodes"`
-	Edges         ApplicationEdges             `gorm:"type:json;column:edges" json:"edges" yaml:"edges"`
-	Hash          string                       `gorm:"type:varchar(255);column:hash" json:"hash"`
-	HandleProps   ArrayString                  `gorm:"column:handle_props" json:"handleProps" yaml:"handleProps"`
+	ID            string               `gorm:"column:id" json:"id,omitempty" yaml:"id,omitempty"`
+	CreatedAt     time.Time            `gorm:"column:created_at" json:"-" yaml:"-"`
+	CreatorId     string               `gorm:"column:creator_id" json:"-" yaml:"-"`
+	DelFlag       string               `gorm:"column:del_flag" json:"-" yaml:"-"`
+	State         uint                 `gorm:"column:state" json:"state" yaml:"state" validate:"oneof=0 1"`
+	Name          string               `gorm:"column:name" json:"name" yaml:"name" validate:"required,max=255"`
+	Description   string               `gorm:"column:description" json:"description" yaml:"description"`
+	Logo          string               `gorm:"column:logo" json:"logo" yaml:"logo"`
+	Home          string               `gorm:"column:home" json:"home" yaml:"home"`
+	Category      string               `gorm:"column:category" json:"category" yaml:"category" validate:"required,max=100"`
+	Tags          ArrayString          `gorm:"column:tags" json:"tags" yaml:"tags" validate:"max=4"`
+	Templates     ArrayString          `gorm:"column:templates" json:"templates" yaml:"templates" validate:"required,min=1"`
+	ResourceIndex ResourceIndex        `gorm:"column:resource_index" json:"-" yaml:"-"`
+	HasCRD        bool                 `gorm:"column:has_crd" json:"-" yaml:"-"`
+	Parameters    ParameterDefinitions `gorm:"column:parameters" json:"parameters" yaml:"parameters"`
 }
 
 func (md *MarketApplicationCreate) Default(ctx context.Context) {
-	md.CreatorId = config.GetOperatorFromCtx(ctx)
-	if len(md.ID) == 0 {
+	if md.ID == "" {
 		md.ID = utils.GenerateDatabaseId()
 	}
-	if len(md.Type) == 0 {
-		md.Type = "base"
+	if md.Category == "" {
+		md.Category = "application"
 	}
+	md.CreatorId = config.GetOperatorFromCtx(ctx)
 	md.CreatedAt = time.Now()
-	md.Hash = buildMarketApplicationHash(md.Type, md.Templates, md.Parameters, md.Outputs, md.Mappings, md.Nodes, md.Edges, md.HandleProps)
-	if md.Type == "base" {
-		md.ResourceIndex, md.HasCRD = getTemplateIndex(md.Templates)
-	}
+	md.DelFlag = "active"
+	md.ResourceIndex, md.HasCRD = getTemplateIndex(md.Templates)
 }
 
-func (md *MarketApplicationCreate) Validate(ctx context.Context) (err error) {
-	validate := validator.New()
-	lang := common.GetLangFromCtx(ctx, "")
-	validate.RegisterTagNameFunc(common.TagNameI18N(lang))
-	trans := common.LoadValidateTranslator(lang, validate)
-	err = validate.Struct(md)
-	if err != nil {
-		var lines []string
-		var errs validator.ValidationErrors
-		errors.As(err, &errs)
-		for _, v := range errs.Translate(trans) {
-			lines = append(lines, v)
-		}
-		if len(lines) > 0 {
-			err = errors.New(strings.Join(lines, "\n"))
-		}
-	}
-	if err == nil {
-		err = validateMarketApplicationContent(md.Type, md.Templates, md.Outputs, md.Mappings, md.Nodes, md.Edges)
-	}
-	return
+func (md *MarketApplicationCreate) Validate(ctx context.Context) error {
+	return validateApplicationModel(ctx, md)
 }
 
 type MarketApplicationUpdate struct {
-	ID            string                       `gorm:"type:varchar(50);primarykey;column:id" json:"id"`
-	UpdatedAt     time.Time                    `gorm:"autoUpdateTime;column:updated_at;<-:update" json:"-"`
-	UpdaterId     string                       `gorm:"type:varchar(50);column:updater_id;<-:update" validate:"required" json:"-"`
-	ApplicationId string                       `gorm:"type:varchar(50);column:application_id" json:"applicationId" validate:"required"`
-	Description   string                       `gorm:"type:text;column:description" json:"description" validate:"required" yaml:"description"`
-	Templates     ArrayString                  `gorm:"column:templates" json:"templates" yaml:"templates"`
-	ResourceIndex ResourceIndex                `gorm:"type:varchar(255);column:resource_index" json:"resourceIndex"`
-	HasCRD        bool                         `gorm:"column:has_crd" json:"hasCrd" yaml:"hasCrd"`
-	Parameters    ParameterDefinitions         `gorm:"type:json;column:parameters" json:"parameters" yaml:"parameters"`
-	Outputs       ApplicationOutputDefinitions `gorm:"type:json;column:outputs" json:"outputs" yaml:"outputs"`
-	Mappings      ParametersMappings           `gorm:"type:json;column:mappings" json:"mappings" yaml:"mappings"`
-	Version       string                       `gorm:"type:varchar(50);column:version" json:"version" yaml:"version" validate:"required"`
-	Type          string                       `gorm:"type:varchar(50);column:type;default:base" json:"type" validate:"oneof=base"`
-	Nodes         ApplicationNodes             `gorm:"type:json;column:nodes" json:"nodes" yaml:"nodes"`
-	Edges         ApplicationEdges             `gorm:"type:json;column:edges" json:"edges" yaml:"edges"`
-	Hash          string                       `gorm:"type:varchar(255);column:hash" json:"hash"`
-	HandleProps   ArrayString                  `gorm:"column:handle_props" json:"handleProps" yaml:"handleProps"`
+	ID            string               `gorm:"column:id" json:"id" validate:"required"`
+	UpdatedAt     time.Time            `gorm:"column:updated_at" json:"-"`
+	UpdaterId     string               `gorm:"column:updater_id" json:"-"`
+	State         uint                 `gorm:"column:state" json:"state" validate:"oneof=0 1"`
+	Name          string               `gorm:"column:name" json:"name" validate:"required,max=255"`
+	Description   string               `gorm:"column:description" json:"description"`
+	Logo          string               `gorm:"column:logo" json:"logo"`
+	Home          string               `gorm:"column:home" json:"home"`
+	Category      string               `gorm:"column:category" json:"category" validate:"required,max=100"`
+	Tags          ArrayString          `gorm:"column:tags" json:"tags" validate:"max=4"`
+	Templates     ArrayString          `gorm:"column:templates" json:"templates" validate:"required,min=1"`
+	ResourceIndex ResourceIndex        `gorm:"column:resource_index" json:"-"`
+	HasCRD        bool                 `gorm:"column:has_crd" json:"-"`
+	Parameters    ParameterDefinitions `gorm:"column:parameters" json:"parameters"`
 }
 
 func (md *MarketApplicationUpdate) Default(ctx context.Context) {
 	md.UpdaterId = config.GetOperatorFromCtx(ctx)
-	if len(md.Type) == 0 {
-		md.Type = "base"
-	}
 	md.UpdatedAt = time.Now()
-	md.Hash = buildMarketApplicationHash(md.Type, md.Templates, md.Parameters, md.Outputs, md.Mappings, md.Nodes, md.Edges, md.HandleProps)
-	if md.Type == "base" {
-		md.ResourceIndex, md.HasCRD = getTemplateIndex(md.Templates)
+	if md.Category == "" {
+		md.Category = "application"
 	}
+	md.ResourceIndex, md.HasCRD = getTemplateIndex(md.Templates)
 }
 
-func (md *MarketApplicationUpdate) Validate(ctx context.Context) (err error) {
-	validate := validator.New()
-	lang := common.GetLangFromCtx(ctx, "")
-	validate.RegisterTagNameFunc(common.TagNameI18N(lang))
-	trans := common.LoadValidateTranslator(lang, validate)
-	err = validate.Struct(md)
-	if err != nil {
-		var lines []string
-		var errs validator.ValidationErrors
-		errors.As(err, &errs)
-		for _, v := range errs.Translate(trans) {
-			lines = append(lines, v)
-		}
-		if len(lines) > 0 {
-			err = errors.New(strings.Join(lines, "\n"))
-		}
-	}
-	if err == nil {
-		err = validateMarketApplicationContent(md.Type, md.Templates, md.Outputs, md.Mappings, md.Nodes, md.Edges)
-	}
-	return
+func (md *MarketApplicationUpdate) Validate(ctx context.Context) error {
+	return validateApplicationModel(ctx, md)
 }
 
-type MarketApplicationCopy struct {
-	SourceId string `json:"sourceId" validate:"required"`
-	Version  string `json:"version" yaml:"version" validate:"required"`
-}
-
-func (md *MarketApplicationCopy) Validate(ctx context.Context) (err error) {
-	validate := validator.New()
-	lang := common.GetLangFromCtx(ctx, "")
-	validate.RegisterTagNameFunc(common.TagNameI18N(lang))
-	trans := common.LoadValidateTranslator(lang, validate)
-	err = validate.Struct(md)
-	if err != nil {
-		var lines []string
-		var errs validator.ValidationErrors
-		errors.As(err, &errs)
-		for _, v := range errs.Translate(trans) {
-			lines = append(lines, v)
-		}
-		if len(lines) > 0 {
-			err = errors.New(strings.Join(lines, "\n"))
-		}
-	}
-	return
-}
-
-func buildMarketApplicationHash(appType string, templates ArrayString, parameters ParameterDefinitions, outputs ApplicationOutputDefinitions, mappings ParametersMappings, nodes ApplicationNodes, edges ApplicationEdges, handleProps ArrayString) string {
-	payload := struct {
-		Type       string                       `json:"type"`
-		Templates  ArrayString                  `json:"templates"`
-		Parameters ParameterDefinitions         `json:"parameters"`
-		Outputs    ApplicationOutputDefinitions `json:"outputs"`
-		Mappings   ParametersMappings           `json:"mappings"`
-		Nodes      ApplicationNodes             `json:"nodes"`
-		Edges      ApplicationEdges             `json:"edges"`
-		Handle     ArrayString                  `json:"handleProps"`
-	}{
-		Type:       appType,
-		Templates:  templates,
-		Parameters: parameters,
-		Outputs:    outputs,
-		Mappings:   mappings,
-		Nodes:      nodes,
-		Edges:      edges,
-		Handle:     handleProps,
-	}
-	data, _ := json.Marshal(payload)
-	return common.MD5VByte(data)
-}
-
-func validateMarketApplicationContent(appType string, templates ArrayString, outputs ApplicationOutputDefinitions, mappings ParametersMappings, nodes ApplicationNodes, edges ApplicationEdges) error {
-	if err := validateApplicationOutputs(templates, outputs); err != nil {
-		return err
-	}
-	return validateApplicationMappings(nil, mappings)
-}
-
-func validateApplicationOutputs(templates ArrayString, outputs ApplicationOutputDefinitions) error {
-	outputNames := make(map[string]struct{}, len(outputs))
-	resourceIndex, _ := getTemplateIndex(templates)
-	for i, output := range outputs {
-		outputName := strings.TrimSpace(output.Name)
-		if outputName == "" {
-			return fmt.Errorf("outputs[%d].name is required", i)
-		}
-		if _, exist := outputNames[outputName]; exist {
-			return fmt.Errorf("outputs[%d].name duplicated: %s", i, output.Name)
-		}
-		outputNames[outputName] = struct{}{}
-		if strings.TrimSpace(output.Type) == "" {
-			return fmt.Errorf("outputs[%d].type is required", i)
-		}
-		switch output.ValueFrom.Type {
-		case "parameter":
-			if strings.TrimSpace(output.ValueFrom.Parameter) == "" {
-				return fmt.Errorf("outputs[%d].valueFrom.parameter is required when valueFrom.type=parameter", i)
-			}
-		case "template":
-			if strings.TrimSpace(output.ValueFrom.Template) == "" {
-				return fmt.Errorf("outputs[%d].valueFrom.template is required when valueFrom.type=template", i)
-			}
-			if strings.TrimSpace(output.ValueFrom.Path) == "" {
-				return fmt.Errorf("outputs[%d].valueFrom.path is required when valueFrom.type=template", i)
-			}
-			if len(resourceIndex) == 0 {
-				return fmt.Errorf("outputs[%d].valueFrom.template requires templates to be defined", i)
-			}
-			if _, exist := resourceIndex[strings.TrimSpace(output.ValueFrom.Template)]; !exist {
-				return fmt.Errorf("outputs[%d].valueFrom.template not found in resourceIndex: %s", i, output.ValueFrom.Template)
-			}
-		default:
-			return fmt.Errorf("outputs[%d].valueFrom.type is invalid", i)
-		}
-	}
-	return nil
-}
-
-func validateApplicationMappings(nodes ApplicationNodes, mappings ParametersMappings) error {
-	for i, mapping := range mappings {
-		if len(mapping.Variables) == 0 {
-			return fmt.Errorf("mappings[%d].variables is required", i)
-		}
-		for j, variable := range mapping.Variables {
-			if strings.TrimSpace(variable.Name) == "" {
-				return fmt.Errorf("mappings[%d].variables[%d].name is required", i, j)
-			}
-		}
-	}
-	return nil
+type MarketApplicationState struct {
+	ID    string `json:"id" validate:"required"`
+	State uint   `json:"state" validate:"oneof=0 1"`
 }
 
 type MarketApplicationExportImport struct {
-	Description string                       `gorm:"type:text;column:description" json:"description" validate:"required" yaml:"description,omitempty"`
-	Templates   ArrayString                  `gorm:"column:templates" json:"templates,omitempty" yaml:"templates,omitempty"`
-	HasCRD      bool                         `gorm:"column:has_crd" json:"hasCrd" yaml:"hasCrd,omitempty"`
-	Parameters  ParameterDefinitions         `gorm:"type:json;column:parameters" json:"parameters,omitempty" yaml:"parameters,omitempty"`
-	Outputs     ApplicationOutputDefinitions `gorm:"type:json;column:outputs" json:"outputs,omitempty" yaml:"outputs,omitempty"`
-	Mappings    ParametersMappings           `gorm:"type:json;column:mappings" json:"mappings,omitempty" yaml:"mappings,omitempty"`
-	Version     string                       `gorm:"type:varchar(50);column:version" json:"version" yaml:"version"`
-	Type        string                       `gorm:"type:varchar(50);column:type;default:base" json:"type" validate:"oneof=base" enum:"base"`
-	Nodes       ApplicationNodes             `gorm:"type:json;column:nodes" json:"nodes,omitempty" yaml:"nodes,omitempty"`
-	Edges       ApplicationEdges             `gorm:"type:json;column:edges" json:"edges,omitempty" yaml:"edges,omitempty"`
-	HandleProps ArrayString                  `gorm:"column:handle_props" json:"handleProps" yaml:"handleProps,omitempty"`
+	ID          string               `json:"id,omitempty" yaml:"id,omitempty"`
+	State       uint                 `json:"state" yaml:"state"`
+	Name        string               `json:"name" yaml:"name" validate:"required"`
+	Description string               `json:"description" yaml:"description"`
+	Logo        string               `json:"logo" yaml:"logo"`
+	Home        string               `json:"home" yaml:"home"`
+	Category    string               `json:"category" yaml:"category"`
+	Tags        ArrayString          `json:"tags" yaml:"tags"`
+	Templates   ArrayString          `json:"templates" yaml:"templates" validate:"required,min=1"`
+	Parameters  ParameterDefinitions `json:"parameters" yaml:"parameters"`
 }
 
-func (t *MarketApplicationExportImport) TableName() string {
-	return models.MarketApplicationTableName
+func validateApplicationModel(ctx context.Context, model any) error {
+	validate := validator.New()
+	lang := common.GetLangFromCtx(ctx, "")
+	validate.RegisterTagNameFunc(common.TagNameI18N(lang))
+	trans := common.LoadValidateTranslator(lang, validate)
+	if err := validate.Struct(model); err != nil {
+		var validationErrors validator.ValidationErrors
+		if errors.As(err, &validationErrors) {
+			lines := make([]string, 0, len(validationErrors))
+			for _, line := range validationErrors.Translate(trans) {
+				lines = append(lines, line)
+			}
+			return errors.New(strings.Join(lines, "\n"))
+		}
+		return err
+	}
+	var parameters ParameterDefinitions
+	switch value := model.(type) {
+	case *MarketApplicationCreate:
+		parameters = value.Parameters
+	case *MarketApplicationUpdate:
+		parameters = value.Parameters
+	}
+	if err := validateParameterDefinitions(validate, parameters); err != nil {
+		return err
+	}
+	return nil
+}
+
+var applicationParameterNamePattern = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_.-]*$`)
+
+func validateParameterDefinitions(validate *validator.Validate, parameters ParameterDefinitions) error {
+	names := make(map[string]struct{}, len(parameters))
+	for index, parameter := range parameters {
+		if err := validate.Struct(parameter); err != nil {
+			return fmt.Errorf("parameter %d is invalid: %w", index+1, err)
+		}
+		if !applicationParameterNamePattern.MatchString(parameter.Name) {
+			return fmt.Errorf("parameter %d name %q is invalid", index+1, parameter.Name)
+		}
+		if _, exists := names[parameter.Name]; exists {
+			return fmt.Errorf("parameter name %q is duplicated", parameter.Name)
+		}
+		names[parameter.Name] = struct{}{}
+		if parameter.AllowableValues == nil {
+			continue
+		}
+		kind := reflect.TypeOf(parameter.AllowableValues).Kind()
+		if kind != reflect.Array && kind != reflect.Slice {
+			return fmt.Errorf("parameter %q allowableValues must be an array", parameter.Name)
+		}
+	}
+	return nil
+}
+
+func getTemplateIndex(templates []string) (ResourceIndex, bool) {
+	index := make(ResourceIndex)
+	hasCRD := false
+	for i, content := range templates {
+		for _, resource := range utils.SplitKubernetesResources(content) {
+			meta := utils.GetResourceGroupVersion(resource)
+			obj, err := utils.YamlToUnstructured(resource)
+			if err != nil {
+				continue
+			}
+			if meta.Kind == "CustomResourceDefinition" {
+				hasCRD = true
+			}
+			if meta.Kind != "" && meta.APIVersion != "" && obj.GetName() != "" {
+				index[fmt.Sprintf("%s|%s|%s", meta.Kind, meta.APIVersion, obj.GetName())] = i
+			}
+		}
+	}
+	return index, hasCRD
 }
