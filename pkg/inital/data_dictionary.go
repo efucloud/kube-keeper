@@ -1,10 +1,13 @@
 package inital
 
 import (
+	"fmt"
+
 	"github.com/efucloud/kube-keeper/pkg/config"
 	"github.com/efucloud/kube-keeper/pkg/models/daos"
 	"github.com/efucloud/kube-keeper/pkg/models/dtos"
 	"github.com/efucloud/kube-keeper/pkg/utils"
+	"gorm.io/gorm"
 )
 
 var defaultDataDictionaries = []daos.DataDictionary{
@@ -36,10 +39,18 @@ var defaultDataDictionaries = []daos.DataDictionary{
 // InitializeDataDictionaries creates SaaS-owned dictionaries once. FirstOrCreate
 // deliberately leaves later administrator changes untouched.
 func InitializeDataDictionaries() {
+	if err := initializeDataDictionaries(config.DBConnect); err != nil {
+		config.Logger.Fatalf("initialize data dictionaries failed: %s", err.Error())
+	}
+}
+
+func initializeDataDictionaries(db *gorm.DB) error {
 	for _, dictionary := range defaultDataDictionaries {
 		dictionary.ID = utils.GenerateDatabaseId()
-		if err := config.DBConnect.Where("code = ?", dictionary.Code).FirstOrCreate(&dictionary).Error; err != nil {
-			config.Logger.Fatalf("initialize data dictionary %s failed: %s", dictionary.Code, err.Error())
+		var existing daos.DataDictionary
+		if err := db.Where("code = ?", dictionary.Code).Attrs(dictionary).FirstOrCreate(&existing).Error; err != nil {
+			return fmt.Errorf("initialize data dictionary %s: %w", dictionary.Code, err)
 		}
 	}
+	return nil
 }

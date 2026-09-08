@@ -51,7 +51,7 @@ func (resource HelmStoreResource) AddWebService(ws *restful.WebService) {
 		Returns(http.StatusOK, "成功", dtos.HelmRepositoryDetail{}), adminFilters).Metadata(config.FrontApiTag, "updateHelmRepository"))
 	ws.Route(addFilters(ws.DELETE(repositoryPath).Doc("删除Helm仓库").Reads(dtos.BatchOperationIds{}).To(resource.deleteRepository).
 		Returns(http.StatusOK, "成功", "success"), adminFilters).Metadata(config.FrontApiTag, "deleteHelmRepository"))
-	ws.Route(addFilters(ws.POST(repositoryPath+"/{id}/sync").Doc("立即同步Helm仓库").Param(ws.PathParameter("id", "仓库ID")).To(resource.syncRepository).
+	ws.Route(addFilters(ws.GET(repositoryPath+"/{id}/sync").Doc("立即同步Helm仓库").Param(ws.PathParameter("id", "仓库ID")).To(resource.syncRepository).
 		Returns(http.StatusOK, "成功", dtos.HelmRepositoryDetail{}), adminFilters).Metadata(config.FrontApiTag, "syncHelmRepository"))
 }
 
