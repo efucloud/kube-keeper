@@ -116,6 +116,12 @@ func (c *Config) Init() {
 	if c.TokenConfig.ExpireSeconds <= 0 {
 		c.TokenConfig.ExpireSeconds = 24 * 3600
 	}
+	if c.HelmStore.CacheDir == "" {
+		c.HelmStore.CacheDir = "./data/helm"
+	}
+	if c.HelmStore.SyncTimeout <= 0 {
+		c.HelmStore.SyncTimeout = 60
+	}
 	if err := LoadSystemTokenKeys(); err != nil {
 		Logger.Fatalf("load embedded system token keys failed, err: %s", err.Error())
 	}

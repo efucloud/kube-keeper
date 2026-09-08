@@ -34,6 +34,9 @@ chatConfig:
   apiKey: sk-23486e1c9ed44d4c84f5cbb4babeaa41
   model: qwen3-coder-480b-a35b-instruct
   header: ""
+helmStore:
+  cacheDir: ""
+  syncTimeout: 0
 adminEmails:
   - admin@efucloud.cn
   - admin@efucloud.com

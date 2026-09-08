@@ -5,14 +5,20 @@ import (
 )
 
 type Config struct {
-	Mysql             *MysqlConfig `json:"mysql" yaml:"mysql"`
-	Redis             *RedisConfig `json:"redis" yaml:"redis"`
-	LogConfig         *LogConfig   `json:"logConfig" yaml:"logConfig"`
-	OidcConfig        OidcConfig   `json:"oidcConfig" yaml:"oidcConfig" description:"认证配置"`
-	TokenConfig       TokenConfig  `json:"tokenConfig" yaml:"tokenConfig" description:"系统Token配置"`
-	ChatConfig        ChatConfig   `json:"chatConfig" yaml:"chatConfig" description:"大模型配置"`
-	AdminEmails       []string     `json:"adminEmails" yaml:"adminEmails" description:"管理员邮箱列表"`
-	TerminalContainer string       `json:"terminalContainer" yaml:"terminalContainer" description:"终端容器"`
+	Mysql             *MysqlConfig    `json:"mysql" yaml:"mysql"`
+	Redis             *RedisConfig    `json:"redis" yaml:"redis"`
+	LogConfig         *LogConfig      `json:"logConfig" yaml:"logConfig"`
+	OidcConfig        OidcConfig      `json:"oidcConfig" yaml:"oidcConfig" description:"认证配置"`
+	TokenConfig       TokenConfig     `json:"tokenConfig" yaml:"tokenConfig" description:"系统Token配置"`
+	ChatConfig        ChatConfig      `json:"chatConfig" yaml:"chatConfig" description:"大模型配置"`
+	HelmStore         HelmStoreConfig `json:"helmStore" yaml:"helmStore" description:"Helm商店配置"`
+	AdminEmails       []string        `json:"adminEmails" yaml:"adminEmails" description:"管理员邮箱列表"`
+	TerminalContainer string          `json:"terminalContainer" yaml:"terminalContainer" description:"终端容器"`
+}
+
+type HelmStoreConfig struct {
+	CacheDir    string `json:"cacheDir" yaml:"cacheDir" description:"index.yaml本地缓存目录"`
+	SyncTimeout int    `json:"syncTimeout" yaml:"syncTimeout" description:"单仓库同步超时秒数"`
 }
 
 type RedisConfig struct {

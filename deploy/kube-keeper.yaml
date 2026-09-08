@@ -45,6 +45,9 @@ stringData:
       address: https://api.openai.com/v1
       apiKey: replace-with-api-key
       model: gpt-5
+    helmStore:
+      cacheDir: /efucloud/data/helm
+      syncTimeout: 60
     adminEmails:
       - admin@efucloud.com
     terminalContainer: registry.cn-shenzhen.aliyuncs.com/efucloud-public/k8s-tools:v1.0.0.03132013
@@ -75,6 +78,8 @@ spec:
               mountPath: /efucloud/config/config.yaml
               subPath: config.yaml
               readOnly: true
+            - name: helm-cache
+              mountPath: /efucloud/data/helm
           readinessProbe:
             tcpSocket:
               port: http
@@ -99,6 +104,8 @@ spec:
             items:
               - key: config.yaml
                 path: config.yaml
+        - name: helm-cache
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
