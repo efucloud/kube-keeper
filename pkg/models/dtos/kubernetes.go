@@ -27,15 +27,6 @@ type ClusterTerminalPodInfo struct {
 	Message       string `json:"message"`
 }
 
-// ClusterServerGroup 集群资源接口
-type ClusterServerGroup struct {
-	GroupVersion string `json:"groupVersion" validate:"required" description:""`
-	Group        string `json:"group" description:"组"`
-	Version      string `json:"version" validate:"required" description:"版本"`
-	Kind         string `json:"kind" description:"资源类型"`
-	Scope        string `json:"scope" description:"作用域"`
-	Name         string `json:"name" description:"名称"`
-}
 type ClusterServerGroupChecks []ClusterServerGroupCheck
 
 // ClusterServerGroupCheck 集群资源接口检测

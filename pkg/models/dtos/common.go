@@ -411,7 +411,6 @@ type OidcRequestToken struct {
 type UserClaims struct {
 	//组织用户ID
 	ID      string `json:"id" description:"用户ID"`
-	EAuthId string `json:"eAuthId" description:""`
 	// 用户名 组织内唯一必须由DNS-1123标签格式的单元组成
 	Username string `json:"username"`
 	// 昵称，如中文名

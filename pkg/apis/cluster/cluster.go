@@ -64,20 +64,6 @@ func (r ClusterResource) AddWebService(ws *restful.WebService) {
 		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
 		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
 		Metadata(config.FrontApiTag, "getClusterResourceDashboard"))
-	ws.Route(ws.GET(config.ClusterAPIPrefix+apiExtend+"/csg").
-		Doc("csg").
-		Notes("csg").
-		Param(ws.HeaderParameter(config.AuthHeader, "请求Token")).
-		Param(ws.PathParameter("cluster", "集群编码")).
-		To(r.csg).
-		Returns(http.StatusOK, "", []dtos2.ClusterServerGroup{}).
-		Returns(http.StatusUnauthorized, "用户需要先登录", common.AuthRedirectInfo{}).
-		Returns(http.StatusBadRequest, "请求数据无法处理", common.ResponseError{}).
-		Returns(http.StatusForbidden, "用户没有权限", common.ResponseError{}).
-		Returns(http.StatusInternalServerError, "内部处理逻辑错误", common.ResponseError{}).
-		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
-		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
-		Metadata(config.FrontApiTag, "clusterServerGroups"))
 	ws.Route(ws.POST(config.ClusterAPIPrefix+apiExtend+"/csgCheck").
 		Doc("检查资源类型在集群是否存在").
 		Notes("检查资源类型在集群是否存在").
@@ -287,67 +273,6 @@ func (r ClusterResource) csgCheck(req *restful.Request, resp *restful.Response) 
 	}
 	common.ResponseSuccess(resp, results)
 }
-func (r ClusterResource) csg(req *restful.Request, resp *restful.Response) {
-	var (
-		errorData   common.ErrorData
-		requestInfo structs.RequestInfo
-		groups      []*metav1.APIGroup
-		resources   []*metav1.APIResourceList
-		results     []dtos2.ClusterServerGroup
-	)
-	preferredVersions := make(map[string]string)
-	lang := common.GetLanguageFromReq(req, config.RequestLanguage)
-	ctx := context.WithValue(context.Background(), config.RequestLanguage, lang)
-	if reqCtx := req.Attribute(config.RequestContext); reqCtx != nil {
-		ctx = reqCtx.(context.Context)
-	}
-	requestInfo = k8scluster2.GetRequestInfo(req)
-	groups, resources, errorData = r.Svc.ServerGroupsAndResources(ctx, requestInfo)
-	if errorData.IsNotNil() {
-		config.Logger.Error(errorData.String())
-		common.ResponseSuccess(resp, results)
-		return
-	}
-	for _, group := range groups {
-		preferredVersions[group.PreferredVersion.GroupVersion] = group.PreferredVersion.GroupVersion
-	}
-	for _, resource := range resources {
-		if groupVersion, ok := preferredVersions[resource.GroupVersion]; ok {
-			for _, item := range resource.APIResources {
-				group := item.Group
-				version := item.Version
-				if len(item.Group) == 0 || len(item.Version) == 0 {
-					sp := strings.Split(groupVersion, "/")
-					if len(sp) == 2 {
-						group = sp[0]
-						version = sp[1]
-					} else if len(sp) == 1 {
-						version = sp[0]
-					}
-				}
-				if len(group) == 0 || strings.HasPrefix(groupVersion, "/status") {
-					continue
-				}
-				scope := "cluster"
-				if item.Namespaced {
-					scope = "namespace"
-				}
-				results = append(results, dtos2.ClusterServerGroup{
-					GroupVersion: groupVersion,
-					Group:        group,
-					Version:      version,
-					Kind:         item.Kind,
-					Scope:        scope,
-					Name:         item.Name,
-				})
-			}
-		}
-	}
-	data, _ := json.Marshal(results)
-	const secretKey = "asdfS2324A><:.."
-	common.ResponseSuccess(resp, config.AesSimpleEncrypt(string(data), secretKey))
-}
-
 func (r ClusterResource) resourceDashboard(req *restful.Request, resp *restful.Response) {
 	var (
 		errorData   common.ErrorData

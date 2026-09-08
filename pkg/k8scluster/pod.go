@@ -79,7 +79,11 @@ func (svc *PodService) CreateClusterTerminalPod(req *restful.Request, resp *rest
 	}
 
 	clusterAccSvc := database2.ClusterAccountService{}
-	clusterAccount, _ := clusterAccSvc.GetClusterAccountInfoByAccountID(ctx, targetCluster.ID, accountId)
+	clusterAccount, accountErr := clusterAccSvc.GetClusterAccountCredentialsByAccountID(ctx, targetCluster.ID, accountId)
+	if accountErr.IsNotNil() {
+		writeErr("get current user cluster CSR failed", accountErr.Err)
+		return
+	}
 	if len(clusterAccount.ID) == 0 {
 		writeErr(fmt.Sprintf("cluster account is not found for target cluster: %s", targetCluster.Code), nil)
 		return
