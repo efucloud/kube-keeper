@@ -136,6 +136,19 @@ func (svc *ClusterAccountService) GetClusterAccountInfoByAccountID(ctx context.C
 	return results, errorData
 }
 
+// GetClusterAccountCredentialsByAccountID always reads the current user's CSR
+// credentials from the database. ClusterAccountDetail deliberately excludes
+// the certificate and private key from JSON, so a generic JSON cache must not
+// be used when creating an authenticated Kubernetes client.
+func (svc *ClusterAccountService) GetClusterAccountCredentialsByAccountID(ctx context.Context, clusterId, accountId string) (result dtos2.ClusterAccountDetail, errorData common.ErrorData) {
+	svc.init(ctx)
+	result, errorData = svc.repo.GetClusterAccountInfoByAccountID(ctx, clusterId, accountId)
+	if errorData.IsNotNil() {
+		config2.Logger.Errorf("cluster: %s get CSR credentials for account: %s failed, err: %s", clusterId, accountId, errorData.Err.Error())
+	}
+	return result, errorData
+}
+
 func (svc *ClusterAccountService) CreateClusterAccount(ctx context.Context, model dtos2.ClusterAccountCreate) (result dtos2.ClusterAccountDetail, errorData common.ErrorData) {
 	svc.init(ctx)
 

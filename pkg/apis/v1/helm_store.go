@@ -41,6 +41,9 @@ func (resource HelmStoreResource) AddWebService(ws *restful.WebService) {
 	ws.Route(addFilters(ws.GET(storePath+"/charts/{repository}/{chart}").Doc("获取Helm Chart详情").
 		Param(ws.PathParameter("repository", "仓库ID")).Param(ws.PathParameter("chart", "Chart名称")).
 		To(resource.getChart).Returns(http.StatusOK, "成功", helmstore.ChartDetail{}), userFilters).Metadata(config.FrontApiTag, "getHelmStoreChart"))
+	ws.Route(addFilters(ws.GET(storePath+"/charts/{repository}/{chart}/{version}/values").Doc("获取Helm Chart原始values.yaml").
+		Param(ws.PathParameter("repository", "仓库ID")).Param(ws.PathParameter("chart", "Chart名称")).Param(ws.PathParameter("version", "Chart版本")).
+		To(resource.getChartValues).Returns(http.StatusOK, "成功", dtos.HelmStoreValues{}), userFilters).Metadata(config.FrontApiTag, "getHelmStoreChartValues"))
 
 	ws.Route(addFilters(ws.GET(repositoryPath).Doc("获取Helm仓库管理列表").
 		Param(ws.QueryParameter("current", "页码").DataType("number")).Param(ws.QueryParameter("pageSize", "每页大小").DataType("number")).
@@ -85,6 +88,21 @@ func (resource HelmStoreResource) getChart(request *restful.Request, response *r
 		return
 	}
 	common.ResponseSuccess(response, result)
+}
+
+func (resource HelmStoreResource) getChartValues(request *restful.Request, response *restful.Response) {
+	ctx, lang := marketContext(request)
+	content, err := helmstore.Default().GetChartValues(
+		ctx,
+		request.PathParameter("repository"),
+		request.PathParameter("chart"),
+		request.PathParameter("version"),
+	)
+	if err != nil {
+		respondMarketError(ctx, lang, request, response, common.ErrorData{Err: err, ResponseCode: http.StatusNotFound, MsgCode: config.MsgCodeRecordNotExist})
+		return
+	}
+	common.ResponseSuccess(response, dtos.HelmStoreValues{Content: content})
 }
 
 func (resource HelmStoreResource) listRepositories(request *restful.Request, response *restful.Response) {

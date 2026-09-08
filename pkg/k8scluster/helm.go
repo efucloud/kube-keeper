@@ -11,10 +11,12 @@ import (
 	"fmt"
 	"github.com/efucloud/common"
 	"github.com/efucloud/kube-keeper/pkg/config"
+	"github.com/efucloud/kube-keeper/pkg/helmstore"
 	"github.com/efucloud/kube-keeper/pkg/k8scluster/database"
 	dtos2 "github.com/efucloud/kube-keeper/pkg/models/dtos"
 	"github.com/efucloud/kube-keeper/pkg/structs"
 	"helm.sh/helm/v3/pkg/action"
+	"helm.sh/helm/v3/pkg/chartutil"
 	rspb "helm.sh/helm/v3/pkg/release"
 	"io"
 	corev1 "k8s.io/api/core/v1"
@@ -37,6 +39,70 @@ const (
 )
 
 type HelmService struct {
+}
+
+func (svc *HelmService) InstallStoreChart(ctx context.Context, requestInfo structs.RequestInfo, model dtos2.HelmStoreInstallRequest) (result dtos2.HelmStoreInstallResult, errorData common.ErrorData) {
+	if errorData.Err = model.Validate(); errorData.IsNotNil() {
+		errorData.MsgCode = config.MsgCodeRequestDataInvalid
+		return
+	}
+	cluster, clientSet, errorData := GetClusterAndUserClientSet(ctx, requestInfo)
+	if errorData.IsNotNil() {
+		return result, errorData
+	}
+	chart, err := helmstore.Default().LoadChart(ctx, model.RepositoryID, model.Chart, model.Version)
+	if err != nil {
+		errorData.Err = err
+		errorData.MsgCode = config.MsgCodeGetRecordFailed
+		return
+	}
+	values := map[string]interface{}{}
+	if strings.TrimSpace(model.Values) != "" {
+		parsed, parseErr := chartutil.ReadValues([]byte(model.Values))
+		if parseErr != nil {
+			errorData.Err = fmt.Errorf("parse Helm values: %w", parseErr)
+			errorData.MsgCode = config.MsgCodeRequestDataInvalid
+			return
+		}
+		values = parsed.AsMap()
+	}
+
+	flags := genericclioptions.NewConfigFlags(false)
+	flags.APIServer = &cluster.ApiServer
+	flags.Namespace = &requestInfo.Namespace
+	flags.WrapConfigFn = func(_ *rest.Config) *rest.Config { return clientSet.Config }
+	actionConfig := new(action.Configuration)
+	if errorData.Err = actionConfig.Init(flags, requestInfo.Namespace, "secrets", config.Logger.Infof); errorData.IsNotNil() {
+		errorData.MsgCode = config.MsgCodeCreateClusterClientSetFailed
+		return
+	}
+	installer := newStoreChartInstaller(actionConfig, model.ReleaseName, requestInfo.Namespace)
+	release, err := installer.Run(chart, values)
+	if err != nil {
+		errorData.Err = fmt.Errorf("install Helm chart: %w", err)
+		errorData.MsgCode = config.MsgCodeCreateRecordFailed
+		return
+	}
+	result = dtos2.HelmStoreInstallResult{
+		Name: model.ReleaseName, Namespace: requestInfo.Namespace, Revision: release.Version,
+		Status: release.Info.Status.String(), Chart: chart.Metadata.Name,
+		ChartVersion: chart.Metadata.Version, AppVersion: chart.Metadata.AppVersion,
+	}
+	return
+}
+
+func newStoreChartInstaller(actionConfig *action.Configuration, releaseName, namespace string) *action.Install {
+	installer := action.NewInstall(actionConfig)
+	installer.ReleaseName = releaseName
+	installer.Namespace = namespace
+	installer.CreateNamespace = false
+	// Allow a name to be reused when an earlier release with that name was
+	// uninstalled but its Helm history is still present.
+	installer.Replace = true
+	installer.Atomic = true
+	installer.Wait = true
+	installer.Timeout = 5 * time.Minute
+	return installer
 }
 
 func (svc *HelmService) GetHelmValues(ctx context.Context, model dtos2.HelmValues) (result dtos2.HelmValues, errorData common.ErrorData) {
@@ -128,9 +194,20 @@ func (svc *HelmService) Uninstall(ctx context.Context, requestInfo structs.Reque
 		config.Logger.Errorf("%s build helm actionConfig failed, err: %s", requestInfo.String(), errorData.Err.Error())
 		return
 	}
-	client := action.NewUninstall(actionConfig)
-	_, _ = client.Run(release)
+	client := newHelmUninstaller(actionConfig)
+	if _, errorData.Err = client.Run(release); errorData.IsNotNil() {
+		errorData.MsgCode = config.MsgCodeDeleteRecordFailed
+		config.Logger.Errorf("%s uninstall Helm release %s failed, err: %s", requestInfo.String(), release, errorData.Err.Error())
+	}
 	return
+}
+
+func newHelmUninstaller(actionConfig *action.Configuration) *action.Uninstall {
+	client := action.NewUninstall(actionConfig)
+	// Removing the release history makes the name immediately reusable. The
+	// install path also enables Replace for clusters retaining older history.
+	client.KeepHistory = false
+	return client
 }
 func (svc *HelmService) ListNamespaceHelmRelease(ctx context.Context, requestInfo structs.RequestInfo) (errorData common.ErrorData) {
 	var (

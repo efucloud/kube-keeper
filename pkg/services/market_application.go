@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"github.com/efucloud/common"
@@ -110,10 +109,7 @@ func (svc *MarketApplicationService) Delete(ctx context.Context, ids []string) c
 }
 
 func (svc *MarketApplicationService) Import(ctx context.Context, model dtos.MarketApplicationExportImport) (result dtos.MarketApplicationDetail, errorData common.ErrorData) {
-	data, _ := json.Marshal(model)
-	var create dtos.MarketApplicationCreate
-	_ = json.Unmarshal(data, &create)
-	return svc.Add(ctx, create)
+	return svc.Add(ctx, marketApplicationCreateFromImport(model))
 }
 
 func (svc *MarketApplicationService) Export(ctx context.Context, id string) (result dtos.MarketApplicationExportImport, errorData common.ErrorData) {
@@ -121,7 +117,37 @@ func (svc *MarketApplicationService) Export(ctx context.Context, id string) (res
 	if errorData.IsNotNil() {
 		return result, errorData
 	}
-	data, _ := json.Marshal(detail)
-	_ = json.Unmarshal(data, &result)
-	return
+	return marketApplicationExportFromDetail(detail), errorData
+}
+
+func marketApplicationCreateFromImport(model dtos.MarketApplicationExportImport) dtos.MarketApplicationCreate {
+	// An imported definition always receives a new database ID so an exported
+	// file can be moved between installations or imported after deletion.
+	return dtos.MarketApplicationCreate{
+		State:       model.State,
+		Name:        model.Name,
+		Description: model.Description,
+		Logo:        model.Logo,
+		Home:        model.Home,
+		Category:    model.Category,
+		Tags:        model.Tags,
+		Templates:   model.Templates,
+		Parameters:  model.Parameters,
+	}
+}
+
+func marketApplicationExportFromDetail(detail dtos.MarketApplicationDetail) dtos.MarketApplicationExportImport {
+	// Database and audit fields are intentionally excluded from the portable
+	// application definition.
+	return dtos.MarketApplicationExportImport{
+		State:       detail.State,
+		Name:        detail.Name,
+		Description: detail.Description,
+		Logo:        detail.Logo,
+		Home:        detail.Home,
+		Category:    detail.Category,
+		Tags:        detail.Tags,
+		Templates:   detail.Templates,
+		Parameters:  detail.Parameters,
+	}
 }

@@ -71,3 +71,51 @@ func TestBuildKubeConfigFromAccountCsrDoesNotDoubleEncodeCredentials(t *testing.
 		t.Fatalf("client key = %q, want raw PEM", got)
 	}
 }
+
+func TestBuildKubeConfigFromAccountCsrUsesCSREmailWhenRequestEmailIsEmpty(t *testing.T) {
+	caPEM := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: []byte("test CA")})
+	certPEM := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: []byte("test client certificate")})
+	keyPEM := pem.EncodeToMemory(&pem.Block{Type: "PRIVATE KEY", Bytes: []byte("test private key")})
+
+	configData, err := buildKubeConfigFromAccountCsr(
+		dtos2.ClusterDetail{
+			Code:                 "local",
+			ApiServer:            "https://kubernetes.example.test",
+			CertificateAuthority: string(caPEM),
+		},
+		dtos2.ClusterAccountDetail{
+			Email:             "csr-user@example.test",
+			ClientCertificate: string(certPEM),
+			ClientKey:         string(keyPEM),
+		},
+		"",
+		"default",
+	)
+	if err != nil {
+		t.Fatalf("buildKubeConfigFromAccountCsr() error = %v", err)
+	}
+
+	config, err := clientcmd.Load(configData)
+	if err != nil {
+		t.Fatalf("clientcmd.Load() error = %v", err)
+	}
+	context := config.Contexts[config.CurrentContext]
+	if context.AuthInfo != "csr-user@example.test" {
+		t.Fatalf("context auth info = %q, want CSR email", context.AuthInfo)
+	}
+	if config.AuthInfos[context.AuthInfo] == nil {
+		t.Fatal("CSR credentials are not referenced by the current context")
+	}
+}
+
+func TestBuildKubeConfigFromAccountCsrRejectsMissingCredentials(t *testing.T) {
+	_, err := buildKubeConfigFromAccountCsr(
+		dtos2.ClusterDetail{Code: "local", ApiServer: "https://kubernetes.example.test"},
+		dtos2.ClusterAccountDetail{Email: "csr-user@example.test"},
+		"",
+		"default",
+	)
+	if err == nil || !strings.Contains(err.Error(), "CSR client certificate and key are required") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}

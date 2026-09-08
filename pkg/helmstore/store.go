@@ -1,8 +1,11 @@
 package helmstore
 
 import (
+	"bytes"
 	"context"
+	"crypto/sha256"
 	"crypto/tls"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
@@ -17,10 +20,15 @@ import (
 	"github.com/efucloud/kube-keeper/pkg/config"
 	"github.com/efucloud/kube-keeper/pkg/models"
 	"github.com/efucloud/kube-keeper/pkg/models/daos"
+	helmchart "helm.sh/helm/v3/pkg/chart"
+	"helm.sh/helm/v3/pkg/chart/loader"
 	helmrepo "helm.sh/helm/v3/pkg/repo"
 )
 
-const maxIndexSize = 64 << 20
+const (
+	maxIndexSize = 64 << 20
+	maxChartSize = 128 << 20
+)
 
 type RepositoryConfig struct {
 	ID                    string
@@ -191,11 +199,7 @@ func (s *Store) sync(ctx context.Context, repository RepositoryConfig) (resultEr
 	if repository.Username != "" || repository.Password != "" {
 		request.SetBasicAuth(repository.Username, repository.Password)
 	}
-	transport := http.DefaultTransport.(*http.Transport).Clone()
-	if repository.InsecureSkipTLSVerify {
-		transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true} //nolint:gosec
-	}
-	response, err := (&http.Client{Transport: transport}).Do(request)
+	response, err := repositoryHTTPClient(repository).Do(request)
 	if err != nil {
 		return fmt.Errorf("sync helm repository %q: %w", repository.Name, err)
 	}
@@ -317,6 +321,90 @@ func (s *Store) GetChart(ctx context.Context, repositoryID, chartName string) (C
 	return detail, nil
 }
 
+func (s *Store) LoadChart(ctx context.Context, repositoryID, chartName, chartVersion string) (*helmchart.Chart, error) {
+	repository, err := s.repository(ctx, repositoryID, true)
+	if err != nil {
+		return nil, err
+	}
+	index, err := helmrepo.LoadIndexFile(s.indexPath(repository))
+	if err != nil {
+		return nil, fmt.Errorf("load helm repository %q cache: %w", repository.Name, err)
+	}
+	versions, exists := index.Entries[chartName]
+	if !exists {
+		return nil, fmt.Errorf("helm chart %q does not exist in repository %q", chartName, repository.Name)
+	}
+	var selected *helmrepo.ChartVersion
+	for _, candidate := range versions {
+		if candidate.Version == chartVersion {
+			selected = candidate
+			break
+		}
+	}
+	if selected == nil || len(selected.URLs) == 0 {
+		return nil, fmt.Errorf("helm chart %q version %q does not exist in repository %q", chartName, chartVersion, repository.Name)
+	}
+	chartURL, err := helmrepo.ResolveReferenceURL(repository.URL, selected.URLs[0])
+	if err != nil {
+		return nil, fmt.Errorf("resolve helm chart package URL: %w", err)
+	}
+	downloadCtx, cancel := context.WithTimeout(ctx, time.Duration(s.config.SyncTimeout)*time.Second)
+	defer cancel()
+	request, err := http.NewRequestWithContext(downloadCtx, http.MethodGet, chartURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("create helm chart package request: %w", err)
+	}
+	if repository.Username != "" || repository.Password != "" {
+		request.SetBasicAuth(repository.Username, repository.Password)
+	}
+	response, err := repositoryHTTPClient(repository).Do(request)
+	if err != nil {
+		return nil, fmt.Errorf("download helm chart %q version %q: %w", chartName, chartVersion, err)
+	}
+	defer response.Body.Close()
+	if response.StatusCode < http.StatusOK || response.StatusCode >= http.StatusMultipleChoices {
+		return nil, fmt.Errorf("download helm chart %q version %q: unexpected HTTP status %s", chartName, chartVersion, response.Status)
+	}
+	archive, err := io.ReadAll(io.LimitReader(response.Body, maxChartSize+1))
+	if err != nil {
+		return nil, fmt.Errorf("read helm chart %q version %q: %w", chartName, chartVersion, err)
+	}
+	if len(archive) > maxChartSize {
+		return nil, fmt.Errorf("helm chart %q version %q exceeds %d bytes", chartName, chartVersion, maxChartSize)
+	}
+	if selected.Digest != "" {
+		digest := sha256.Sum256(archive)
+		actual := hex.EncodeToString(digest[:])
+		expected := strings.TrimPrefix(strings.ToLower(selected.Digest), "sha256:")
+		if actual != expected {
+			return nil, fmt.Errorf("helm chart %q version %q digest mismatch", chartName, chartVersion)
+		}
+	}
+	loaded, err := loader.LoadArchive(bytes.NewReader(archive))
+	if err != nil {
+		return nil, fmt.Errorf("load helm chart %q version %q: %w", chartName, chartVersion, err)
+	}
+	if loaded.Metadata == nil || loaded.Metadata.Name != chartName || loaded.Metadata.Version != chartVersion {
+		return nil, fmt.Errorf("helm chart package metadata does not match %q version %q", chartName, chartVersion)
+	}
+	return loaded, nil
+}
+
+// GetChartValues returns the root chart's original values.yaml. Reading the
+// raw file preserves comments, ordering and formatting for the editor.
+func (s *Store) GetChartValues(ctx context.Context, repositoryID, chartName, chartVersion string) (string, error) {
+	loaded, err := s.LoadChart(ctx, repositoryID, chartName, chartVersion)
+	if err != nil {
+		return "", err
+	}
+	for _, file := range loaded.Raw {
+		if file.Name == "values.yaml" {
+			return string(file.Data), nil
+		}
+	}
+	return "", fmt.Errorf("helm chart %q version %q does not contain values.yaml", chartName, chartVersion)
+}
+
 func (s *Store) repository(ctx context.Context, id string, enabledOnly bool) (RepositoryConfig, error) {
 	repositories, err := s.source(ctx, enabledOnly)
 	if err != nil {
@@ -357,6 +445,14 @@ func repositoryIndexURL(repositoryURL string) (string, error) {
 	parsed.RawQuery = ""
 	parsed.Fragment = ""
 	return parsed.String(), nil
+}
+
+func repositoryHTTPClient(repository RepositoryConfig) *http.Client {
+	transport := http.DefaultTransport.(*http.Transport).Clone()
+	if repository.InsecureSkipTLSVerify {
+		transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true} //nolint:gosec
+	}
+	return &http.Client{Transport: transport}
 }
 
 func toChartVersion(repository RepositoryConfig, chartName string, version *helmrepo.ChartVersion) ChartVersion {

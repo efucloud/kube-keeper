@@ -27,7 +27,6 @@ import (
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"k8s.io/client-go/restmapper"
 	"k8s.io/client-go/tools/clientcmd"
 	clientSetMetrics "k8s.io/metrics/pkg/client/clientset/versioned"
 	"strings"
@@ -45,7 +44,7 @@ type ClusterClientSet struct {
 	DynamicClient    dynamic.Interface
 	ClientSetMetrics *clientSetMetrics.Clientset
 	Config           *rest.Config
-	DiscoveryClient  *discovery.DiscoveryClient
+	DiscoveryClient  discovery.DiscoveryInterface
 }
 
 // CanIUseByGVK checks if the current user can perform 'verb' on a resource identified by apiVersion and kind in the given namespace.
@@ -113,29 +112,46 @@ func (client *ClusterClientSet) CanIUse(ctx context.Context, gvr *schema.GroupVe
 	return response.Status.Allowed
 }
 
-// GetResourceMapping 使用 RESTMapper 将 GVK 转为 GVR
+// GetResourceMapping resolves one GVK without requiring discovery of every API
+// group in the cluster. Full discovery can fail because of an unrelated broken
+// aggregated API and must not prevent built-in resources from being deployed.
 func (client *ClusterClientSet) GetResourceMapping(apiVersion, kind string) (*meta.RESTMapping, error) {
 	gv, err := schema.ParseGroupVersion(apiVersion)
 	if err != nil {
 		return nil, fmt.Errorf("invalid apiVersion %q: %w", apiVersion, err)
 	}
-	groupResources, err := restmapper.GetAPIGroupResources(client.DiscoveryClient)
-	if err != nil {
-		return nil, err
+	if strings.TrimSpace(kind) == "" {
+		return nil, fmt.Errorf("kind is required for apiVersion %q", apiVersion)
 	}
-	mapper := restmapper.NewDiscoveryRESTMapper(groupResources)
-	gvk := gv.WithKind(kind)
-	mapping, err := mapper.RESTMapping(gvk.GroupKind(), gv.Version)
-	if err != nil {
-		// 尝试不指定版本（让 mapper 自动选择 preferred version）
-		if meta.IsNoMatchError(err) {
-			mapping, err = mapper.RESTMapping(gvk.GroupKind())
-		}
-		if err != nil {
-			return nil, fmt.Errorf("unable to find REST mapping for %s: %w", gvk.String(), err)
-		}
+	if client.DiscoveryClient == nil {
+		return nil, fmt.Errorf("Kubernetes discovery client is not initialized")
 	}
-	return mapping, nil
+
+	resourceList, err := client.DiscoveryClient.ServerResourcesForGroupVersion(apiVersion)
+	if err != nil {
+		return nil, fmt.Errorf("unable to discover apiVersion %q: %w", apiVersion, err)
+	}
+	if resourceList == nil {
+		return nil, fmt.Errorf("unable to discover apiVersion %q: server returned no resources", apiVersion)
+	}
+	for _, resource := range resourceList.APIResources {
+		// Subresources such as pods/status are not valid top-level deployment
+		// targets even when they report the same Kind as their parent resource.
+		if resource.Kind != kind || strings.Contains(resource.Name, "/") {
+			continue
+		}
+		scope := meta.RESTScopeRoot
+		if resource.Namespaced {
+			scope = meta.RESTScopeNamespace
+		}
+		return &meta.RESTMapping{
+			Resource:         gv.WithResource(resource.Name),
+			GroupVersionKind: gv.WithKind(kind),
+			Scope:            scope,
+		}, nil
+	}
+
+	return nil, fmt.Errorf("unable to find REST mapping for %s", gv.WithKind(kind).String())
 }
 func (client *ClusterClientSet) GroupVersionResourcePermission(ctx context.Context, gvr *schema.GroupVersionResource, namespace, verb string) bool {
 
@@ -303,6 +319,13 @@ func BuildKubeConfigFromCluster(cluster dtos2.ClusterDetail, user string) ([]byt
 }
 
 func buildKubeConfigFromAccountCsr(cluster dtos2.ClusterDetail, csr dtos2.ClusterAccountDetail, user, namespace string) ([]byte, error) {
+	user = strings.TrimSpace(user)
+	if user == "" {
+		user = strings.TrimSpace(csr.Email)
+	}
+	if user == "" {
+		return nil, fmt.Errorf("CSR user identity is missing")
+	}
 	caBase64, err := encodeKubeConfigPEM(cluster.CertificateAuthority, "certificate authority")
 	if err != nil {
 		return nil, err
@@ -314,6 +337,9 @@ func buildKubeConfigFromAccountCsr(cluster dtos2.ClusterDetail, csr dtos2.Cluste
 	clientKeyBase64, err := encodeKubeConfigPEM(csr.ClientKey, "client key")
 	if err != nil {
 		return nil, err
+	}
+	if clientCertBase64 == "" || clientKeyBase64 == "" {
+		return nil, fmt.Errorf("CSR client certificate and key are required")
 	}
 
 	kc := &KubeConfig{
@@ -451,7 +477,7 @@ func GetClusterAndUserClientSet(ctx context.Context, requestInfo structs.Request
 	errorData.MsgCode = config2.MsgCodeCreateClusterClientSetFailed
 	csrSvc := database2.ClusterAccountService{}
 	var csr dtos2.ClusterAccountDetail
-	csr, errorData = csrSvc.GetClusterAccountInfoByAccountID(ctx, requestInfo.ClusterId, requestInfo.AccountId)
+	csr, errorData = csrSvc.GetClusterAccountCredentialsByAccountID(ctx, requestInfo.ClusterId, requestInfo.AccountId)
 	if errorData.IsNotNil() {
 		config2.Logger.Errorf("%s create cluster clientset failed, err: %s", requestInfo.String(), errorData.Err.Error())
 		return
@@ -471,7 +497,7 @@ func GetClusterAndUserClientSet(ctx context.Context, requestInfo structs.Request
 	if len(namespace) == 0 {
 		namespace = "default"
 	}
-	clientSet, errorData.Err = newUserClientSetForConfigByCluster(cluster, csr, requestInfo.Email, namespace)
+	clientSet, errorData.Err = newUserClientSetForConfigByCluster(cluster, csr, csr.Email, namespace)
 	if errorData.IsNotNil() {
 		config2.Logger.Errorf("%s create cluster clientset failed, err: create clientset failed: %s ", requestInfo.String(), errorData.Err.Error())
 		return

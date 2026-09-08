@@ -38,7 +38,21 @@ func (r HelmResource) AddWebService(ws *restful.WebService) {
 		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
 		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
 		Metadata(config2.FrontApiTag, "getHelmValues"))
-	ws.Route(ws.DELETE(config2.ClusterNamespaceAPIPrefix+apiExtend+"{namespace}/release/{release}").
+	ws.Route(ws.POST(config2.ClusterNamespaceAPIPrefix+"/helm/store/install").
+		Doc("从Helm商店安装Chart").
+		Param(ws.HeaderParameter(config2.AuthHeader, "请求Token")).
+		Param(ws.PathParameter("cluster", "集群编码")).
+		Param(ws.PathParameter("namespace", "Namespace")).
+		Reads(dtos.HelmStoreInstallRequest{}).
+		To(r.installStoreChart).
+		Returns(http.StatusOK, "成功", dtos.HelmStoreInstallResult{}).
+		Returns(http.StatusBadRequest, "请求数据无法处理", common.ResponseError{}).
+		Returns(http.StatusForbidden, "用户没有权限", common.ResponseError{}).
+		Returns(http.StatusInternalServerError, "内部处理逻辑错误", common.ResponseError{}).
+		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
+		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
+		Metadata(config2.FrontApiTag, "installHelmStoreChart"))
+	ws.Route(ws.DELETE(config2.ClusterNamespaceAPIPrefix+apiExtend+"/release/{release}").
 		Doc("卸载helm部署的应用").
 		Notes("卸载helm部署的应用").
 		Param(ws.HeaderParameter(config2.AuthHeader, "请求Token")).
@@ -54,7 +68,7 @@ func (r HelmResource) AddWebService(ws *restful.WebService) {
 		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
 		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
 		Metadata(config2.FrontApiTag, "helmUninstallRelease"))
-	ws.Route(ws.GET(config2.ClusterNamespaceAPIPrefix+apiExtend+"{namespace}/release").
+	ws.Route(ws.GET(config2.ClusterNamespaceAPIPrefix+apiExtend+"/release").
 		Doc("获取Namespace中helm部署的应用").
 		Notes("获取Namespace中helm部署的应用，根据secret来获取，会对同一个应用不同历史去重,返回release信息").
 		Param(ws.HeaderParameter(config2.AuthHeader, "请求Token")).
@@ -69,7 +83,7 @@ func (r HelmResource) AddWebService(ws *restful.WebService) {
 		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
 		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
 		Metadata(config2.FrontApiTag, "helmRelease"))
-	ws.Route(ws.GET(config2.ClusterNamespaceAPIPrefix+apiExtend+"{namespace}/release/history/{release}").
+	ws.Route(ws.GET(config2.ClusterNamespaceAPIPrefix+apiExtend+"/release/history/{release}").
 		Doc("获取Namespace中helm部署的应用部署历史").
 		Notes("获取Namespace中helm部署的应用部署历史").
 		Param(ws.HeaderParameter(config2.AuthHeader, "请求Token")).
@@ -85,6 +99,26 @@ func (r HelmResource) AddWebService(ws *restful.WebService) {
 		Filter(filters2.ClientInfo).Filter(filters2.I18n).Filter(filters2.Log).Filter(filters2.Auth).
 		Metadata(restfulspec.KeyOpenAPITags, apiInfo.Tags()).
 		Metadata(config2.FrontApiTag, "helmInstallHistory"))
+}
+
+func (r HelmResource) installStoreChart(req *restful.Request, resp *restful.Response) {
+	lang := common.GetLanguageFromReq(req, config2.RequestLanguage)
+	ctx := context.WithValue(context.Background(), config2.RequestLanguage, lang)
+	if reqCtx := req.Attribute(config2.RequestContext); reqCtx != nil {
+		ctx = reqCtx.(context.Context)
+	}
+	var model dtos.HelmStoreInstallRequest
+	if err := req.ReadEntity(&model); err != nil {
+		common.ResponseErrorMessage(ctx, req, resp, config2.Bundle, common.ErrorData{Err: err, Lang: lang, MsgCode: config2.MsgCodeRequestDataInvalid})
+		return
+	}
+	result, errorData := r.Svc.InstallStoreChart(ctx, k8scluster2.GetRequestInfo(req), model)
+	if errorData.IsNotNil() {
+		errorData.Lang = lang
+		common.ResponseErrorMessage(ctx, req, resp, config2.Bundle, errorData)
+		return
+	}
+	common.ResponseSuccess(resp, result)
 }
 
 func (r HelmResource) getValues(req *restful.Request, resp *restful.Response) {
