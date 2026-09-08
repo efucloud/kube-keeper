@@ -99,8 +99,12 @@ func newStoreChartInstaller(actionConfig *action.Configuration, releaseName, nam
 	// Allow a name to be reused when an earlier release with that name was
 	// uninstalled but its Helm history is still present.
 	installer.Replace = true
-	installer.Atomic = true
-	installer.Wait = true
+	// Return after Helm has submitted every rendered resource to Kubernetes.
+	// Readiness (for example image pulls and Pod startup) is observed later and
+	// must not keep the install request open or trigger an automatic rollback.
+	installer.Atomic = false
+	installer.Wait = false
+	installer.WaitForJobs = false
 	installer.Timeout = 5 * time.Minute
 	return installer
 }

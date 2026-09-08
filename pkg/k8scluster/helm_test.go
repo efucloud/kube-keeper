@@ -12,8 +12,20 @@ func TestStoreChartInstallerAllowsReusingDeletedReleaseName(t *testing.T) {
 	if !installer.Replace {
 		t.Fatal("Replace is false, deleted Helm release names cannot be reused")
 	}
-	if !installer.Atomic || !installer.Wait || installer.Timeout != 5*time.Minute {
-		t.Fatalf("unexpected safe install options: atomic=%v wait=%v timeout=%s", installer.Atomic, installer.Wait, installer.Timeout)
+	if installer.Timeout != 5*time.Minute {
+		t.Fatalf("installer timeout = %s, want 5m", installer.Timeout)
+	}
+}
+
+func TestStoreChartInstallerDoesNotWaitForResourceReadiness(t *testing.T) {
+	installer := newStoreChartInstaller(&action.Configuration{}, "demo", "default")
+	if installer.Atomic || installer.Wait || installer.WaitForJobs {
+		t.Fatalf(
+			"installer waits for readiness: atomic=%v wait=%v waitForJobs=%v",
+			installer.Atomic,
+			installer.Wait,
+			installer.WaitForJobs,
+		)
 	}
 }
 
