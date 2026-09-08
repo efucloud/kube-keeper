@@ -87,6 +87,7 @@ func (e *ADKAgentEngine) run(ctx context.Context, req ChatRequest, ch chan<- Str
 		"model":     provider.Model,
 		"toolCount": len(tools),
 		"engine":    "adk",
+		"skillId":   req.SkillId,
 	})
 	emitMessageStart(ctx, ch, req, messageID, "assistant")
 

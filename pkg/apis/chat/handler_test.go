@@ -76,6 +76,7 @@ func TestAIChatWebSocketStreamsEvents(t *testing.T) {
 	if err := conn.WriteJSON(dtos.ChatHTTPPayload{
 		Message:   "list pods",
 		RequestId: "request-1",
+		SkillId:   "k8s-cluster-inspect",
 	}); err != nil {
 		t.Fatalf("write request: %v", err)
 	}
@@ -92,6 +93,9 @@ func TestAIChatWebSocketStreamsEvents(t *testing.T) {
 	case request := <-engine.requests:
 		if request.Question != "list pods" {
 			t.Fatalf("unexpected question: %q", request.Question)
+		}
+		if request.SkillId != "k8s-cluster-inspect" {
+			t.Fatalf("unexpected skill id: %q", request.SkillId)
 		}
 		if request.Context.Cluster != "cluster-a" || request.Context.Namespace != "default" {
 			t.Fatalf("unexpected context: %#v", request.Context)

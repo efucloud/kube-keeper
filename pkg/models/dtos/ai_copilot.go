@@ -3,6 +3,7 @@ package dtos
 // ChatHTTPPayload HTTP 入参
 type ChatHTTPPayload struct {
 	Mode       string `json:"mode" description:"对话模式 agent"`
+	SkillId    string `json:"skillId" description:"前端明确选择的技能 ID"`
 	Message    string `json:"message" description:"问题"`
 	RequestId  string `json:"requestId" description:"请求ID"`
 	SessionId  string `json:"sessionId" description:"对话session id"`
@@ -40,6 +41,7 @@ type StreamEvent struct {
 // ChatRequest 对话请求
 type ChatRequest struct {
 	Mode       string `json:"mode" description:"对话模式 agent"`
+	SkillId    string `json:"skillId,omitempty" description:"前端明确选择的技能 ID"`
 	Cluster    string `json:"cluster,omitempty" description:"集群编码"`
 	Namespace  string `json:"namespace,omitempty" description:"命名空间"`
 	Message    string `json:"message" description:"问题"`

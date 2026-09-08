@@ -27,6 +27,7 @@ type StreamEvent = dtos.StreamEvent
 // ChatRequest 内部统一请求模型
 type ChatRequest struct {
 	Mode           Mode
+	SkillId        string
 	Question       string
 	SessionId      string
 	RequestId      string
@@ -58,6 +59,7 @@ type visibleSession struct {
 
 type chatPromptData struct {
 	Lang            string
+	SkillId         string
 	NowRFC3339      string
 	NowWithTimezone string
 	Cluster         string
@@ -141,6 +143,7 @@ func buildFallbackSystemPrompt(req ChatRequest) string {
 func buildAgentSystemPrompt(req ChatRequest) string {
 	systemData := chatPromptData{
 		Lang:            req.Context.Language,
+		SkillId:         req.SkillId,
 		NowRFC3339:      time.Now().UTC().Format(time.RFC3339),
 		NowWithTimezone: currentPromptTimeWithTimezone(),
 		Cluster:         req.Context.Cluster,

@@ -205,6 +205,7 @@ func buildDomainRequest(req *restful.Request, payload *dtos.ChatHTTPPayload) Cha
 
 	return ChatRequest{
 		Mode:      ParseMode(payload.Mode),
+		SkillId:   payload.SkillId,
 		Question:  payload.Message,
 		SessionId: payload.SessionId,
 		RequestId: payload.RequestId,
