@@ -14,13 +14,15 @@ func TestApplicationRenderParamsRejectsNonStringValue(t *testing.T) {
 	}
 }
 
-func TestParameterDefinitionJSONDoesNotContainType(t *testing.T) {
+func TestParameterDefinitionJSONDoesNotContainRemovedFields(t *testing.T) {
 	content, err := json.Marshal(ParameterDefinition{Name: "image"})
 	if err != nil {
 		t.Fatalf("json.Marshal() error = %v", err)
 	}
-	if strings.Contains(string(content), `"type":`) {
-		t.Fatalf("unexpected parameter type field: %s", content)
+	for _, field := range []string{`"type":`, `"required":`, `"allowableValues":`} {
+		if strings.Contains(string(content), field) {
+			t.Fatalf("unexpected parameter field %s: %s", field, content)
+		}
 	}
 }
 
@@ -42,16 +44,6 @@ func TestMarketApplicationValidateRejectsInvalidParameterDefinition(t *testing.T
 			name:        "invalid name",
 			parameter:   ParameterDefinition{Name: "bad name"},
 			wantErrPart: "name",
-		},
-		{
-			name:        "invalid allowable values",
-			parameter:   ParameterDefinition{Name: "value", AllowableValues: "one"},
-			wantErrPart: "allowableValues",
-		},
-		{
-			name:        "non-string allowable value",
-			parameter:   ParameterDefinition{Name: "value", AllowableValues: []interface{}{"one", 2}},
-			wantErrPart: "strings",
 		},
 	}
 	for _, test := range tests {

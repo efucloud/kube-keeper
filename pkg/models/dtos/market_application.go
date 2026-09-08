@@ -2,7 +2,6 @@ package dtos
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"regexp"
@@ -172,25 +171,6 @@ func validateParameterDefinitions(validate *validator.Validate, parameters Param
 			return fmt.Errorf("parameter name %q is duplicated", parameter.Name)
 		}
 		names[parameter.Name] = struct{}{}
-		if parameter.AllowableValues == nil {
-			continue
-		}
-		encoded, err := json.Marshal(parameter.AllowableValues)
-		if err != nil {
-			return fmt.Errorf("parameter %q allowableValues is invalid: %w", parameter.Name, err)
-		}
-		var choices []interface{}
-		if err = json.Unmarshal(encoded, &choices); err != nil {
-			return fmt.Errorf("parameter %q allowableValues must be an array", parameter.Name)
-		}
-		for _, choice := range choices {
-			if option, ok := choice.(map[string]interface{}); ok {
-				choice = option["value"]
-			}
-			if _, ok := choice.(string); !ok {
-				return fmt.Errorf("parameter %q allowableValues must contain strings", parameter.Name)
-			}
-		}
 	}
 	return nil
 }

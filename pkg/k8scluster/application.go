@@ -3,7 +3,6 @@ package k8scluster
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"strings"
 	"text/template"
@@ -311,37 +310,11 @@ func prepareApplicationParams(definitions dtos.ParameterDefinitions, supplied dt
 
 	for _, definition := range definitions {
 		value, exists := params[definition.Name]
-		if definition.Required && (!exists || strings.TrimSpace(value) == "") {
+		if !exists || strings.TrimSpace(value) == "" {
 			return nil, fmt.Errorf("required application parameter %s is missing", definition.Name)
-		}
-		if exists && !applicationParameterAllowed(value, definition.AllowableValues) {
-			return nil, fmt.Errorf("application parameter %s is not an allowable value", definition.Name)
 		}
 	}
 	return params, nil
-}
-
-func applicationParameterAllowed(value string, allowed interface{}) bool {
-	if allowed == nil {
-		return true
-	}
-	encoded, err := json.Marshal(allowed)
-	if err != nil {
-		return true
-	}
-	var choices []interface{}
-	if json.Unmarshal(encoded, &choices) != nil || len(choices) == 0 {
-		return true
-	}
-	for _, choice := range choices {
-		if object, ok := choice.(map[string]interface{}); ok {
-			choice = object["value"]
-		}
-		if fmt.Sprint(choice) == value {
-			return true
-		}
-	}
-	return false
 }
 
 func applyApplicationResource(ctx context.Context, client *ClusterClientSet, namespace string, resource *dtos.ApplicationKubernetesResource, dryRun bool) {

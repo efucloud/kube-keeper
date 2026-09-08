@@ -31,8 +31,8 @@ func TestRenderApplicationTemplateFunctions(t *testing.T) {
 
 func TestPrepareApplicationParams(t *testing.T) {
 	definitions := dtos.ParameterDefinitions{
-		{Name: "image", Required: true},
-		{Name: "tier", AllowableValues: []interface{}{"web", map[string]interface{}{"name": "Worker", "value": "worker"}}},
+		{Name: "image"},
+		{Name: "tier"},
 	}
 	params, err := prepareApplicationParams(definitions, dtos.ApplicationRenderParams{
 		"image": "nginx:latest",
@@ -50,11 +50,8 @@ func TestPrepareApplicationParams(t *testing.T) {
 	}
 }
 
-func TestPrepareApplicationParamsRejectsInvalidValues(t *testing.T) {
-	definitions := dtos.ParameterDefinitions{{Name: "tier", Required: true, AllowableValues: []string{"web", "worker"}}}
-	if _, err := prepareApplicationParams(definitions, dtos.ApplicationRenderParams{"tier": "database"}, "demo", "default"); err == nil {
-		t.Fatal("prepareApplicationParams() expected an allowable-value error")
-	}
+func TestPrepareApplicationParamsRequiresEveryParameter(t *testing.T) {
+	definitions := dtos.ParameterDefinitions{{Name: "tier"}}
 	if _, err := prepareApplicationParams(definitions, nil, "demo", "default"); err == nil {
 		t.Fatal("prepareApplicationParams() expected a required-value error")
 	}
