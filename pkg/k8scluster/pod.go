@@ -505,7 +505,6 @@ func (svc *PodService) PodContainerLog(req *restful.Request, resp *restful.Respo
 func (svc *PodService) PodTerminal(req *restful.Request, resp *restful.Response) {
 	var (
 		errorData   common.ErrorData
-		audit       dtos2.TerminalAuditLogDetail
 		pty         *TerminalSession
 		clientSet   *ClusterClientSet
 		requestInfo structs2.RequestInfo
@@ -518,13 +517,10 @@ func (svc *PodService) PodTerminal(req *restful.Request, resp *restful.Response)
 		ctx = reqCtx.(context.Context)
 	}
 	requestInfo = GetRequestInfo(req)
+	podName := req.PathParameter("pod")
+	containerName := req.PathParameter("container")
 
-	audit.Namespace = req.PathParameter("namespace")
-	audit.PodName = req.PathParameter("pod")
-	audit.Container = req.PathParameter("container")
-	audit.AccountId = requestInfo.AccountId
-	audit.AccountName = requestInfo.Username
-	pty, errorData.Err = NewTerminalSession(resp.ResponseWriter, req.Request, nil, audit)
+	pty, errorData.Err = NewTerminalSession(resp.ResponseWriter, req.Request, nil)
 	if errorData.IsNotNil() {
 		config2.Logger.Errorf("get pty failed: %v\n", errorData.Err.Error())
 		common.ResponseErrorMessage(ctx, req, resp, config2.Bundle, errorData)
@@ -553,9 +549,9 @@ func (svc *PodService) PodTerminal(req *restful.Request, resp *restful.Response)
 		pty.WriteString("can't build user cluster client set")
 		return
 	}
-	pod, err := clientSet.K8sClientSet.CoreV1().Pods(requestInfo.Namespace).Get(ctx, audit.PodName, metav1.GetOptions{})
+	pod, err := clientSet.K8sClientSet.CoreV1().Pods(requestInfo.Namespace).Get(ctx, podName, metav1.GetOptions{})
 	if err != nil {
-		msg := fmt.Sprintf("pod terminal failed, can't get namespace: %s pod: %s, err: %v\n", requestInfo.Namespace, audit.PodName, err)
+		msg := fmt.Sprintf("pod terminal failed, can't get namespace: %s pod: %s, err: %v\n", requestInfo.Namespace, podName, err)
 		pty.Write([]byte(msg))
 		return
 	}
@@ -567,8 +563,8 @@ func (svc *PodService) PodTerminal(req *restful.Request, resp *restful.Response)
 	}
 	var podContainer string
 	for _, c := range pod.Spec.Containers {
-		if audit.Container == c.Name {
-			podContainer = audit.Container
+		if containerName == c.Name {
+			podContainer = containerName
 		}
 	}
 
@@ -591,7 +587,6 @@ func (svc *PodService) PodTerminal(req *restful.Request, resp *restful.Response)
 	if len(podContainer) == 0 {
 		podContainer = pod.Spec.Containers[0].Name
 	}
-	pty.UpdateContainer(podContainer)
 	var commands []string
 	if len(req.QueryParameter("command")) != 0 {
 		commands = append(commands, req.QueryParameter("command"))
@@ -600,8 +595,8 @@ func (svc *PodService) PodTerminal(req *restful.Request, resp *restful.Response)
 	}
 	request := clientSet.K8sClientSet.CoreV1().RESTClient().Post().
 		Resource("pods").
-		Name(audit.PodName).
-		Namespace(audit.Namespace)
+		Name(podName).
+		Namespace(requestInfo.Namespace)
 	request = request.SubResource("exec")
 	request.VersionedParams(&corev1.PodExecOptions{
 		Container: podContainer,

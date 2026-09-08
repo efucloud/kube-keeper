@@ -46,7 +46,6 @@ func GetWebServices(container *restful.Container) *restful.WebService {
 	cluster.ClusterNamespaceResource{Svc: k8scluster2.NamespaceService{}}.AddWebService(ws)
 	cluster.PodResource{Svc: k8scluster2.PodService{}}.AddWebService(ws)
 	cluster.TerminalResource{Svc: k8scluster2.PodService{}}.AddWebService(ws)
-	cluster.TerminalAuditLogResource{Svc: services2.TerminalAuditLogService{}}.AddWebService(ws)
 	resource := chat2.AiChatResource{Router: chat2.NewRouter()}
 	resource.AddWebService(ws)
 	return ws
