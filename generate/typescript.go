@@ -641,7 +641,7 @@ export interface WatchEvent<T extends KubernetesResource = KubernetesResource> {
 			}
 			typeParams = fmt.Sprintf("<%s>", strings.Join(definitions, ", "))
 		}
-		content += fmt.Sprintf("export type %s%s = { \n", item.Name, typeParams)
+		content += fmt.Sprintf("export type %s%s = {\n", item.Name, typeParams)
 		merged := ""
 		for _, field := range item.Fields {
 			if field.Inline {
@@ -665,7 +665,7 @@ export interface WatchEvent<T extends KubernetesResource = KubernetesResource> {
 			content += fieldContent
 			needImports = appendUniqueStrings(needImports, imports...)
 		}
-		content += fmt.Sprintf("}%s; \n", merged)
+		content += fmt.Sprintf("}%s;\n", merged)
 	}
 	return content, entries, needImports
 }
