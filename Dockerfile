@@ -6,8 +6,8 @@ ARG GIT_COMMIT=unknown
 ARG BUILD_DATE=unknown
 
 WORKDIR /workspace
-
-RUN apk add --no-cache ca-certificates tzdata
+#国内代理
+ENV GOPROXY=https://goproxy.cn,direct
 
 COPY go.mod go.sum ./
 RUN go mod download

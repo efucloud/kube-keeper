@@ -6,7 +6,6 @@ vendor
 build
 /build.sh
 /Dockerfile.local
-/Makefile
 /docs
 test
 **/public.pem
